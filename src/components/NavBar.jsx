@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import ProfFoundLogo from './ProfFoundLogo'
 
 export default function NavBar() {
   const location = useLocation()
@@ -41,9 +42,9 @@ export default function NavBar() {
     <nav className="sticky top-0 z-30 w-full" style={{ backgroundColor: '#A51C30' }}>
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
 
-        {/* Left: crest + wordmark */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <HBSCrest />
+        {/* Left: logo mark + wordmark */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <ProfFoundLogo size={30} color="#ffffff" showNodes={false} />
           <div className="flex flex-col leading-tight">
             <span className="text-white font-bold text-base tracking-tight">ProfFound</span>
             <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">
@@ -75,21 +76,5 @@ export default function NavBar() {
 
       </div>
     </nav>
-  )
-}
-
-function HBSCrest() {
-  return (
-    <svg width="28" height="32" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Shield outline */}
-      <path
-        d="M14 1L2 5.5V17C2 23.5 7.5 29.5 14 31C20.5 29.5 26 23.5 26 17V5.5L14 1Z"
-        fill="white" fillOpacity="0.15" stroke="white" strokeOpacity="0.6" strokeWidth="1.2"
-      />
-      {/* Horizontal bar */}
-      <line x1="5" y1="15" x2="23" y2="15" stroke="white" strokeOpacity="0.7" strokeWidth="1.2" />
-      {/* Vertical bar */}
-      <line x1="14" y1="6" x2="14" y2="27" stroke="white" strokeOpacity="0.7" strokeWidth="1.2" />
-    </svg>
   )
 }

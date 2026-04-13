@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import ProfFoundLogo from '../components/ProfFoundLogo'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -131,6 +132,22 @@ export default function Landing() {
       {/* Content */}
       <div className="relative z-10 max-w-xl w-full text-center px-6 space-y-7">
         <div className="space-y-4">
+
+          {/* Logo mark */}
+          <div className="flex justify-center mb-2">
+            <div className="relative">
+              {/* Soft radial glow behind the mark */}
+              <div
+                className="absolute inset-0 rounded-full blur-2xl"
+                style={{
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)',
+                  transform: 'scale(2.2)',
+                }}
+              />
+              <ProfFoundLogo size={88} color="#ffffff" showNodes={true} />
+            </div>
+          </div>
+
           <h1 className="text-7xl font-bold tracking-tight text-white drop-shadow-lg">
             ProfFound
           </h1>
