@@ -45,101 +45,85 @@ export default function Landing() {
         }}
       />
 
-      {/* Baker Library silhouette
-          Key proportions: very tall Georgian tower (4–5× wing height),
-          long symmetrical wings, slight step-up to central block, no Greek pediment */}
+      {/* Baker Library silhouette */}
       <div className="absolute bottom-0 left-0 right-0 w-full">
         <svg
-          viewBox="0 0 1440 340"
+          viewBox="0 0 1440 360"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="xMidYMax slice"
           className="w-full"
           aria-hidden="true"
         >
-          {/* ── Main building masses ─────────────────────────── */}
-          <g fill="#1c0307" opacity="0.92">
-            {/* Far left end section */}
-            <rect x="0"    y="262" width="160" height="78" />
-            {/* Left wing */}
-            <rect x="160"  y="252" width="300" height="88" />
-            {/* Left pavilion (slight step-up at junction) */}
-            <rect x="460"  y="238" width="110" height="102" />
+          {/* ── Main building masses ── */}
+          <g fill="#1c0307" opacity="0.93">
+            {/* Far left end */}
+            <rect x="0"    y="282" width="178" height="78" />
+            {/* Left main wing */}
+            <rect x="178"  y="265" width="312" height="95" />
+            {/* Left pavilion (stepped up) */}
+            <rect x="490"  y="248" width="82"  height="112" />
             {/* Central block */}
-            <rect x="570"  y="220" width="300" height="120" />
+            <rect x="572"  y="218" width="296" height="142" />
             {/* Right pavilion */}
-            <rect x="870"  y="238" width="110" height="102" />
-            {/* Right wing */}
-            <rect x="980"  y="252" width="300" height="88" />
-            {/* Far right end section */}
-            <rect x="1280" y="262" width="160" height="78" />
+            <rect x="868"  y="248" width="82"  height="112" />
+            {/* Right main wing */}
+            <rect x="950"  y="265" width="312" height="95" />
+            {/* Far right end */}
+            <rect x="1262" y="282" width="178" height="78" />
           </g>
 
-          {/* ── Tower (the dominant feature of Baker Library) ── */}
-          {/* Rising from center of the building, extremely tall */}
-          <g fill="#1c0307" opacity="0.95">
-            {/* Wide plinth where tower meets central roof */}
-            <rect x="696" y="184" width="48" height="36" />
-            {/* Main tower shaft */}
-            <rect x="701" y="116" width="38" height="70" />
-            {/* Belfry section — slightly wider to suggest louvered openings */}
-            <rect x="699" y="84"  width="42" height="34" />
-            {/* Octagonal lantern */}
-            <rect x="704" y="60"  width="32" height="26" />
-            {/* Spire finial cap */}
-            <rect x="710" y="44"  width="20" height="18" />
+          {/* ── Pediment — triangular gable crowning the central portico ── */}
+          <polygon points="614,218 826,218 720,192" fill="#1c0307" opacity="0.93" />
+
+          {/* ── Tower ── */}
+          <g fill="#1c0307" opacity="0.96">
+            {/* Square base shaft rising from central block roof */}
+            <rect x="699" y="165" width="42" height="54" />
+            {/* Belfry drum */}
+            <rect x="701" y="128" width="38" height="38" />
+            {/* Dome — bezier curves for the outward-convex cupola profile */}
+            <path d="M 701,128 C 694,115 697,102 720,93 C 743,102 746,115 739,128 Z" />
+            {/* Lantern */}
+            <rect x="714" y="76" width="12" height="18" />
             {/* Spire */}
-            <polygon points="720,4 708,46 732,46" />
+            <polygon points="720,42 713,76 727,76" />
           </g>
 
-          {/* ── Belfry openings (louvered arches on all 4 faces) ── */}
-          {/* Slightly lighter to suggest open arched vents */}
-          <g fill="#340610" opacity="0.9">
-            <rect x="703" y="88"  width="8"  height="14" rx="4" />
-            <rect x="714" y="88"  width="8"  height="14" rx="4" />
-            <rect x="725" y="88"  width="8"  height="14" rx="4" />
+          {/* ── Belfry arched openings ── */}
+          <g fill="#340610" opacity="0.85">
+            <rect x="705" y="133" width="7" height="12" rx="3.5" />
+            <rect x="716" y="133" width="7" height="12" rx="3.5" />
+            <rect x="727" y="133" width="7" height="12" rx="3.5" />
           </g>
 
-          {/* ── Window details on wings ─────────────────────── */}
-          {/* Tall narrow windows suggesting Georgian fenestration */}
-          <g fill="#340610" opacity="0.7">
-            {/* Left wing windows */}
-            <rect x="185"  y="263" width="6" height="16" rx="3" />
-            <rect x="213"  y="263" width="6" height="16" rx="3" />
-            <rect x="241"  y="263" width="6" height="16" rx="3" />
-            <rect x="269"  y="263" width="6" height="16" rx="3" />
-            <rect x="297"  y="263" width="6" height="16" rx="3" />
-            <rect x="325"  y="263" width="6" height="16" rx="3" />
-            <rect x="353"  y="263" width="6" height="16" rx="3" />
-            <rect x="381"  y="263" width="6" height="16" rx="3" />
-            <rect x="409"  y="263" width="6" height="16" rx="3" />
-            {/* Right wing windows */}
-            <rect x="1005" y="263" width="6" height="16" rx="3" />
-            <rect x="1033" y="263" width="6" height="16" rx="3" />
-            <rect x="1061" y="263" width="6" height="16" rx="3" />
-            <rect x="1089" y="263" width="6" height="16" rx="3" />
-            <rect x="1117" y="263" width="6" height="16" rx="3" />
-            <rect x="1145" y="263" width="6" height="16" rx="3" />
-            <rect x="1173" y="263" width="6" height="16" rx="3" />
-            <rect x="1201" y="263" width="6" height="16" rx="3" />
-            <rect x="1229" y="263" width="6" height="16" rx="3" />
-            {/* Central block upper windows */}
-            <rect x="590"  y="232" width="7" height="18" rx="3" />
-            <rect x="618"  y="232" width="7" height="18" rx="3" />
-            <rect x="646"  y="232" width="7" height="18" rx="3" />
-            <rect x="760"  y="232" width="7" height="18" rx="3" />
-            <rect x="788"  y="232" width="7" height="18" rx="3" />
-            <rect x="816"  y="232" width="7" height="18" rx="3" />
+          {/* ── Window fenestration ── */}
+          <g fill="#340610" opacity="0.65">
+            {/* Left wing */}
+            {[200,228,256,284,312,340,368,396,424,452].map(x => (
+              <rect key={x} x={x} y="275" width="6" height="15" rx="3" />
+            ))}
+            {/* Right wing */}
+            {[968,996,1024,1052,1080,1108,1136,1164,1192,1220].map(x => (
+              <rect key={x} x={x} y="275" width="6" height="15" rx="3" />
+            ))}
+            {/* Central block — tall arched windows flanking the portico */}
+            <rect x="590" y="232" width="8" height="22" rx="4" />
+            <rect x="618" y="232" width="8" height="22" rx="4" />
+            <rect x="814" y="232" width="8" height="22" rx="4" />
+            <rect x="842" y="232" width="8" height="22" rx="4" />
+            {/* Central arched entry */}
+            <rect x="706" y="238" width="28" height="30" rx="14" />
           </g>
 
-          {/* ── Roofline accent strokes ──────────────────────── */}
-          <g stroke="#5c1020" strokeWidth="0.8" fill="none" opacity="0.45">
-            <line x1="0"    y1="262" x2="160"  y2="262" />
-            <line x1="160"  y1="252" x2="460"  y2="252" />
-            <line x1="460"  y1="238" x2="570"  y2="238" />
-            <line x1="570"  y1="220" x2="870"  y2="220" />
-            <line x1="870"  y1="238" x2="980"  y2="238" />
-            <line x1="980"  y1="252" x2="1280" y2="252" />
-            <line x1="1280" y1="262" x2="1440" y2="262" />
+          {/* ── Roofline accent strokes ── */}
+          <g stroke="#5c1020" strokeWidth="0.8" fill="none" opacity="0.4">
+            <line x1="0"    y1="282" x2="178"  y2="282" />
+            <line x1="178"  y1="265" x2="490"  y2="265" />
+            <line x1="490"  y1="248" x2="572"  y2="248" />
+            <line x1="572"  y1="218" x2="868"  y2="218" />
+            <line x1="868"  y1="248" x2="950"  y2="248" />
+            <line x1="950"  y1="265" x2="1262" y2="265" />
+            <line x1="1262" y1="282" x2="1440" y2="282" />
           </g>
         </svg>
       </div>
