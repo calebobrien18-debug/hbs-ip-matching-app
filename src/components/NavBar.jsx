@@ -44,7 +44,7 @@ export default function NavBar() {
 
         {/* Left: logo mark + wordmark */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
-          <ProfFoundLogo size={30} color="#ffffff" showNodes={false} />
+          <ProfFoundLogo size={30} color="#ffffff" />
           <div className="flex flex-col leading-tight">
             <span className="text-white font-bold text-base tracking-tight">ProfFound</span>
             <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">

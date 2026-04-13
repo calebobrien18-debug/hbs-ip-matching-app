@@ -1,18 +1,14 @@
 /**
- * ProfFound logomark.
+ * ProfFound logomark — detective magnifying glass.
  *
- * Concept:
- *  - Open book at base          → learning, academia
- *  - Two arcs rising & converging → two paths (student + professor) connecting
- *  - 4-pointed star at apex     → aspiration, the "Found" moment of discovery
- *  - Nodes along arcs (detail)  → network, connection points
+ * Fedora hat (top) + magnifying glass (body) + angled handle.
+ * Hat = academic character; magnifying glass = the "finding" moment.
  *
  * Props:
- *   size       — height in px (width scales proportionally from the 40×48 viewBox)
- *   color      — fill / stroke color (default white)
- *   showNodes  — render midpoint connection dots; recommended for size ≥ 48
+ *   size   — height in px (width scales from 40×48 viewBox)
+ *   color  — fill / stroke color (default white)
  */
-export default function ProfFoundLogo({ size = 40, color = '#ffffff', showNodes = false }) {
+export default function ProfFoundLogo({ size = 40, color = '#ffffff' }) {
   const width = size * (40 / 48)
 
   return (
@@ -24,56 +20,42 @@ export default function ProfFoundLogo({ size = 40, color = '#ffffff', showNodes 
       xmlns="http://www.w3.org/2000/svg"
       aria-label="ProfFound"
     >
-      {/* ── Open book ─────────────────────────────────── */}
-      {/* Left page */}
+      {/* ── Fedora hat ──────────────────────────────────── */}
+
+      {/* Crown — smooth dome */}
       <path
-        d="M3 46 L3 34 Q3 32 7 32 L20 32 L20 46 Z"
+        d="M9 16 Q9 3 20 2 Q31 3 31 16 Z"
         fill={color}
-        fillOpacity="0.88"
       />
-      {/* Right page */}
+
+      {/* Brim — wide, slight downward curve at edges */}
       <path
-        d="M20 32 L33 32 Q37 32 37 34 L37 46 Z"
+        d="M3 15 L37 15 L37 18.5 Q20 22 3 18.5 Z"
         fill={color}
-        fillOpacity="0.88"
       />
-      {/* Spine crease */}
+
+      {/* Hat band — a subtle darker crease at the crown base */}
+      <path
+        d="M9 15.5 Q20 13.5 31 15.5"
+        stroke={color} strokeWidth="1.4" strokeOpacity="0.4" fill="none"
+      />
+
+      {/* ── Magnifying glass ────────────────────────────── */}
+
+      {/* Lens glass tint */}
+      <circle cx="20" cy="36" r="10" fill={color} fillOpacity="0.12" />
+
+      {/* Lens ring */}
+      <circle cx="20" cy="36" r="10" stroke={color} strokeWidth="2.8" fill="none" />
+
+      {/* Glint — small highlight spot suggesting glass */}
+      <circle cx="15.5" cy="31.5" r="1.6" fill={color} fillOpacity="0.35" />
+
+      {/* Handle — thick, angled, rounded cap */}
       <line
-        x1="20" y1="32" x2="20" y2="46"
-        stroke={color} strokeOpacity="0.3" strokeWidth="0.75"
-      />
-
-      {/* ── Rising arcs (cubic bézier) ────────────────── */}
-      {/* Left: starts at left shoulder of book, bows outward, curves in to star */}
-      <path
-        d="M7 32 C0 22 8 9 20 5"
-        stroke={color} strokeWidth="2.2" strokeLinecap="round" fill="none"
-        strokeOpacity="0.92"
-      />
-      {/* Right: mirror */}
-      <path
-        d="M33 32 C40 22 32 9 20 5"
-        stroke={color} strokeWidth="2.2" strokeLinecap="round" fill="none"
-        strokeOpacity="0.92"
-      />
-
-      {/* ── Connection nodes (shown at larger sizes) ──── */}
-      {showNodes && (
-        <>
-          {/* Computed from cubic bézier at t≈0.35 and t≈0.65 */}
-          <circle cx="5"  cy="21" r="2"   fill={color} fillOpacity="0.65" />
-          <circle cx="9"  cy="12" r="1.6" fill={color} fillOpacity="0.55" />
-          <circle cx="35" cy="21" r="2"   fill={color} fillOpacity="0.65" />
-          <circle cx="31" cy="12" r="1.6" fill={color} fillOpacity="0.55" />
-        </>
-      )}
-
-      {/* ── 4-pointed star at apex ────────────────────── */}
-      {/*  outer points: top(20,1.5) right(23.5,5) bottom(20,8.5) left(16.5,5)
-           inner points: (21.5,3.5) (21.5,6.5) (18.5,6.5) (18.5,3.5)          */}
-      <path
-        d="M20 1.5 L21.5 3.5 L23.5 5 L21.5 6.5 L20 8.5 L18.5 6.5 L16.5 5 L18.5 3.5 Z"
-        fill={color}
+        x1="27.5" y1="43.5"
+        x2="37.5" y2="47"
+        stroke={color} strokeWidth="3.4" strokeLinecap="round"
       />
     </svg>
   )

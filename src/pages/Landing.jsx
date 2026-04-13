@@ -144,7 +144,7 @@ export default function Landing() {
                   transform: 'scale(2.2)',
                 }}
               />
-              <ProfFoundLogo size={88} color="#ffffff" showNodes={true} />
+              <ProfFoundLogo size={88} color="#ffffff" />
             </div>
           </div>
 
