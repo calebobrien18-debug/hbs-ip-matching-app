@@ -176,8 +176,8 @@ def _scrape_bio(soup) -> str | None:
                 text = " ".join(p.get_text(separator=" ", strip=True) for p in paras)
             else:
                 text = el.get_text(separator=" ", strip=True)
-            # Bio should be substantial — at least 80 chars
-            if text and len(text) >= 80:
+            # Bio should be substantial — at least 80 chars, and not page chrome
+            if text and len(text) >= 80 and not _is_nav_content(text):
                 return _clean_bio(text)
 
     # Fallback: look for the largest <p>-containing div that isn't in a pub section
@@ -192,11 +192,30 @@ def _scrape_bio(soup) -> str | None:
         if text[:50] in pub_texts:
             continue
         if 200 <= len(text) <= 3000:
-            # Check it has sentence-like content (ends with punctuation)
-            if re.search(r"[.!?]\s", text):
+            # Must have sentence-like content AND must not be page chrome
+            if re.search(r"[.!?]\s", text) and not _is_nav_content(text):
                 return _clean_bio(text)
 
     return None
+
+
+# Fingerprint phrases that appear in HBS page navigation/chrome but never in real bios.
+# Two or more hits → the text is scraped page furniture, not a biographical paragraph.
+_HBS_NAV_PHRASES = [
+    "Faculty & Research",
+    "Baker Library",
+    "Harvard Business Review",
+    "Academic Programs",
+    "Map & Directions",
+    "Soldiers Field",
+    "Site Map",
+    "Recruit",
+]
+
+def _is_nav_content(text: str) -> bool:
+    """Return True if the text looks like scraped navigation rather than a real bio."""
+    hits = sum(1 for phrase in _HBS_NAV_PHRASES if phrase in text)
+    return hits >= 2
 
 
 def _clean_bio(text: str) -> str:

@@ -178,7 +178,7 @@ export default function FacultyDetail() {
           </div>
 
           {/* Bio */}
-          {faculty.bio && (
+          {faculty.bio && !isNavContent(faculty.bio) && (
             <p className="mt-5 text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
               {truncateBio(stripBioHeader(faculty.bio, faculty.name, faculty.title), 4)}
             </p>
@@ -382,6 +382,21 @@ function PublicationRow({ pub }) {
   )
 }
 
+
+/**
+ * Returns true when the stored bio text is actually HBS page navigation/chrome
+ * that the scraper accidentally captured instead of a real biographical paragraph.
+ * Two or more fingerprint phrases → suppress the bio entirely.
+ */
+const NAV_PHRASES = [
+  'Faculty & Research', 'Baker Library', 'Harvard Business Review',
+  'Academic Programs', 'Map & Directions', 'Soldiers Field', 'Site Map',
+]
+function isNavContent(text) {
+  if (!text) return false
+  const hits = NAV_PHRASES.filter(p => text.includes(p)).length
+  return hits >= 2
+}
 
 /**
  * Strip the name/title header that HBS profile pages inject at the top of bio text.

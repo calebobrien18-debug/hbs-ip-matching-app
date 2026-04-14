@@ -444,7 +444,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
       </div>
 
       {/* Bio excerpt */}
-      {f.bio && (
+      {f.bio && !isNavContent(f.bio) && (
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
@@ -534,6 +534,15 @@ function ChevronIcon({ className }) {
       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
     </svg>
   )
+}
+
+const NAV_PHRASES = [
+  'Faculty & Research', 'Baker Library', 'Harvard Business Review',
+  'Academic Programs', 'Map & Directions', 'Soldiers Field', 'Site Map',
+]
+function isNavContent(text) {
+  if (!text) return false
+  return NAV_PHRASES.filter(p => text.includes(p)).length >= 2
 }
 
 function BookmarkIcon({ filled }) {
