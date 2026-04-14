@@ -85,7 +85,14 @@ export default function Faculty() {
     })
   }, [faculty, tagsByFaculty, query, selectedUnit, selectedTag])
 
-  if (loading) return null
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50">
+      <NavBar />
+      <div className="flex items-center justify-center py-32">
+        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-[#A51C30] animate-spin" />
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -61,7 +61,14 @@ export default function FacultyDetail() {
     selectedPubType ? publications.filter(p => p.pub_type === selectedPubType) : publications
   , [publications, selectedPubType])
 
-  if (loading) return null
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50">
+      <NavBar />
+      <div className="flex items-center justify-center py-32">
+        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-[#A51C30] animate-spin" />
+      </div>
+    </div>
+  )
 
   if (notFound) {
     return (

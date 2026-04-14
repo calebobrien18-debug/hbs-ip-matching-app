@@ -89,7 +89,7 @@ export default function ProfileEdit() {
           email: form.email.trim(),
           program: form.program || null,
           program_other: form.program === 'Other' ? form.program_other.trim() || null : null,
-          graduation_year: parseInt(form.graduation_year),
+          graduation_year: parseInt(form.graduation_year, 10),
           hbs_section: form.hbs_section || null,
           professional_interests: form.professional_interests.trim() || null,
           faculty_in_mind: form.faculty_in_mind.trim() || null,
