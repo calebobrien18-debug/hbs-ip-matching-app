@@ -140,14 +140,22 @@ export default function FacultyDetail() {
                       {faculty.unit}
                     </span>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => toggleSave(id)}
-                    title={savedIds.has(id) ? 'Remove from saved' : 'Save faculty'}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer"
-                  >
-                    <BookmarkIcon filled={savedIds.has(id)} />
-                  </button>
+                  <div className="relative group/save-tip">
+                    <button
+                      type="button"
+                      onClick={() => toggleSave(id)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer"
+                    >
+                      <BookmarkIcon filled={savedIds.has(id)} />
+                    </button>
+                    <div className="absolute right-0 top-full mt-1 w-56 rounded-lg bg-gray-800 text-white text-xs
+                                    px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
+                                    pointer-events-none z-10 leading-snug shadow-lg">
+                      {savedIds.has(id)
+                        ? 'Remove from saved faculty'
+                        : 'Save to Dashboard — bookmarked faculty appear on your Dashboard page'}
+                    </div>
+                  </div>
                 </div>
               </div>
 

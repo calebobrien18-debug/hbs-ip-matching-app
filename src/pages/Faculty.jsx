@@ -20,10 +20,8 @@ const UNIT_ABBREV = {
 }
 
 const SORT_OPTIONS = [
-  { value: 'name-asc',    label: 'Name A–Z'    },
-  { value: 'name-desc',   label: 'Name Z–A'    },
-  { value: 'unit',        label: 'Unit'         },
-  { value: 'best-match',  label: 'Best Match'  },
+  { value: 'name-asc',  label: 'Name A–Z' },
+  { value: 'name-desc', label: 'Name Z–A' },
 ]
 
 export default function Faculty() {
@@ -104,27 +102,15 @@ export default function Faculty() {
     })
   }, [faculty, tagsByFaculty, query, selectedUnit, selectedTags])
 
-  // Sort
+  // Sort — unit filter always shows A-Z regardless of the sort selector
   const sorted = useMemo(() => {
     const arr = [...filtered]
-    switch (sortBy) {
-      case 'name-desc':
-        return arr.sort((a, b) => lastName(b.name).localeCompare(lastName(a.name)))
-      case 'unit':
-        return arr.sort((a, b) =>
-          (a.unit ?? '').localeCompare(b.unit ?? '') ||
-          lastName(a.name).localeCompare(lastName(b.name))
-        )
-      case 'best-match':
-        return arr.sort((a, b) => {
-          const aHits = (tagsByFaculty[a.id] ?? []).filter(t => selectedTags.has(t)).length
-          const bHits = (tagsByFaculty[b.id] ?? []).filter(t => selectedTags.has(t)).length
-          return bHits - aHits || lastName(a.name).localeCompare(lastName(b.name))
-        })
-      default: // name-asc
-        return arr.sort((a, b) => lastName(a.name).localeCompare(lastName(b.name)))
+    const effectiveSort = selectedUnit ? 'name-asc' : sortBy
+    if (effectiveSort === 'name-desc') {
+      return arr.sort((a, b) => lastName(b.name).localeCompare(lastName(a.name)))
     }
-  }, [filtered, sortBy, selectedTags, tagsByFaculty])
+    return arr.sort((a, b) => lastName(a.name).localeCompare(lastName(b.name)))
+  }, [filtered, sortBy, selectedUnit])
 
   const hasFilters = query || selectedUnit || selectedTags.size > 0
 
@@ -404,19 +390,27 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
       className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3
                  hover:shadow-md hover:border-gray-300 transition-all block relative group"
     >
-      {/* Save button */}
-      <button
-        type="button"
-        onClick={e => { e.preventDefault(); onSaveToggle(f.id) }}
-        title={isSaved ? 'Remove from saved' : 'Save faculty'}
-        className={`absolute top-4 right-4 p-1 rounded-md transition-colors cursor-pointer ${
-          isSaved
-            ? 'text-crimson'
-            : 'text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100'
-        }`}
-      >
-        <BookmarkIcon filled={isSaved} />
-      </button>
+      {/* Save button with tooltip */}
+      <div className="absolute top-4 right-4 group/save-tip">
+        <button
+          type="button"
+          onClick={e => { e.preventDefault(); onSaveToggle(f.id) }}
+          className={`p-1 rounded-md transition-colors cursor-pointer ${
+            isSaved
+              ? 'text-crimson'
+              : 'text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          <BookmarkIcon filled={isSaved} />
+        </button>
+        <div className="absolute right-0 top-full mt-1 w-52 rounded-lg bg-gray-800 text-white text-xs
+                        px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
+                        pointer-events-none z-10 leading-snug shadow-lg">
+          {isSaved
+            ? 'Remove from saved faculty'
+            : 'Save to Dashboard — bookmarked faculty appear on your Dashboard page'}
+        </div>
+      </div>
 
       {/* Unit badge */}
       {f.unit && (
