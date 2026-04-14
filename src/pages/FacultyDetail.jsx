@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -20,6 +20,7 @@ export default function FacultyDetail() {
   const [publications, setPublications] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [selectedPubType, setSelectedPubType] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -44,6 +45,17 @@ export default function FacultyDetail() {
       setLoading(false)
     })
   }, [id, navigate])
+
+  // Ordered list of pub types present for this faculty
+  const pubTypes = useMemo(() => {
+    const order = ['Journal Article', 'Working Paper', 'Case', 'Book', 'Chapter', 'Conference Paper', 'Report', 'Other']
+    const present = new Set(publications.map(p => p.pub_type).filter(Boolean))
+    return order.filter(t => present.has(t))
+  }, [publications])
+
+  const filteredPubs = useMemo(() =>
+    selectedPubType ? publications.filter(p => p.pub_type === selectedPubType) : publications
+  , [publications, selectedPubType])
 
   if (loading) return null
 
@@ -167,11 +179,38 @@ export default function FacultyDetail() {
         {/* Publications */}
         <Section title={`Recent publications${publications.length ? ` (${publications.length})` : ''}`}>
           {publications.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {publications.map(pub => (
-                <PublicationRow key={pub.id} pub={pub} />
-              ))}
-            </div>
+            <>
+              {/* Type filter pills — only shown when 2+ types exist */}
+              {pubTypes.length > 1 && (
+                <div className="flex flex-wrap gap-2 pb-2">
+                  <PubTypePill
+                    label="All"
+                    active={selectedPubType === null}
+                    typeStyle={null}
+                    onClick={() => setSelectedPubType(null)}
+                  />
+                  {pubTypes.map(type => (
+                    <PubTypePill
+                      key={type}
+                      label={type}
+                      active={selectedPubType === type}
+                      typeStyle={PUB_TYPE_COLORS[type]}
+                      onClick={() => setSelectedPubType(selectedPubType === type ? null : type)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div className="divide-y divide-gray-100">
+                {filteredPubs.map(pub => (
+                  <PublicationRow key={pub.id} pub={pub} />
+                ))}
+              </div>
+
+              {filteredPubs.length === 0 && (
+                <p className="text-sm text-gray-400 italic py-2">No publications of this type.</p>
+              )}
+            </>
           ) : (
             <p className="text-sm text-gray-400 italic">
               No publications available yet — run the scraper to populate this field.
@@ -193,6 +232,44 @@ function Section({ title, children }) {
       {children}
     </div>
   )
+}
+
+function PubTypePill({ label, active, typeStyle, onClick }) {
+  // When active and a typeStyle exists, use the type's own colour scheme
+  // When active with no typeStyle (the "All" pill), use crimson
+  // When inactive, use a neutral style
+  let style
+  if (!active) {
+    style = { backgroundColor: '#fff', color: '#374151', borderColor: '#d1d5db' }
+  } else if (typeStyle) {
+    // derive inline style from the Tailwind class string isn't practical,
+    // so we use a lookup instead
+    style = ACTIVE_TYPE_STYLES[label] ?? { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
+  } else {
+    style = { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border"
+      style={style}
+    >
+      {label}
+    </button>
+  )
+}
+
+const ACTIVE_TYPE_STYLES = {
+  'Journal Article': { backgroundColor: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe' },
+  'Book':            { backgroundColor: '#f5f3ff', color: '#7c3aed', borderColor: '#ddd6fe' },
+  'Case':            { backgroundColor: '#fffbeb', color: '#b45309', borderColor: '#fde68a' },
+  'Working Paper':   { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' },
+  'Chapter':         { backgroundColor: '#f0fdfa', color: '#0f766e', borderColor: '#99f6e4' },
+  'Conference Paper':{ backgroundColor: '#fdf4ff', color: '#9333ea', borderColor: '#f0abfc' },
+  'Report':          { backgroundColor: '#fff7ed', color: '#c2410c', borderColor: '#fed7aa' },
+  'Other':           { backgroundColor: '#f9fafb', color: '#6b7280', borderColor: '#e5e7eb' },
 }
 
 function PublicationRow({ pub }) {

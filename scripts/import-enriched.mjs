@@ -66,7 +66,7 @@ try {
 // ── Fetch faculty id map (hbs_fac_id → {id, image_url}) ──────────────────────
 const { data: facultyRows, error: fetchError } = await supabase
   .from('faculty')
-  .select('id, hbs_fac_id, image_url')
+  .select('id, hbs_fac_id, image_url, email')
 
 if (fetchError) {
   console.error('Failed to fetch faculty table:', fetchError.message)
@@ -74,7 +74,7 @@ if (fetchError) {
 }
 
 const facMap = Object.fromEntries(
-  facultyRows.map(r => [r.hbs_fac_id, { id: r.id, image_url: r.image_url }])
+  facultyRows.map(r => [r.hbs_fac_id, { id: r.id, image_url: r.image_url, email: r.email }])
 )
 
 // ── Import ────────────────────────────────────────────────────────────────────
@@ -96,17 +96,30 @@ for (const record of enriched) {
 
   const facultyId = fac.id
 
-  // ── Photo: only set if not already populated ──────────────────────────────
+  // ── Profile fields: photo (only if not set), title/bio/email (always refresh) ──
+  const profileUpdate = {}
+
+  // Photo: only set if not already populated (protect manually-set photos)
   if (record.photo_url && !fac.image_url) {
-    const { error: photoError } = await supabase
+    profileUpdate.image_url = record.photo_url
+  }
+
+  // Title, bio, email, unit: always update from scraper so data stays fresh
+  if (record.title?.trim()) profileUpdate.title = record.title.trim()
+  if (record.bio?.trim())   profileUpdate.bio   = record.bio.trim()
+  if (record.email?.trim() && !fac.email) profileUpdate.email = record.email.trim()
+  if (record.unit?.trim())  profileUpdate.unit  = record.unit.trim()
+
+  if (Object.keys(profileUpdate).length > 0) {
+    const { error: profileError } = await supabase
       .from('faculty')
-      .update({ image_url: record.photo_url })
+      .update(profileUpdate)
       .eq('id', facultyId)
 
-    if (photoError) {
-      console.error(`  ✗ Photo update error for ${record.hbs_fac_id}:`, photoError.message)
+    if (profileError) {
+      console.error(`  ✗ Profile update error for ${record.hbs_fac_id}:`, profileError.message)
     } else {
-      totalPhotos++
+      if (profileUpdate.image_url) totalPhotos++
     }
   }
 
@@ -160,8 +173,10 @@ for (const record of enriched) {
     }
   }
 
-  const photoMark = (record.photo_url && !fac.image_url) ? '📷' : (record.photo_url ? '(photo exists)' : '--')
-  console.log(`  ✓ ${record.hbs_fac_id}: photo=${photoMark}  tags=${tags.length}  pubs=${pubs.length}`)
+  const photoMark = (record.photo_url && !fac.image_url) ? '📷' : (record.photo_url ? '(exists)' : '--')
+  const bioMark   = record.bio   ? '✓' : '–'
+  const emailMark = record.email ? '✓' : '–'
+  console.log(`  ✓ ${record.hbs_fac_id}: photo=${photoMark}  bio=${bioMark}  email=${emailMark}  tags=${tags.length}  pubs=${pubs.length}`)
 }
 
 console.log('\n' + '='.repeat(50))

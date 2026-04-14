@@ -9,10 +9,22 @@ export default function NavBar() {
   const [displayName, setDisplayName] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return
-      const meta = session.user.user_metadata
-      setDisplayName(meta?.full_name || meta?.name || session.user.email || '')
+      // Prefer first_name from the student profile table
+      const { data: profile } = await supabase
+        .from('hbs_ip')
+        .select('first_name')
+        .eq('user_id', session.user.id)
+        .maybeSingle()
+      if (profile?.first_name) {
+        setDisplayName(profile.first_name)
+      } else {
+        // Fallback for users who haven't completed their profile yet
+        const meta = session.user.user_metadata
+        const raw = meta?.full_name || meta?.name || session.user.email || ''
+        setDisplayName(raw.includes('@') ? raw.split('@')[0] : raw.split(' ')[0])
+      }
     })
   }, [])
 
@@ -64,7 +76,7 @@ export default function NavBar() {
         <div className="flex items-center gap-3 flex-shrink-0">
           {displayName && (
             <span className="text-white/80 text-sm hidden sm:block truncate max-w-[160px]">
-              {displayName}
+              Hi, {displayName}
             </span>
           )}
           <button

@@ -32,4 +32,6 @@ dist-ssr
 
 # Scraper generated output
 scripts/enriched_faculty.json
+scripts/all_faculty.json
 scripts/debug_profile.html
+scripts/debug_directory.html
