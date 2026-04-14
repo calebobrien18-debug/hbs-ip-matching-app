@@ -25,6 +25,20 @@ const supabase = createClient(
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! })
 
+// ── CORS headers included on every response ───────────────────────────────────
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS, 'Content-Type': 'application/json' },
+  })
+}
+
 // ── Stopwords filtered out of keyword tokenization ────────────────────────────
 const STOPWORDS = new Set([
   'the','and','for','are','was','were','has','have','had','will','would','could',
@@ -106,14 +120,9 @@ function formatFacultySummary(f: {
 // ── Main handler ──────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  // CORS for local dev
+  // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, content-type',
-      },
-    })
+    return new Response(null, { status: 204, headers: CORS })
   }
 
   try {
@@ -122,7 +131,7 @@ Deno.serve(async (req: Request) => {
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return jsonResponse({ error: 'Unauthorized' }, 401)
     }
     const userId = user.id
 
@@ -135,7 +144,7 @@ Deno.serve(async (req: Request) => {
 
     if (profileError) throw profileError
     if (!profile) {
-      return Response.json({ error: 'No profile found. Create a profile first.' }, { status: 404 })
+      return jsonResponse({ error: 'No profile found. Create a profile first.' }, 404)
     }
 
     // 3. Load all faculty with tags, publications, courses
@@ -204,7 +213,7 @@ Deno.serve(async (req: Request) => {
       .map(s => s.faculty)
 
     if (scored.length === 0) {
-      return Response.json({ error: 'No faculty data available for matching.' }, { status: 500 })
+      return jsonResponse({ error: 'No faculty data available for matching.' }, 500)
     }
 
     // 6. Build Claude prompt
@@ -259,7 +268,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
       matches = JSON.parse(cleanJson)
     } catch {
       console.error('Claude returned invalid JSON:', rawText)
-      return Response.json({ error: 'Matching service returned an unexpected response. Please try again.' }, { status: 500 })
+      return jsonResponse({ error: 'Matching service returned an unexpected response. Please try again.' }, 500)
     }
 
     // Validate and sanitize matches
@@ -268,7 +277,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
       .slice(0, 10)
 
     if (matches.length < 2) {
-      return Response.json({ error: 'Could not generate enough matches. Try enriching your profile.' }, { status: 500 })
+      return jsonResponse({ error: 'Could not generate enough matches. Try enriching your profile.' }, 500)
     }
 
     // 8. Write to DB — service role bypasses RLS
@@ -300,17 +309,9 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
       .eq('run_id', runId)
       .order('rank')
 
-    return Response.json(
-      { run_id: runId, matches: enrichedMatches },
-      {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    return jsonResponse({ run_id: runId, matches: enrichedMatches })
   } catch (err) {
     console.error('generate-matches error:', err)
-    return Response.json({ error: 'Internal server error. Please try again.' }, { status: 500 })
+    return jsonResponse({ error: 'Internal server error. Please try again.' }, 500)
   }
 })
