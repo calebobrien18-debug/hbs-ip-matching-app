@@ -2,8 +2,8 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
-import { useRequireAuth } from '../lib/hooks'
-import { initials } from '../lib/utils'
+import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
+import { initials, lastName } from '../lib/utils'
 
 // Short display labels for unit filter pills
 const UNIT_ABBREV = {
@@ -19,14 +19,24 @@ const UNIT_ABBREV = {
   'Technology & Operations Management':          'TOM',
 }
 
+const SORT_OPTIONS = [
+  { value: 'name-asc',    label: 'Name A–Z'    },
+  { value: 'name-desc',   label: 'Name Z–A'    },
+  { value: 'unit',        label: 'Unit'         },
+  { value: 'best-match',  label: 'Best Match'  },
+]
+
 export default function Faculty() {
   const session = useRequireAuth()
   const [faculty, setFaculty] = useState([])
-  const [tagsByFaculty, setTagsByFaculty] = useState({}) // { faculty_id: string[] }
+  const [tagsByFaculty, setTagsByFaculty] = useState({})
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [selectedUnit, setSelectedUnit] = useState(null)
   const [selectedTags, setSelectedTags] = useState(new Set())
+  const [sortBy, setSortBy] = useState('name-asc')
+
+  const { savedIds, toggleSave } = useSavedFaculty(session)
 
   useEffect(() => {
     if (!session) return
@@ -52,13 +62,13 @@ export default function Faculty() {
     load()
   }, [session])
 
-  // Derive sorted unique units from loaded data
+  // Sorted unique units
   const units = useMemo(() => {
     const set = new Set(faculty.map(f => f.unit).filter(Boolean))
     return [...set].sort()
   }, [faculty])
 
-  // Derive cross-cutting tags (appear on 4+ faculty), sorted by frequency
+  // Tags on 4+ faculty, sorted by frequency
   const popularTags = useMemo(() => {
     const count = {}
     Object.values(tagsByFaculty).forEach(tags =>
@@ -70,7 +80,6 @@ export default function Faculty() {
       .map(([tag]) => tag)
   }, [tagsByFaculty])
 
-  // Set version for O(1) lookups in card pills
   const popularTagsSet = useMemo(() => new Set(popularTags), [popularTags])
 
   function toggleTag(tag) {
@@ -80,10 +89,9 @@ export default function Faculty() {
       return next
     })
   }
-
   function clearTags() { setSelectedTags(new Set()) }
 
-  // Client-side filter: name, title, bio, unit, tags (OR logic for multi-tag)
+  // Filter
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return faculty.filter(f => {
@@ -95,6 +103,28 @@ export default function Faculty() {
       return matchesUnit && matchesTags && matchesQuery
     })
   }, [faculty, tagsByFaculty, query, selectedUnit, selectedTags])
+
+  // Sort
+  const sorted = useMemo(() => {
+    const arr = [...filtered]
+    switch (sortBy) {
+      case 'name-desc':
+        return arr.sort((a, b) => lastName(b.name).localeCompare(lastName(a.name)))
+      case 'unit':
+        return arr.sort((a, b) =>
+          (a.unit ?? '').localeCompare(b.unit ?? '') ||
+          lastName(a.name).localeCompare(lastName(b.name))
+        )
+      case 'best-match':
+        return arr.sort((a, b) => {
+          const aHits = (tagsByFaculty[a.id] ?? []).filter(t => selectedTags.has(t)).length
+          const bHits = (tagsByFaculty[b.id] ?? []).filter(t => selectedTags.has(t)).length
+          return bHits - aHits || lastName(a.name).localeCompare(lastName(b.name))
+        })
+      default: // name-asc
+        return arr.sort((a, b) => lastName(a.name).localeCompare(lastName(b.name)))
+    }
+  }, [filtered, sortBy, selectedTags, tagsByFaculty])
 
   const hasFilters = query || selectedUnit || selectedTags.size > 0
 
@@ -123,9 +153,10 @@ export default function Faculty() {
 
         {/* Search + filters */}
         <div className="mb-6 space-y-3">
-          {/* Row 1: search + research topics dropdown */}
+
+          {/* Row 1: search · research topics dropdown · sort */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full max-w-md">
+            <div className="relative flex-1 min-w-48 max-w-md">
               <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
                 <SearchIcon />
               </div>
@@ -148,16 +179,29 @@ export default function Faculty() {
                 onClear={clearTags}
               />
             )}
+
+            {/* Sort selector */}
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-xs font-medium text-gray-400 whitespace-nowrap">Sort by</span>
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-7 text-sm text-gray-700
+                           focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent
+                           cursor-pointer appearance-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+              >
+                {SORT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Row 2: unit pills */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-gray-400 mr-1 w-10 flex-shrink-0">Unit</span>
-            <UnitPill
-              label="All"
-              active={selectedUnit === null}
-              onClick={() => setSelectedUnit(null)}
-            />
+            <UnitPill label="All" active={selectedUnit === null} onClick={() => setSelectedUnit(null)} />
             {units.map(unit => (
               <UnitPill
                 key={unit}
@@ -199,13 +243,11 @@ export default function Faculty() {
         {/* Results count */}
         {hasFilters && (
           <p className="text-sm text-gray-500 mb-4">
-            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+            {sorted.length} result{sorted.length !== 1 ? 's' : ''}
             {selectedUnit && <> in <span className="font-medium text-gray-700">{selectedUnit}</span></>}
             {selectedTags.size > 0 && (
               <> matching <span className="font-medium text-gray-700">
-                {selectedTags.size === 1
-                  ? `"${[...selectedTags][0]}"`
-                  : `${selectedTags.size} research topics`}
+                {selectedTags.size === 1 ? `"${[...selectedTags][0]}"` : `${selectedTags.size} research topics`}
               </span></>
             )}
             {query && <> matching <span className="font-medium text-gray-700">"{query}"</span></>}
@@ -213,16 +255,18 @@ export default function Faculty() {
         )}
 
         {/* Faculty grid */}
-        {filtered.length > 0 ? (
+        {sorted.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(f => (
+            {sorted.map(f => (
               <FacultyCard
                 key={f.id}
                 faculty={f}
                 tags={tagsByFaculty[f.id] ?? []}
                 selectedTags={selectedTags}
                 popularTagsSet={popularTagsSet}
+                isSaved={savedIds.has(f.id)}
                 onTagClick={toggleTag}
+                onSaveToggle={toggleSave}
               />
             ))}
           </div>
@@ -250,7 +294,6 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
   const [search, setSearch] = useState('')
   const ref = useRef(null)
 
-  // Close on outside click
   useEffect(() => {
     function handle(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
@@ -259,7 +302,6 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
     return () => document.removeEventListener('mousedown', handle)
   }, [])
 
-  // Close on Escape
   useEffect(() => {
     function handle(e) { if (e.key === 'Escape') setOpen(false) }
     document.addEventListener('keydown', handle)
@@ -271,36 +313,31 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
     : tags
 
   const count = selectedTags.size
-  const isActive = count > 0
 
   return (
     <div className="relative flex-shrink-0" ref={ref}>
-      {/* Trigger */}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium
                     transition-colors cursor-pointer select-none ${
-          isActive
+          count > 0
             ? 'bg-crimson text-white border-crimson'
             : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
         }`}
       >
         Research Topics
-        {isActive && (
+        {count > 0 && (
           <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/25 text-xs font-bold">
             {count}
           </span>
         )}
-        <ChevronIcon className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''} ${isActive ? 'text-white/70' : 'text-gray-400'}`} />
+        <ChevronIcon className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''} ${count > 0 ? 'text-white/70' : 'text-gray-400'}`} />
       </button>
 
-      {/* Dropdown panel */}
       {open && (
         <div className="absolute top-full left-0 mt-1.5 w-72 bg-white rounded-xl border border-gray-200
                         shadow-lg z-20 overflow-hidden">
-
-          {/* Search inside dropdown */}
           <div className="p-2 border-b border-gray-100">
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
@@ -319,13 +356,9 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
             </div>
           </div>
 
-          {/* Tag list */}
           <div className="max-h-60 overflow-y-auto py-1">
             {filtered.length > 0 ? filtered.map(tag => (
-              <label
-                key={tag}
-                className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50 cursor-pointer"
-              >
+              <label key={tag} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedTags.has(tag)}
@@ -341,7 +374,6 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
             )}
           </div>
 
-          {/* Footer: clear + count */}
           {count > 0 && (
             <div className="px-3 py-2 border-t border-gray-100 flex items-center justify-between">
               <span className="text-xs text-gray-500">{count} selected</span>
@@ -362,7 +394,7 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
 
 // ── Faculty card ──────────────────────────────────────────────────────────────
 
-function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, onTagClick }) {
+function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, onTagClick, onSaveToggle }) {
   const abbrev = UNIT_ABBREV[f.unit] ?? f.unit
   const previewTags = tags.slice(0, 4)
 
@@ -370,8 +402,22 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, onTagClic
     <Link
       to={`/faculty/${f.id}`}
       className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3
-                 hover:shadow-md hover:border-gray-300 transition-all block"
+                 hover:shadow-md hover:border-gray-300 transition-all block relative group"
     >
+      {/* Save button */}
+      <button
+        type="button"
+        onClick={e => { e.preventDefault(); onSaveToggle(f.id) }}
+        title={isSaved ? 'Remove from saved' : 'Save faculty'}
+        className={`absolute top-4 right-4 p-1 rounded-md transition-colors cursor-pointer ${
+          isSaved
+            ? 'text-crimson'
+            : 'text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100'
+        }`}
+      >
+        <BookmarkIcon filled={isSaved} />
+      </button>
+
       {/* Unit badge */}
       {f.unit && (
         <span
@@ -395,7 +441,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, onTagClic
             {initials(f.name)}
           </div>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 pr-6">
           <p className="font-semibold text-gray-900 text-sm leading-snug truncate">{f.name}</p>
           {f.title && (
             <p className="text-xs text-gray-500 leading-snug line-clamp-2">{f.title}</p>
@@ -408,7 +454,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, onTagClic
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
-      {/* Research tag pills — only popular tags (3+ faculty) are clickable filters */}
+      {/* Research tag pills — only popular tags are clickable */}
       {previewTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
           {previewTags.map(tag => {
@@ -492,6 +538,16 @@ function ChevronIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor">
       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function BookmarkIcon({ filled }) {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 20 20" fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round"
+        d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
     </svg>
   )
 }

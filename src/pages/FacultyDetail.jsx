@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
-import { useRequireAuth } from '../lib/hooks'
+import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
 import { initials } from '../lib/utils'
 
 const PUB_TYPE_COLORS = {
@@ -26,6 +26,7 @@ export default function FacultyDetail() {
   const [selectedPubType, setSelectedPubType] = useState(null)
 
   const session = useRequireAuth()
+  const { savedIds, toggleSave } = useSavedFaculty(session)
 
   useEffect(() => {
     if (!session) return
@@ -133,13 +134,21 @@ export default function FacultyDetail() {
                     <p className="text-sm text-gray-500 mt-0.5">{faculty.title}</p>
                   )}
                 </div>
-                {faculty.unit && (
-                  <span
-                    className="text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white flex-shrink-0 bg-crimson"
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {faculty.unit && (
+                    <span className="text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white bg-crimson">
+                      {faculty.unit}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggleSave(id)}
+                    title={savedIds.has(id) ? 'Remove from saved' : 'Save faculty'}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer"
                   >
-                    {faculty.unit}
-                  </span>
-                )}
+                    <BookmarkIcon filled={savedIds.has(id)} />
+                  </button>
+                </div>
               </div>
 
               {/* Links row */}
@@ -247,6 +256,18 @@ export default function FacultyDetail() {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
+
+function BookmarkIcon({ filled }) {
+  return filled ? (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-crimson">
+      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+    </svg>
+  )
+}
 
 function Section({ title, children }) {
   return (
