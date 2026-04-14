@@ -117,7 +117,14 @@ def _extract_title(text: str) -> str:
         "", cleaned, flags=re.I,
     )
     cleaned = re.sub(r"^#\s+A\s+B\s+.*$", "", cleaned, flags=re.MULTILINE)
-    cleaned = re.sub(r"^\^?\s*back to top\s*$", "", cleaned, flags=re.MULTILINE | re.I)
+    # Replace "back to top" with a sentinel so we can split on section breaks
+    cleaned = re.sub(r"^\^?\s*back to top\s*$", "\x00BREAK\x00", cleaned, flags=re.MULTILINE | re.I)
+
+    # If there are section breaks, only look at text after the last one —
+    # this prevents the summary-listing table at the top of the PDF from
+    # contaminating the first course's title.
+    if "\x00BREAK\x00" in cleaned:
+        cleaned = cleaned.split("\x00BREAK\x00")[-1]
 
     non_empty = [l.strip() for l in cleaned.split("\n") if l.strip()]
     if not non_empty:
@@ -132,7 +139,8 @@ def _extract_title(text: str) -> str:
         r"|^(Career Focus|Educational|Course Content|Grading|Overview|Requirements?|Enrollment|Purpose)\b"
         r"|^Course Content Keywords?"
         r"|credits?"
-        r"|^\^?\s*back to top",
+        r"|^\^?\s*back to top"
+        r"|\d+(\.\d+)?%",   # grade-weight lines like "Class Participation 38.5%"
         re.I,
     )
 
@@ -155,7 +163,11 @@ def _extract_title(text: str) -> str:
             continue
         title_lines.insert(0, line)
 
-    return " ".join(title_lines).strip()
+    title = " ".join(title_lines).strip()
+    # Strip trailing quarter designations that sometimes leak from summary listings
+    # e.g. "Entrepreneurial Finance (Q2)" → "Entrepreneurial Finance"
+    title = re.sub(r"\s*\(Q[\w]+\)\s*$", "", title, flags=re.I)
+    return title
 
 
 def _parse_block(block: str, title: str) -> dict | None:
@@ -196,6 +208,9 @@ def _parse_block(block: str, title: str) -> dict | None:
                         name = " ".join(words[-3:])
                     else:
                         name = " ".join(words[-2:])
+            # Guard against description bleed-through — real names have ≤5 words
+            if len(name.split()) > 5:
+                continue
             faculty_names.append(name)
             continue
 
