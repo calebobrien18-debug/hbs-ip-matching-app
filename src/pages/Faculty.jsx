@@ -58,17 +58,20 @@ export default function Faculty() {
     return [...set].sort()
   }, [faculty])
 
-  // Derive cross-cutting tags (appear on 4+ faculty), sorted by frequency
+  // Derive cross-cutting tags (appear on 3+ faculty), sorted by frequency
   const popularTags = useMemo(() => {
     const count = {}
     Object.values(tagsByFaculty).forEach(tags =>
       tags.forEach(t => { count[t] = (count[t] ?? 0) + 1 })
     )
     return Object.entries(count)
-      .filter(([, n]) => n >= 4)
+      .filter(([, n]) => n >= 3)
       .sort((a, b) => b[1] - a[1])
       .map(([tag]) => tag)
   }, [tagsByFaculty])
+
+  // Set version for O(1) lookups in card pills
+  const popularTagsSet = useMemo(() => new Set(popularTags), [popularTags])
 
   function toggleTag(tag) {
     setSelectedTags(prev => {
@@ -218,6 +221,7 @@ export default function Faculty() {
                 faculty={f}
                 tags={tagsByFaculty[f.id] ?? []}
                 selectedTags={selectedTags}
+                popularTagsSet={popularTagsSet}
                 onTagClick={toggleTag}
               />
             ))}
@@ -358,7 +362,7 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
 
 // ── Faculty card ──────────────────────────────────────────────────────────────
 
-function FacultyCard({ faculty: f, tags, selectedTags, onTagClick }) {
+function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, onTagClick }) {
   const abbrev = UNIT_ABBREV[f.unit] ?? f.unit
   const previewTags = tags.slice(0, 4)
 
@@ -404,26 +408,34 @@ function FacultyCard({ faculty: f, tags, selectedTags, onTagClick }) {
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
-      {/* Research tag pills — clicking a tag toggles it in the filter */}
+      {/* Research tag pills — only popular tags (3+ faculty) are clickable filters */}
       {previewTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {previewTags.map(tag => (
-            <button
-              key={tag}
-              type="button"
-              onClick={e => {
-                e.preventDefault()
-                onTagClick(tag)
-              }}
-              className={`text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors ${
-                selectedTags.has(tag)
-                  ? 'bg-crimson text-white border-crimson'
-                  : 'text-crimson border-crimson/30 bg-crimson/4'
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
+          {previewTags.map(tag => {
+            const isPopular = popularTagsSet.has(tag)
+            const isActive  = selectedTags.has(tag)
+            return isPopular ? (
+              <button
+                key={tag}
+                type="button"
+                onClick={e => { e.preventDefault(); onTagClick(tag) }}
+                className={`text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors ${
+                  isActive
+                    ? 'bg-crimson text-white border-crimson'
+                    : 'text-crimson border-crimson/30 bg-crimson/4'
+                }`}
+              >
+                {tag}
+              </button>
+            ) : (
+              <span
+                key={tag}
+                className="text-[10px] font-medium rounded-full px-2 py-0.5 border text-gray-400 border-gray-200 bg-gray-50"
+              >
+                {tag}
+              </span>
+            )
+          })}
           {tags.length > 4 && (
             <span className="text-[10px] text-gray-400 self-center">+{tags.length - 4} more</span>
           )}
