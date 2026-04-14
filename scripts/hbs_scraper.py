@@ -82,11 +82,12 @@ PUB_SECTION_TYPES = {
 
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 
-MAX_PUBLICATIONS = 20          # total cap per faculty
+MAX_PUBLICATIONS = 25          # total cap per faculty
 TYPE_QUOTAS = {                # guaranteed minimums (where available)
     "Journal Article": 5,
     "Working Paper":   5,
     "Case":            5,
+    "Book":            3,      # books are rarer; include all if ≤3, else most recent 3
 }
 
 
