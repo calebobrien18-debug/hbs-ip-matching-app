@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 
@@ -20,6 +21,7 @@ const UNIT_ABBREV = {
 export default function Faculty() {
   const navigate = useNavigate()
   const [faculty, setFaculty] = useState([])
+  const [tagsByFaculty, setTagsByFaculty] = useState({}) // { faculty_id: string[] }
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [selectedUnit, setSelectedUnit] = useState(null)
@@ -28,12 +30,25 @@ export default function Faculty() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { navigate('/', { replace: true }); return }
 
-      const { data, error } = await supabase
-        .from('faculty')
-        .select('*')
-        .order('name')
+      // Fetch faculty and all tags in parallel
+      const [
+        { data: facultyData, error: facultyError },
+        { data: tagsData },
+      ] = await Promise.all([
+        supabase.from('faculty').select('*').order('name'),
+        supabase.from('faculty_tags').select('faculty_id, tag'),
+      ])
 
-      if (!error) setFaculty(data ?? [])
+      if (!facultyError) setFaculty(facultyData ?? [])
+
+      // Build a map: faculty_id → string[]
+      const tagMap = {}
+      for (const row of (tagsData ?? [])) {
+        if (!tagMap[row.faculty_id]) tagMap[row.faculty_id] = []
+        tagMap[row.faculty_id].push(row.tag)
+      }
+      setTagsByFaculty(tagMap)
+
       setLoading(false)
     })
   }, [navigate])
@@ -44,16 +59,17 @@ export default function Faculty() {
     return [...set].sort()
   }, [faculty])
 
-  // Client-side filter: name, title, bio, unit
+  // Client-side filter: name, title, bio, unit, tags
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return faculty.filter(f => {
       const matchesUnit = !selectedUnit || f.unit === selectedUnit
-      const matchesQuery = !q || [f.name, f.title, f.bio, f.unit]
+      const facTags = tagsByFaculty[f.id] ?? []
+      const matchesQuery = !q || [f.name, f.title, f.bio, f.unit, ...facTags]
         .some(field => field?.toLowerCase().includes(q))
       return matchesUnit && matchesQuery
     })
-  }, [faculty, query, selectedUnit])
+  }, [faculty, tagsByFaculty, query, selectedUnit])
 
   if (loading) return null
 
@@ -120,7 +136,13 @@ export default function Faculty() {
         {/* Faculty grid */}
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(f => <FacultyCard key={f.id} faculty={f} />)}
+            {filtered.map(f => (
+              <FacultyCard
+                key={f.id}
+                faculty={f}
+                tags={tagsByFaculty[f.id] ?? []}
+              />
+            ))}
           </div>
         ) : (
           <div className="py-16 text-center">
@@ -139,14 +161,18 @@ export default function Faculty() {
   )
 }
 
-// ── Faculty card ─────────────────────────────────────────────────────────────
+// ── Faculty card ──────────────────────────────────────────────────────────────
 
-function FacultyCard({ faculty: f }) {
+function FacultyCard({ faculty: f, tags }) {
   const abbrev = UNIT_ABBREV[f.unit] ?? f.unit
+  const previewTags = tags.slice(0, 4)
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
-
+    <Link
+      to={`/faculty/${f.id}`}
+      className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3
+                 hover:shadow-md hover:border-gray-300 transition-all block"
+    >
       {/* Unit badge */}
       {f.unit && (
         <span
@@ -187,29 +213,45 @@ function FacultyCard({ faculty: f }) {
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
+      {/* Research tag pills */}
+      {previewTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
+          {previewTags.map(tag => (
+            <span
+              key={tag}
+              className="text-[10px] font-medium rounded-full px-2 py-0.5 border"
+              style={{ color: '#A51C30', borderColor: 'rgba(165,28,48,0.3)', backgroundColor: 'rgba(165,28,48,0.04)' }}
+            >
+              {tag}
+            </span>
+          ))}
+          {tags.length > 4 && (
+            <span className="text-[10px] text-gray-400 self-center">+{tags.length - 4} more</span>
+          )}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 border-t border-gray-100">
         {f.email && (
-          <a
-            href={`mailto:${f.email}`}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors truncate"
+          <span
+            onClick={e => e.preventDefault()}
+            className="contents"
           >
-            {f.email}
-          </a>
+            <a
+              href={`mailto:${f.email}`}
+              onClick={e => e.stopPropagation()}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors truncate"
+            >
+              {f.email}
+            </a>
+          </span>
         )}
-        {f.profile_url && (
-          <a
-            href={f.profile_url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-medium flex-shrink-0 ml-2 hover:opacity-70 transition-opacity"
-            style={{ color: '#A51C30' }}
-          >
-            HBS Profile →
-          </a>
-        )}
+        <span className="text-xs font-medium flex-shrink-0 ml-auto" style={{ color: '#A51C30' }}>
+          View profile →
+        </span>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -242,10 +284,5 @@ function SearchIcon() {
 }
 
 function initials(name) {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w[0].toUpperCase())
-    .join('')
+  return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
 }
