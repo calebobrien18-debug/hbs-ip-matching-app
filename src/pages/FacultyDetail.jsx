@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
+import { useRequireAuth } from '../lib/hooks'
+import { initials } from '../lib/utils'
 
 const PUB_TYPE_COLORS = {
   'Journal Article': 'bg-blue-50 text-blue-700 border-blue-200',
@@ -23,11 +25,12 @@ export default function FacultyDetail() {
   const [notFound, setNotFound] = useState(false)
   const [selectedPubType, setSelectedPubType] = useState(null)
 
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
+  const session = useRequireAuth()
 
-      // Fetch faculty row, tags, and publications in parallel
+  useEffect(() => {
+    if (!session) return
+    async function load() {
+      // Fetch faculty row, tags, publications, and courses in parallel
       const [
         { data: facultyData },
         { data: tagsData },
@@ -47,8 +50,9 @@ export default function FacultyDetail() {
       setPublications(pubsData ?? [])
       setCourses(coursesData ?? [])
       setLoading(false)
-    })
-  }, [id, navigate])
+    }
+    load()
+  }, [session, id])
 
   // Ordered list of pub types present for this faculty
   const pubTypes = useMemo(() => {
@@ -357,9 +361,6 @@ function PublicationRow({ pub }) {
   )
 }
 
-function initials(name) {
-  return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
-}
 
 /**
  * Strip the name/title header that HBS profile pages inject at the top of bio text.

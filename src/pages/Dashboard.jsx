@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
+import { useRequireAuth } from '../lib/hooks'
 
 const GUEST_GREETINGS = [
   'Adventurer', 'Trailblazer', 'Visionary', 'Pioneer', 'Changemaker',
@@ -15,26 +16,23 @@ function randomGreeting() {
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [user, setUser] = useState(null)
+  const session = useRequireAuth()
   const [profiles, setProfiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [guestGreeting] = useState(randomGreeting)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
-      setUser(session.user)
-
-      const { data } = await supabase
-        .from('hbs_ip')
-        .select('id, first_name, last_name, email, program, graduation_year, hbs_section, professional_interests')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-
-      setProfiles(data ?? [])
-      setLoading(false)
-    })
-  }, [navigate])
+    if (!session) return
+    supabase
+      .from('hbs_ip')
+      .select('id, first_name, last_name, email, program, graduation_year, hbs_section, professional_interests')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setProfiles(data ?? [])
+        setLoading(false)
+      })
+  }, [session])
 
   if (loading) return null
 
@@ -63,10 +61,7 @@ export default function Dashboard() {
             {!hasProfile && (
               <button
                 onClick={() => navigate('/profile/new')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white cursor-pointer"
-                style={{ backgroundColor: '#A51C30' }}
-                onMouseOver={e => e.currentTarget.style.backgroundColor = '#8a1626'}
-                onMouseOut={e => e.currentTarget.style.backgroundColor = '#A51C30'}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white cursor-pointer bg-crimson hover:bg-crimson-dark transition-colors"
               >
                 + Add profile
               </button>

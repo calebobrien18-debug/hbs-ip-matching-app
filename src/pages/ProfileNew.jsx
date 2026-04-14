@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
+import { useRequireAuth } from '../lib/hooks'
 
 const HBS_SECTIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 const PROGRAMS = ['MBA', 'Executive Education', 'Other']
@@ -29,16 +30,16 @@ export default function ProfileNew() {
   const [resumeFile, setResumeFile] = useState(null)
   const [linkedinPdfFile, setLinkedinPdfFile] = useState(null)
 
+  const session = useRequireAuth()
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
-      const meta = session.user.user_metadata
-      const fullName = meta?.full_name || meta?.name || ''
-      const [first = '', ...rest] = fullName.split(' ')
-      setForm(f => ({ ...f, first_name: first, last_name: rest.join(' '), email: session.user.email ?? '' }))
-      setLoading(false)
-    })
-  }, [navigate])
+    if (!session) return
+    const meta = session.user.user_metadata
+    const fullName = meta?.full_name || meta?.name || ''
+    const [first = '', ...rest] = fullName.split(' ')
+    setForm(f => ({ ...f, first_name: first, last_name: rest.join(' '), email: session.user.email ?? '' }))
+    setLoading(false)
+  }, [session])
 
   function set(field) { return e => setForm(f => ({ ...f, [field]: e.target.value })) }
 

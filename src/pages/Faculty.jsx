@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
+import { useRequireAuth } from '../lib/hooks'
+import { initials } from '../lib/utils'
 
 // Short display labels for unit filter pills
 const UNIT_ABBREV = {
@@ -19,7 +20,7 @@ const UNIT_ABBREV = {
 }
 
 export default function Faculty() {
-  const navigate = useNavigate()
+  const session = useRequireAuth()
   const [faculty, setFaculty] = useState([])
   const [tagsByFaculty, setTagsByFaculty] = useState({}) // { faculty_id: string[] }
   const [loading, setLoading] = useState(true)
@@ -28,9 +29,8 @@ export default function Faculty() {
   const [selectedTag, setSelectedTag] = useState(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
-
+    if (!session) return
+    async function load() {
       // Fetch faculty and all tags in parallel
       const [
         { data: facultyData, error: facultyError },
@@ -49,10 +49,10 @@ export default function Faculty() {
         tagMap[row.faculty_id].push(row.tag)
       }
       setTagsByFaculty(tagMap)
-
       setLoading(false)
-    })
-  }, [navigate])
+    }
+    load()
+  }, [session])
 
   // Derive sorted unique units from loaded data
   const units = useMemo(() => {
@@ -121,7 +121,7 @@ export default function Faculty() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm text-gray-900
-                         focus:outline-none focus:ring-2 focus:ring-[#A51C30] focus:border-transparent
+                         focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent
                          placeholder:text-gray-400 bg-white"
             />
           </div>
@@ -332,6 +332,3 @@ function SearchIcon() {
   )
 }
 
-function initials(name) {
-  return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
-}

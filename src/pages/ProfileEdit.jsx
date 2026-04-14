@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useRequireAuth } from '../lib/hooks'
 import {
   PersonalSection, HBSSection, ResearchSection, UploadsSection,
 } from './ProfileNew.jsx'
@@ -25,10 +26,11 @@ export default function ProfileEdit() {
   const [resumeFile, setResumeFile] = useState(null)
   const [linkedinPdfFile, setLinkedinPdfFile] = useState(null)
 
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
+  const session = useRequireAuth()
 
+  useEffect(() => {
+    if (!session) return
+    async function load() {
       const { data: profile } = await supabase
         .from('hbs_ip')
         .select('*')
@@ -54,8 +56,9 @@ export default function ProfileEdit() {
         additional_background: profile.additional_background ?? '',
       })
       setLoading(false)
-    })
-  }, [navigate])
+    }
+    load()
+  }, [session, navigate])
 
   function set(field) { return e => setForm(f => ({ ...f, [field]: e.target.value })) }
 

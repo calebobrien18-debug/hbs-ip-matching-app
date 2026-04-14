@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
+import { useRequireAuth } from '../lib/hooks'
 
 export default function ProfileDetail() {
   const { id } = useParams()
@@ -13,10 +14,11 @@ export default function ProfileDetail() {
   const [notFound, setNotFound] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { navigate('/', { replace: true }); return }
+  const session = useRequireAuth()
 
+  useEffect(() => {
+    if (!session) return
+    async function load() {
       const { data } = await supabase
         .from('hbs_ip')
         .select('*')
@@ -28,21 +30,19 @@ export default function ProfileDetail() {
 
       setProfile(data)
 
-      // Generate short-lived signed URLs for any uploaded files
-      if (data.resume_path) {
-        const { data: signed } = await supabase.storage
-          .from('student-files').createSignedUrl(data.resume_path, 3600)
-        setResumeUrl(signed?.signedUrl ?? null)
-      }
-      if (data.linkedin_pdf_path) {
-        const { data: signed } = await supabase.storage
-          .from('student-files').createSignedUrl(data.linkedin_pdf_path, 3600)
-        setLinkedinPdfUrl(signed?.signedUrl ?? null)
-      }
+      // Generate signed URLs in parallel
+      const storage = supabase.storage.from('student-files')
+      const [resumeSigned, linkedinSigned] = await Promise.all([
+        data.resume_path        ? storage.createSignedUrl(data.resume_path, 3600)        : Promise.resolve({ data: null }),
+        data.linkedin_pdf_path  ? storage.createSignedUrl(data.linkedin_pdf_path, 3600)  : Promise.resolve({ data: null }),
+      ])
+      setResumeUrl(resumeSigned.data?.signedUrl ?? null)
+      setLinkedinPdfUrl(linkedinSigned.data?.signedUrl ?? null)
 
       setLoading(false)
-    })
-  }, [id, navigate])
+    }
+    load()
+  }, [session, id])
 
   async function handleDelete() {
     const confirmed = window.confirm(
