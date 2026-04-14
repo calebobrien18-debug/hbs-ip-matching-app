@@ -95,12 +95,9 @@ def fetch_profile(page, fac_id: str, save_debug: bool = False):
     """Navigate to a faculty profile page and return fully-rendered HTML as BeautifulSoup."""
     url = PROFILE_BASE.format(fac_id)
     try:
-        page.goto(url, wait_until="load", timeout=30000)
-        # Wait for JS-rendered publication containers, up to 8s
-        try:
-            page.wait_for_selector(".toggle-container", timeout=8000)
-        except Exception:
-            pass  # Faculty with no publications still need to be scraped
+        page.goto(url, wait_until="domcontentloaded", timeout=20000)
+        # Give JS a moment to render publication containers
+        page.wait_for_timeout(2000)
         html = page.content()
         if save_debug:
             DEBUG_HTML.write_text(html, encoding="utf-8")
@@ -458,7 +455,7 @@ def main():
             args=["--disable-blink-features=AutomationControlled"],
         )
 
-        CONTEXT_RESTART_EVERY = 50  # fresh context every N faculty to avoid memory/throttle issues
+        CONTEXT_RESTART_EVERY = 10  # fresh context every N faculty to avoid memory/throttle issues
 
         def make_context():
             ctx = browser.new_context(

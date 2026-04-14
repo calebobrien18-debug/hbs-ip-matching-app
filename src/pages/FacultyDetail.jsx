@@ -18,6 +18,7 @@ export default function FacultyDetail() {
   const [faculty, setFaculty] = useState(null)
   const [tags, setTags] = useState([])
   const [publications, setPublications] = useState([])
+  const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [selectedPubType, setSelectedPubType] = useState(null)
@@ -31,10 +32,12 @@ export default function FacultyDetail() {
         { data: facultyData },
         { data: tagsData },
         { data: pubsData },
+        { data: coursesData },
       ] = await Promise.all([
         supabase.from('faculty').select('*').eq('id', id).maybeSingle(),
         supabase.from('faculty_tags').select('tag').eq('faculty_id', id).order('tag'),
         supabase.from('faculty_publications').select('*').eq('faculty_id', id).order('year', { ascending: false }),
+        supabase.from('faculty_courses').select('*').eq('faculty_id', id).order('term').order('course_title'),
       ])
 
       if (!facultyData) { setNotFound(true); setLoading(false); return }
@@ -42,6 +45,7 @@ export default function FacultyDetail() {
       setFaculty(facultyData)
       setTags((tagsData ?? []).map(r => r.tag))
       setPublications(pubsData ?? [])
+      setCourses(coursesData ?? [])
       setLoading(false)
     })
   }, [id, navigate])
@@ -176,6 +180,17 @@ export default function FacultyDetail() {
           )}
         </Section>
 
+        {/* Courses */}
+        {courses.length > 0 && (
+          <Section title={`Courses (${courses.length})`}>
+            <div className="divide-y divide-gray-100">
+              {courses.map(course => (
+                <CourseRow key={course.id} course={course} />
+              ))}
+            </div>
+          </Section>
+        )}
+
         {/* Publications */}
         <Section title={`Recent publications${publications.length ? ` (${publications.length})` : ''}`}>
           {publications.length > 0 ? (
@@ -270,6 +285,33 @@ const ACTIVE_TYPE_STYLES = {
   'Conference Paper':{ backgroundColor: '#fdf4ff', color: '#9333ea', borderColor: '#f0abfc' },
   'Report':          { backgroundColor: '#fff7ed', color: '#c2410c', borderColor: '#fed7aa' },
   'Other':           { backgroundColor: '#f9fafb', color: '#6b7280', borderColor: '#e5e7eb' },
+}
+
+function CourseRow({ course }) {
+  const termLabel = [course.term, course.quarter].filter(Boolean).join(' · ')
+  const creditLabel = course.credits != null ? `${course.credits} cr` : null
+
+  return (
+    <div className="py-3.5 space-y-1.5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-gray-900 leading-snug">{course.course_title}</p>
+        {creditLabel && (
+          <span className="text-xs text-gray-400 flex-shrink-0 pt-0.5">{creditLabel}</span>
+        )}
+      </div>
+      {termLabel && (
+        <span
+          className="inline-block text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 border"
+          style={{ color: '#A51C30', borderColor: '#A51C30', backgroundColor: 'rgba(165,28,48,0.06)' }}
+        >
+          {termLabel}
+        </span>
+      )}
+      {course.description && (
+        <p className="text-xs text-gray-500 leading-relaxed">{course.description}</p>
+      )}
+    </div>
+  )
 }
 
 function PublicationRow({ pub }) {
