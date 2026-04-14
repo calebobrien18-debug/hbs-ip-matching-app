@@ -25,6 +25,7 @@ export default function Faculty() {
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [selectedUnit, setSelectedUnit] = useState(null)
+  const [selectedTag, setSelectedTag] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -59,17 +60,30 @@ export default function Faculty() {
     return [...set].sort()
   }, [faculty])
 
+  // Derive cross-cutting tags (appear on 2+ faculty), sorted by frequency
+  const popularTags = useMemo(() => {
+    const count = {}
+    Object.values(tagsByFaculty).forEach(tags =>
+      tags.forEach(t => { count[t] = (count[t] ?? 0) + 1 })
+    )
+    return Object.entries(count)
+      .filter(([, n]) => n >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag]) => tag)
+  }, [tagsByFaculty])
+
   // Client-side filter: name, title, bio, unit, tags
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return faculty.filter(f => {
       const matchesUnit = !selectedUnit || f.unit === selectedUnit
       const facTags = tagsByFaculty[f.id] ?? []
+      const matchesTag = !selectedTag || facTags.includes(selectedTag)
       const matchesQuery = !q || [f.name, f.title, f.bio, f.unit, ...facTags]
         .some(field => field?.toLowerCase().includes(q))
-      return matchesUnit && matchesQuery
+      return matchesUnit && matchesTag && matchesQuery
     })
-  }, [faculty, tagsByFaculty, query, selectedUnit])
+  }, [faculty, tagsByFaculty, query, selectedUnit, selectedTag])
 
   if (loading) return null
 
@@ -87,7 +101,7 @@ export default function Faculty() {
           </p>
         </div>
 
-        {/* Search + unit filter */}
+        {/* Search + filters */}
         <div className="mb-6 space-y-3">
           {/* Search input */}
           <div className="relative max-w-md">
@@ -106,9 +120,10 @@ export default function Faculty() {
           </div>
 
           {/* Unit filter pills */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-gray-400 mr-1 w-10 flex-shrink-0">Unit</span>
             <UnitPill
-              label="All units"
+              label="All"
               active={selectedUnit === null}
               onClick={() => setSelectedUnit(null)}
             />
@@ -122,13 +137,34 @@ export default function Faculty() {
               />
             ))}
           </div>
+
+          {/* Topic tag filter pills (cross-cutting tags only) */}
+          {popularTags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-gray-400 mr-1 w-10 flex-shrink-0">Topic</span>
+              <UnitPill
+                label="All"
+                active={selectedTag === null}
+                onClick={() => setSelectedTag(null)}
+              />
+              {popularTags.map(tag => (
+                <UnitPill
+                  key={tag}
+                  label={tag}
+                  active={selectedTag === tag}
+                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Results count */}
-        {(query || selectedUnit) && (
+        {(query || selectedUnit || selectedTag) && (
           <p className="text-sm text-gray-500 mb-4">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
             {selectedUnit && <> in <span className="font-medium text-gray-700">{selectedUnit}</span></>}
+            {selectedTag && <> tagged <span className="font-medium text-gray-700">"{selectedTag}"</span></>}
             {query && <> matching <span className="font-medium text-gray-700">"{query}"</span></>}
           </p>
         )}
@@ -141,6 +177,8 @@ export default function Faculty() {
                 key={f.id}
                 faculty={f}
                 tags={tagsByFaculty[f.id] ?? []}
+                selectedTag={selectedTag}
+                onTagClick={setSelectedTag}
               />
             ))}
           </div>
@@ -148,7 +186,7 @@ export default function Faculty() {
           <div className="py-16 text-center">
             <p className="text-gray-400 text-sm">No faculty matched your search.</p>
             <button
-              onClick={() => { setQuery(''); setSelectedUnit(null) }}
+              onClick={() => { setQuery(''); setSelectedUnit(null); setSelectedTag(null) }}
               className="mt-3 text-sm font-medium cursor-pointer"
               style={{ color: '#A51C30' }}
             >
@@ -163,7 +201,7 @@ export default function Faculty() {
 
 // ── Faculty card ──────────────────────────────────────────────────────────────
 
-function FacultyCard({ faculty: f, tags }) {
+function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
   const abbrev = UNIT_ABBREV[f.unit] ?? f.unit
   const previewTags = tags.slice(0, 4)
 
@@ -213,17 +251,26 @@ function FacultyCard({ faculty: f, tags }) {
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
-      {/* Research tag pills */}
+      {/* Research tag pills — clicking a tag filters by it */}
       {previewTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
           {previewTags.map(tag => (
-            <span
+            <button
               key={tag}
-              className="text-[10px] font-medium rounded-full px-2 py-0.5 border"
-              style={{ color: '#A51C30', borderColor: 'rgba(165,28,48,0.3)', backgroundColor: 'rgba(165,28,48,0.04)' }}
+              type="button"
+              onClick={e => {
+                e.preventDefault()
+                onTagClick(selectedTag === tag ? null : tag)
+              }}
+              className="text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors"
+              style={
+                selectedTag === tag
+                  ? { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
+                  : { color: '#A51C30', borderColor: 'rgba(165,28,48,0.3)', backgroundColor: 'rgba(165,28,48,0.04)' }
+              }
             >
               {tag}
-            </span>
+            </button>
           ))}
           {tags.length > 4 && (
             <span className="text-[10px] text-gray-400 self-center">+{tags.length - 4} more</span>
@@ -234,18 +281,13 @@ function FacultyCard({ faculty: f, tags }) {
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 border-t border-gray-100">
         {f.email && (
-          <span
-            onClick={e => e.preventDefault()}
-            className="contents"
+          <a
+            href={`mailto:${f.email}`}
+            onClick={e => e.stopPropagation()}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors truncate"
           >
-            <a
-              href={`mailto:${f.email}`}
-              onClick={e => e.stopPropagation()}
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors truncate"
-            >
-              {f.email}
-            </a>
-          </span>
+            {f.email}
+          </a>
         )}
         <span className="text-xs font-medium flex-shrink-0 ml-auto" style={{ color: '#A51C30' }}>
           View profile →
