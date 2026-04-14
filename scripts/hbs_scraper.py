@@ -82,7 +82,12 @@ PUB_SECTION_TYPES = {
 
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 
-MAX_PUBLICATIONS = 10
+MAX_PUBLICATIONS = 20          # total cap per faculty
+TYPE_QUOTAS = {                # guaranteed minimums (where available)
+    "Journal Article": 5,
+    "Working Paper":   5,
+    "Case":            5,
+}
 
 
 # ── Fetch helpers ─────────────────────────────────────────────────────────────
@@ -163,8 +168,47 @@ def scrape_publications(soup, fac_id: str) -> list:
                 pubs.append(pub)
 
     pubs = _dedup_pubs(pubs)
-    pubs.sort(key=lambda p: p.get("year") or 0, reverse=True)
-    return pubs[:MAX_PUBLICATIONS]
+    return _select_with_quotas(pubs)
+
+
+def _select_with_quotas(pubs: list) -> list:
+    """
+    Select up to MAX_PUBLICATIONS publications using a quota-then-fill strategy:
+      1. Guarantee up to TYPE_QUOTAS[type] most-recent pubs per priority type.
+      2. Fill any remaining slots (up to MAX_PUBLICATIONS) with the most recent
+         publications across all types not yet included.
+      3. Return sorted by year descending.
+    """
+    # Sort all pubs by year desc once
+    by_year = sorted(pubs, key=lambda p: p.get("year") or 0, reverse=True)
+
+    selected = []
+    seen = set()  # keyed by lowercased title prefix
+
+    def _add(pub):
+        key = pub["title"].lower()[:80]
+        if key not in seen:
+            seen.add(key)
+            selected.append(pub)
+
+    # Step 1 — fill guaranteed slots per priority type (most recent first)
+    by_type = {}
+    for pub in by_year:
+        by_type.setdefault(pub["pub_type"], []).append(pub)
+
+    for pub_type, quota in TYPE_QUOTAS.items():
+        for pub in by_type.get(pub_type, [])[:quota]:
+            _add(pub)
+
+    # Step 2 — fill remaining slots with most-recent across all types
+    for pub in by_year:
+        if len(selected) >= MAX_PUBLICATIONS:
+            break
+        _add(pub)
+
+    # Step 3 — return sorted by year desc
+    selected.sort(key=lambda p: p.get("year") or 0, reverse=True)
+    return selected
 
 
 def _parse_pub_entry(entry, pub_type: str):
@@ -285,7 +329,11 @@ def main():
             photo_url    = get_photo_url(fac_id)
             publications = scrape_publications(soup, fac_id) if soup else []
 
-            print(f"         pubs: {len(publications)}")
+            type_counts = {}
+            for p in publications:
+                type_counts[p["pub_type"]] = type_counts.get(p["pub_type"], 0) + 1
+            breakdown = ", ".join(f"{v} {k}" for k, v in sorted(type_counts.items()))
+            print(f"         pubs: {len(publications)} ({breakdown})")
 
             results.append({
                 "hbs_fac_id":   fac_id,
