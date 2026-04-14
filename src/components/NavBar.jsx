@@ -56,7 +56,8 @@ export default function NavBar() {
         {/* Center: nav links */}
         <div className="flex items-center gap-6">
           {navLink('/dashboard', 'Dashboard')}
-          {navLink('/profile/new', 'Add Profile')}
+          {navLink('/faculty', 'Faculty')}
+          {navLink('/profile/new', 'My Profile')}
         </div>
 
         {/* Right: user + sign out */}

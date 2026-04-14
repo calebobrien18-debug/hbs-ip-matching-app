@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import ProfileNew from './pages/ProfileNew.jsx'
 import ProfileEdit from './pages/ProfileEdit.jsx'
 import ProfileDetail from './pages/ProfileDetail.jsx'
+import Faculty from './pages/Faculty.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/profile/new" element={<ProfileNew />} />
         <Route path="/profile/edit" element={<ProfileEdit />} />
         <Route path="/profile/:id" element={<ProfileDetail />} />
+        <Route path="/faculty" element={<Faculty />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
