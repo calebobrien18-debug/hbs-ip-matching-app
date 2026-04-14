@@ -1,12 +1,18 @@
 """
 HBS Faculty Enrichment Scraper
 ===============================
-Fetches photos, research keywords, and recent publications from HBS faculty
-profile pages for the 20 pilot faculty members. Must be run locally --
-hbs.edu returns 403 to server-side / cloud requests.
+Fetches photos and recent publications from HBS faculty profile pages
+for the 20 pilot faculty members. Must be run locally -- hbs.edu returns
+403 to server-side / cloud requests.
 
 Uses Playwright (headless Chromium) so that JavaScript-rendered content
-(publication lists, research areas) is fully loaded before parsing.
+(publication lists) is fully loaded before parsing.
+
+Photos are derived directly from the predictable HBS headshot API URL
+(no scraping needed): Style Library/api/headshot.aspx?id={facId}
+
+Research keyword tags are managed via the curated migration seed
+(008_seed_faculty_tags.sql) and are not scraped here.
 
 Usage:
     cd scripts
@@ -27,7 +33,9 @@ from playwright.sync_api import sync_playwright
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
-OUTPUT_FILE = Path(__file__).parent / "enriched_faculty.json"
+OUTPUT_FILE  = Path(__file__).parent / "enriched_faculty.json"
+DEBUG_HTML   = Path(__file__).parent / "debug_profile.html"  # saved when DEBUG=True
+DEBUG        = False  # set True to save the first profile's HTML for inspection
 
 # The 20 pilot faculty — (hbs_fac_id, name) for logging
 PILOT_FACULTY = [
@@ -53,31 +61,23 @@ PILOT_FACULTY = [
     ("14938",   "Feng Zhu"),
 ]
 
-PROFILE_BASE = "https://www.hbs.edu/faculty/Pages/profile.aspx?facId={}"
+PROFILE_BASE  = "https://www.hbs.edu/faculty/Pages/profile.aspx?facId={}"
+# HBS headshot API — returns a JPEG for any valid facId
+HEADSHOT_BASE = "https://www.hbs.edu/Style%20Library/api/headshot.aspx?id={}"
 
-# Section headings that signal a keyword/interest block
-KEYWORD_HEADING_PATTERNS = re.compile(
-    r"research\s*(interests?|areas?|focus|keywords?)?|"
-    r"interests?|keywords?|topics?|expertise|areas?\s+of\s+interest",
-    re.IGNORECASE,
-)
-
-# Publication section headings -> pub_type mapping
+# Publication section heading text -> pub_type mapping
+# HBS uses ALL-CAPS headings like "JOURNAL ARTICLES", "WORKING PAPERS", etc.
 PUB_SECTION_TYPES = {
-    "journal articles": "Journal Article",
-    "journal article":  "Journal Article",
-    "articles":         "Journal Article",
-    "books":            "Book",
-    "book":             "Book",
-    "book chapters":    "Chapter",
-    "chapters":         "Chapter",
-    "cases":            "Case",
-    "case":             "Case",
-    "working papers":   "Working Paper",
-    "working paper":    "Working Paper",
-    "conference":       "Conference Paper",
-    "reports":          "Report",
-    "other":            "Other",
+    "journal article": "Journal Article",
+    "article":         "Journal Article",
+    "book chapter":    "Chapter",
+    "chapter":         "Chapter",
+    "book":            "Book",
+    "case":            "Case",
+    "working paper":   "Working Paper",
+    "conference":      "Conference Paper",
+    "report":          "Report",
+    "other":           "Other",
 }
 
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
@@ -87,165 +87,80 @@ MAX_PUBLICATIONS = 10
 
 # ── Fetch helpers ─────────────────────────────────────────────────────────────
 
-def fetch_profile(page, fac_id: str):
+def fetch_profile(page, fac_id: str, save_debug: bool = False):
     """Navigate to a faculty profile page and return fully-rendered HTML as BeautifulSoup."""
     url = PROFILE_BASE.format(fac_id)
     try:
         page.goto(url, wait_until="networkidle", timeout=30000)
         html = page.content()
+        if save_debug:
+            DEBUG_HTML.write_text(html, encoding="utf-8")
+            print(f"    [debug] Saved rendered HTML to {DEBUG_HTML}")
         return BeautifulSoup(html, "lxml")
     except Exception as e:
         print(f"    X Error loading facId={fac_id}: {e}")
         return None
 
 
-# ── Photo scraping ────────────────────────────────────────────────────────────
+# ── Photo ─────────────────────────────────────────────────────────────────────
 
-def scrape_photo(soup, fac_id: str):
+def get_photo_url(fac_id: str) -> str:
     """
-    Extract the faculty headshot URL from a profile page.
-    Tries three strategies; returns an absolute URL or None.
+    Return the HBS headshot API URL for this faculty member.
+    The URL is predictable — no scraping required.
     """
-    # Strategy 1: HBS SharePoint stores faculty photos under PublishingImages
-    for img in soup.find_all("img"):
-        src = img.get("src", "")
-        if "PublishingImages" in src:
-            return _abs(src)
-
-    # Strategy 2: container with photo/profile/headshot class
-    for container in soup.find_all(class_=re.compile(r"photo|profile|headshot", re.I)):
-        img = container.find("img")
-        if img and img.get("src"):
-            return _abs(img["src"])
-
-    # Strategy 3: img whose src contains the faculty id
-    for img in soup.find_all("img"):
-        src = img.get("src", "")
-        if fac_id in src:
-            return _abs(src)
-
-    return None
-
-
-def _abs(url: str) -> str:
-    """Make a relative URL absolute."""
-    if url.startswith("//"):
-        return "https:" + url
-    if url.startswith("/"):
-        return "https://www.hbs.edu" + url
-    return url
-
-
-# ── Keyword scraping ──────────────────────────────────────────────────────────
-
-def scrape_keywords(soup) -> list:
-    """
-    Extract research keyword/interest tags from a faculty profile page.
-    Tries multiple selector strategies; returns a deduped list of strings.
-    """
-    tags = []
-
-    # Strategy 1: heading matching keyword patterns, then next sibling content
-    for heading in soup.find_all(["h1", "h2", "h3", "h4", "h5", "strong", "b"]):
-        heading_text = heading.get_text(strip=True)
-        if KEYWORD_HEADING_PATTERNS.search(heading_text):
-            sibling = heading.find_next_sibling(["p", "ul", "div"])
-            if sibling:
-                raw = sibling.get_text(separator=", ", strip=True)
-                tags.extend(_split_tags(raw))
-            if tags:
-                break
-
-    # Strategy 2: div/section with class hinting at keywords
-    if not tags:
-        for container in soup.find_all(["div", "section"], class_=re.compile(
-            r"keyword|interest|research|topic|expertise", re.I
-        )):
-            raw = container.get_text(separator=", ", strip=True)
-            tags.extend(_split_tags(raw))
-            if tags:
-                break
-
-    # Strategy 3: explicit "Keywords:" label inline
-    if not tags:
-        for elem in soup.find_all(string=re.compile(r"keywords?\s*:", re.I)):
-            parent = elem.find_parent()
-            if parent:
-                raw = parent.get_text(strip=True)
-                raw = re.sub(r"^keywords?\s*:\s*", "", raw, flags=re.I)
-                tags.extend(_split_tags(raw))
-            if tags:
-                break
-
-    return _dedup(tags)
-
-
-def _split_tags(text: str) -> list:
-    """Split a comma/semicolon/newline-separated string into individual tags."""
-    text = re.sub(r"[;\n\u2022\u00b7]", ",", text)
-    parts = [t.strip().strip(".,") for t in text.split(",")]
-    return [p for p in parts if 2 < len(p) <= 60 and not p.isdigit()]
-
-
-def _dedup(items: list) -> list:
-    seen = set()
-    result = []
-    for item in items:
-        key = item.lower()
-        if key not in seen:
-            seen.add(key)
-            result.append(item)
-    return result
+    return HEADSHOT_BASE.format(fac_id)
 
 
 # ── Publication scraping ──────────────────────────────────────────────────────
 
 def scrape_publications(soup, fac_id: str) -> list:
     """
-    Extract recent publications from a faculty profile page.
-    Returns a list of dicts (title, year, pub_type, journal, url),
-    capped at MAX_PUBLICATIONS, sorted by year descending.
+    Extract recent publications from a fully-rendered HBS faculty profile page.
+
+    HBS page structure:
+      <div class="toggle-container">
+        <h3 class="eta-uc">
+          <div class="toggle-hide"><a>JOURNAL ARTICLES</a></div>
+        </h3>
+        <div class="toggle-hide has-slide">
+          <ul class="unstyled list-publications ...">
+            <li><div>Authors. <a href="...">Title</a> Journal Year. <a>View Details</a></div></li>
+            ...
+          </ul>
+        </div>
+      </div>
     """
     pubs = []
-    headings = soup.find_all(["h2", "h3", "h4", "h5"])
 
-    for heading in headings:
-        heading_text = heading.get_text(strip=True).lower().rstrip("s")
+    for container in soup.find_all("div", class_="toggle-container"):
+        h3 = container.find("h3")
+        if not h3:
+            continue
+
+        heading_text = h3.get_text(strip=True).lower()
+        # Normalise plural: "journal articles" -> match "journal article"
+        heading_text = heading_text.rstrip("s")
+
         pub_type = None
         for pattern, ptype in PUB_SECTION_TYPES.items():
-            if pattern.rstrip("s") in heading_text:
+            if pattern in heading_text:
                 pub_type = ptype
                 break
         if pub_type is None:
             continue
 
-        siblings = []
-        for sibling in heading.find_next_siblings():
-            if sibling.name in ["h2", "h3", "h4", "h5"]:
-                break
-            siblings.append(sibling)
+        pub_list = container.find("ul", class_=re.compile(r"list-publication", re.I))
+        if not pub_list:
+            # Fallback: any ul within the container
+            pub_list = container.find("ul")
+        if not pub_list:
+            continue
 
-        entries = []
-        for sib in siblings:
-            if sib.name in ["ul", "ol"]:
-                entries.extend(sib.find_all("li"))
-            elif sib.name in ["p", "div"]:
-                entries.append(sib)
-
-        for entry in entries:
-            pub = _parse_pub_entry(entry, pub_type)
+        for li in pub_list.find_all("li", recursive=False):
+            pub = _parse_pub_entry(li, pub_type)
             if pub:
                 pubs.append(pub)
-
-    # Fallback: generic publication list class
-    if not pubs:
-        for container in soup.find_all(class_=re.compile(
-            r"pub|publication|research-item|work", re.I
-        )):
-            for item in container.find_all(["li", "p"]):
-                pub = _parse_pub_entry(item, "Publication")
-                if pub:
-                    pubs.append(pub)
 
     pubs = _dedup_pubs(pubs)
     pubs.sort(key=lambda p: p.get("year") or 0, reverse=True)
@@ -253,34 +168,55 @@ def scrape_publications(soup, fac_id: str) -> list:
 
 
 def _parse_pub_entry(entry, pub_type: str):
-    """Parse a single publication entry element into a dict."""
+    """
+    Parse a single <li> publication entry.
+
+    HBS entry structure:
+      <li>
+        <div>Authors. <a href="URL">Title text <span class="pdf-append">(pdf)</span></a>
+             <i>Journal Name</i> Vol (Year): pages. <a>View Details</a></div>
+        <div class="shim20"></div>
+      </li>
+    """
     text = entry.get_text(separator=" ", strip=True)
     if len(text) < 10:
         return None
 
-    title_tag = entry.find("a") or entry.find("strong") or entry.find("b")
+    # Find the first <a> that is NOT a "View Details" link
+    title_tag = None
+    url = None
+    for a in entry.find_all("a"):
+        a_text = a.get_text(strip=True)
+        if a_text.lower() in ("view details", "view detail", ""):
+            continue
+        title_tag = a
+        href = a.get("href", "")
+        if href and not href.startswith("#"):
+            url = href if href.startswith("http") else "https://www.hbs.edu" + href
+        break
+
     if title_tag:
-        title = title_tag.get_text(strip=True)
-        url = title_tag.get("href") if title_tag.name == "a" else None
-        if url and url.startswith("/"):
-            url = "https://www.hbs.edu" + url
+        # Get title text, strip surrounding quotes and the "(pdf)" suffix
+        raw_title = title_tag.get_text(strip=True)
+        raw_title = re.sub(r"\s*\(pdf\)\s*$", "", raw_title, flags=re.I).strip()
+        title = raw_title.strip('"').strip("\u201c\u201d").strip("'").strip()
     else:
         title = re.split(r"[.!?]", text)[0].strip()
-        url = None
 
     if not title or len(title) < 5:
         return None
 
+    # Year: first 4-digit year in the full text
     year_match = YEAR_RE.search(text)
     year = int(year_match.group()) if year_match else None
 
+    # Journal: look for <i> tag (HBS italicises journal names)
     journal = None
-    if year_match:
-        remainder = text[len(title):year_match.start()].strip(" ,.-")
-        if remainder.lower().startswith(title.lower()):
-            remainder = remainder[len(title):].strip(" ,.-")
-        if remainder and 2 < len(remainder) < 120:
-            journal = remainder
+    italic = entry.find("i")
+    if italic:
+        journal_text = italic.get_text(strip=True)
+        if journal_text and len(journal_text) < 120:
+            journal = journal_text
 
     return {"title": title, "year": year, "pub_type": pub_type, "journal": journal, "url": url}
 
@@ -306,58 +242,57 @@ def main():
     results = []
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
+        browser = pw.chromium.launch(
+            headless=True,
+            args=["--disable-blink-features=AutomationControlled"],
+        )
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            locale="en-US",
+            viewport={"width": 1280, "height": 800},
+        )
+        # Remove the webdriver flag that sites use to detect automation
+        context.add_init_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+        )
 
         for i, (fac_id, name) in enumerate(PILOT_FACULTY, 1):
             print(f"[{i:2}/{len(PILOT_FACULTY)}] {name} (facId={fac_id})")
 
-            page = browser.new_page()
-            soup = fetch_profile(page, fac_id)
+            page = context.new_page()
+            soup = fetch_profile(page, fac_id, save_debug=(DEBUG and i == 1))
             page.close()
 
-            if soup is None:
-                results.append({
-                    "hbs_fac_id":   fac_id,
-                    "photo_url":    None,
-                    "tags":         [],
-                    "publications": [],
-                })
-                time.sleep(1)
-                continue
+            photo_url    = get_photo_url(fac_id)
+            publications = scrape_publications(soup, fac_id) if soup else []
 
-            photo_url    = scrape_photo(soup, fac_id)
-            keywords     = scrape_keywords(soup)
-            publications = scrape_publications(soup, fac_id)
-
-            photo_mark = "ok" if photo_url else "--"
-            print(f"         photo: {photo_mark}   tags: {len(keywords)}   pubs: {len(publications)}")
-            if keywords:
-                preview = keywords[:5]
-                suffix = "..." if len(keywords) > 5 else ""
-                print(f"         -> {', '.join(preview)}{suffix}")
+            print(f"         pubs: {len(publications)}")
 
             results.append({
                 "hbs_fac_id":   fac_id,
                 "photo_url":    photo_url,
-                "tags":         keywords,
+                "tags":         [],   # managed via curated migration seed
                 "publications": publications,
             })
 
             time.sleep(1)
 
+        context.close()
         browser.close()
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
-    total_tags   = sum(len(r["tags"]) for r in results)
     total_pubs   = sum(len(r["publications"]) for r in results)
     total_photos = sum(1 for r in results if r.get("photo_url"))
 
     print("\n" + "=" * 50)
     print("Done!")
-    print(f"   Photos found:         {total_photos}")
-    print(f"   Tags scraped:         {total_tags}")
+    print(f"   Photos (URL):         {total_photos}")
     print(f"   Publications scraped: {total_pubs}")
     print(f"   Output: {OUTPUT_FILE}")
     print()
