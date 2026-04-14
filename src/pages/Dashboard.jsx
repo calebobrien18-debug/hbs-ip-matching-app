@@ -45,14 +45,16 @@ export default function Dashboard() {
       .from('saved_faculty')
       .select('faculty_id')
       .eq('user_id', session.user.id)
-      .then(async ({ data: savedRows }) => {
+      .then(async ({ data: savedRows, error }) => {
+        if (error) { console.error('[Dashboard] saved_faculty load error:', error); setSavedLoading(false); return }
         const ids = (savedRows ?? []).map(r => r.faculty_id)
         if (ids.length === 0) { setSavedFaculty([]); setSavedLoading(false); return }
-        const { data: facultyData } = await supabase
+        const { data: facultyData, error: facError } = await supabase
           .from('faculty')
           .select('id, name, unit, image_url, title')
           .in('id', ids)
           .order('name')
+        if (facError) console.error('[Dashboard] faculty detail load error:', facError)
         setSavedFaculty(facultyData ?? [])
         setSavedLoading(false)
       })

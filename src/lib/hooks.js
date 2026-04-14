@@ -38,7 +38,8 @@ export function useSavedFaculty(session) {
       .from('saved_faculty')
       .select('faculty_id')
       .eq('user_id', session.user.id)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { console.error('[useSavedFaculty] load error:', error); return }
         setSavedIds(new Set((data ?? []).map(r => r.faculty_id)))
       })
   }, [session])
@@ -55,15 +56,21 @@ export function useSavedFaculty(session) {
     })
 
     if (isSaved) {
-      await supabase
+      const { error } = await supabase
         .from('saved_faculty')
         .delete()
         .eq('user_id', session.user.id)
         .eq('faculty_id', facultyId)
+      if (error) console.error('[useSavedFaculty] delete error:', error)
     } else {
-      await supabase
+      const { error } = await supabase
         .from('saved_faculty')
         .insert({ user_id: session.user.id, faculty_id: facultyId })
+      if (error) {
+        console.error('[useSavedFaculty] insert error:', error)
+        // Roll back the optimistic update if the insert failed
+        setSavedIds(prev => { const next = new Set(prev); next.delete(facultyId); return next })
+      }
     }
   }
 
