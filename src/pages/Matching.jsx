@@ -12,15 +12,30 @@ const LOADING_MESSAGES = [
   'Selecting your best matches…',
 ]
 
+// Chip colors — three shades of green
 const STRENGTH_STYLES = {
-  strong:      'bg-crimson text-white',
-  good:        'bg-blue-50 text-blue-700 border border-blue-200',
-  exploratory: 'bg-gray-100 text-gray-600 border border-gray-200',
+  strong:      'bg-green-700 text-white',
+  good:        'bg-green-100 text-green-800 border border-green-300',
+  exploratory: 'bg-green-50 text-green-600 border border-green-200',
+}
+
+// Left-border accent on cards
+const STRENGTH_ACCENT = {
+  strong:      'border-l-green-600',
+  good:        'border-l-green-400',
+  exploratory: 'border-l-green-200',
+}
+
+// Active filter pill colors mirror the chip colors
+const STRENGTH_FILTER_ACTIVE = {
+  strong:      'bg-green-700 text-white border-green-700',
+  good:        'bg-green-100 text-green-800 border-green-300',
+  exploratory: 'bg-green-50 text-green-600 border-green-200',
 }
 
 const STRENGTH_LABELS = {
-  strong: 'Strong match',
-  good: 'Good match',
+  strong:      'Strong match',
+  good:        'Good match',
   exploratory: 'Exploratory',
 }
 
@@ -44,6 +59,7 @@ export default function Matching() {
   const [runError, setRunError] = useState(null)
   const [msgIndex, setMsgIndex] = useState(0)
   const [archiveOpen, setArchiveOpen] = useState(false)
+  const [filterStrength, setFilterStrength] = useState(null)  // null = all
 
   // Load profile + run history on mount
   useEffect(() => {
@@ -94,6 +110,7 @@ export default function Matching() {
       .order('rank')
     setMatches(data ?? [])
     setSelectedRunId(runId)
+    setFilterStrength(null)
   }, [])
 
   async function handleMatch() {
@@ -102,19 +119,35 @@ export default function Matching() {
     setPageState('running')
 
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession()
-      const { data, error } = await supabase.functions.invoke('generate-matches', {
-        headers: { Authorization: `Bearer ${currentSession.access_token}` },
-      })
+      // Explicitly sync the session token to the functions client before invoking.
+      // supabase.functions.setAuth() updates the Authorization header that
+      // functions.invoke() uses — this prevents stale-token / timing issues.
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No active session — please sign in again.')
+      supabase.functions.setAuth(session.access_token)
 
-      if (error) throw new Error(error.message)
+      const { data, error, response } = await supabase.functions.invoke('generate-matches')
+
+      if (error) {
+        // Extract the real error message from the response body
+        let message = error.message
+        try {
+          // supabase-js returns `response` (the raw Response) alongside the error
+          const rawResponse = response ?? error.context
+          if (rawResponse) {
+            const body = await rawResponse.json()
+            if (body?.error) message = body.error
+          }
+        } catch { /* fall back to generic message */ }
+        throw new Error(message)
+      }
       if (data?.error) throw new Error(data.error)
 
       // Reload run list and show fresh results
       const { data: runData } = await supabase
         .from('match_runs')
         .select('id, created_at')
-        .eq('user_id', currentSession.user.id)
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
 
       setRuns(runData ?? [])
@@ -255,6 +288,14 @@ export default function Matching() {
   // ── State: results ─────────────────────────────────────────────────────────
   const displayedRun = runs.find(r => r.id === selectedRunId)
 
+  const strongCount      = matches.filter(m => m.match_strength === 'strong').length
+  const goodCount        = matches.filter(m => m.match_strength === 'good').length
+  const exploratoryCount = matches.filter(m => m.match_strength === 'exploratory').length
+
+  const filteredMatches = filterStrength
+    ? matches.filter(m => m.match_strength === filterStrength)
+    : matches
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
@@ -297,6 +338,23 @@ export default function Matching() {
           <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{runError}</div>
         )}
 
+        {/* Encouraging summary banner */}
+        {isViewingLatest && matches.length > 0 && (
+          <div className="rounded-xl bg-green-50 border border-green-200 px-5 py-4 flex items-start gap-3">
+            <SparklesIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-green-900">
+                {matches.length} faculty match{matches.length !== 1 ? 'es' : ''} found
+              </p>
+              <p className="text-sm text-green-700 mt-0.5">
+                {strongCount > 0
+                  ? `You have ${strongCount} strong match${strongCount > 1 ? 'es' : ''} — these are your best starting points for outreach. Scroll down to explore all your results.`
+                  : 'These faculty are well-aligned with your background and professional interests. Explore each profile to find your best starting point.'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Profile completeness nudge */}
         {!profile?.professional_interests && !profile?.resume_text && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 flex gap-2">
@@ -309,9 +367,44 @@ export default function Matching() {
           </div>
         )}
 
+        {/* Strength filter pills */}
+        {matches.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setFilterStrength(null)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                filterStrength === null
+                  ? 'bg-gray-800 text-white border-gray-800'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              All ({matches.length})
+            </button>
+            {[
+              { key: 'strong',      label: 'Strong',      count: strongCount },
+              { key: 'good',        label: 'Good',        count: goodCount },
+              { key: 'exploratory', label: 'Exploratory', count: exploratoryCount },
+            ].filter(({ count }) => count > 0).map(({ key, label, count }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setFilterStrength(filterStrength === key ? null : key)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                  filterStrength === key
+                    ? STRENGTH_FILTER_ACTIVE[key]
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                {label} ({count})
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Match cards */}
         <div className="space-y-4">
-          {matches.map(match => (
+          {filteredMatches.map(match => (
             <MatchCard
               key={match.id}
               match={match}
@@ -319,6 +412,11 @@ export default function Matching() {
               onSaveToggle={() => toggleSave(match.faculty?.id)}
             />
           ))}
+          {filteredMatches.length === 0 && filterStrength && (
+            <p className="text-sm text-gray-500 text-center py-8">
+              No {STRENGTH_LABELS[filterStrength].toLowerCase()} matches in this run.
+            </p>
+          )}
         </div>
 
         {/* Archive */}
@@ -369,7 +467,7 @@ function MatchCard({ match, isSaved, onSaveToggle }) {
   const strengthLabel = STRENGTH_LABELS[match.match_strength] ?? 'Match'
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${STRENGTH_ACCENT[match.match_strength] ?? STRENGTH_ACCENT.good} p-6 space-y-5`}>
 
       {/* Header row */}
       <div className="flex items-start gap-4">
@@ -427,7 +525,7 @@ function MatchCard({ match, isSaved, onSaveToggle }) {
             <ul className="space-y-1.5">
               {match.collaboration_ideas.map((idea, i) => (
                 <li key={i} className="flex gap-2 text-sm text-gray-700 leading-snug">
-                  <span className="text-blue-500 font-bold flex-shrink-0 mt-0.5">→</span>
+                  <span className="text-green-600 font-bold flex-shrink-0 mt-0.5">→</span>
                   {idea}
                 </li>
               ))}
