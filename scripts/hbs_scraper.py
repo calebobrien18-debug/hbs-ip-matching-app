@@ -173,7 +173,7 @@ def _scrape_bio(soup) -> str | None:
             text = el.get_text(separator=" ", strip=True)
             # Bio should be substantial — at least 80 chars
             if text and len(text) >= 80:
-                return text[:4000]  # cap at 4000 chars to avoid runaway text
+                return _clean_bio(text)
 
     # Fallback: look for the largest <p>-containing div that isn't in a pub section
     pub_containers = soup.find_all("div", class_="toggle-container")
@@ -189,9 +189,16 @@ def _scrape_bio(soup) -> str | None:
         if 200 <= len(text) <= 3000:
             # Check it has sentence-like content (ends with punctuation)
             if re.search(r"[.!?]\s", text):
-                return text[:4000]
+                return _clean_bio(text)
 
     return None
+
+
+def _clean_bio(text: str) -> str:
+    """Strip scraping artifacts (e.g. 'Read more' buttons) from bio text."""
+    # Remove "Read more" and anything after it (HBS website expand-button text)
+    text = re.sub(r"\s*\bRead more\b.*$", "", text, flags=re.I | re.DOTALL)
+    return text.strip()[:4000]
 
 
 def _scrape_unit(soup) -> str | None:

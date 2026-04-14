@@ -154,7 +154,7 @@ export default function FacultyDetail() {
           {/* Bio */}
           {faculty.bio && (
             <p className="mt-5 text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
-              {faculty.bio}
+              {truncateBio(faculty.bio, 4)}
             </p>
           )}
         </div>
@@ -352,4 +352,11 @@ function PublicationRow({ pub }) {
 
 function initials(name) {
   return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
+
+function truncateBio(text, maxSentences = 4) {
+  if (!text) return null
+  const sentences = text.match(/[^.!?]+[.!?]+["']?/g) ?? []
+  if (sentences.length <= maxSentences) return text.trim()
+  return sentences.slice(0, maxSentences).join(' ').trim()
 }
