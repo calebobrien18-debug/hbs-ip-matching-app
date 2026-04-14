@@ -1,11 +1,11 @@
 {
-  "generated": "2026-04-14T19:57:02.007Z",
-  "total_unique_tags": 651,
+  "generated": "2026-04-14T20:06:44.159Z",
+  "total_unique_tags": 652,
   "total_tag_assignments": 1000,
   "tags": [
     {
       "tag": "Leadership Development",
-      "faculty_count": 25,
+      "faculty_count": 28,
       "sources": [
         "ai"
       ]
@@ -13,6 +13,20 @@
     {
       "tag": "Entrepreneurship",
       "faculty_count": 19,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Competitive Strategy",
+      "faculty_count": 18,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation",
+      "faculty_count": 16,
       "sources": [
         "ai"
       ]
@@ -39,14 +53,14 @@
       ]
     },
     {
-      "tag": "Competitive Strategy",
+      "tag": "Organizational Change",
       "faculty_count": 12,
       "sources": [
         "ai"
       ]
     },
     {
-      "tag": "Organizational Change",
+      "tag": "Negotiation",
       "faculty_count": 10,
       "sources": [
         "ai"
@@ -60,35 +74,21 @@
       ]
     },
     {
-      "tag": "Innovation",
-      "faculty_count": 9,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Negotiation",
-      "faculty_count": 9,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Corporate Governance",
-      "faculty_count": 8,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Decision Making",
-      "faculty_count": 8,
+      "faculty_count": 9,
       "sources": [
         "ai"
       ]
     },
     {
       "tag": "Financial Reporting",
+      "faculty_count": 9,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Decision Making",
       "faculty_count": 8,
       "sources": [
         "ai"
@@ -103,6 +103,13 @@
     },
     {
       "tag": "Digital Transformation",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketing Strategy",
       "faculty_count": 7,
       "sources": [
         "ai"
@@ -158,7 +165,7 @@
       ]
     },
     {
-      "tag": "Marketing Strategy",
+      "tag": "Technology Strategy",
       "faculty_count": 6,
       "sources": [
         "ai"
@@ -172,7 +179,7 @@
       ]
     },
     {
-      "tag": "Capital Structure",
+      "tag": "Healthcare Management",
       "faculty_count": 5,
       "sources": [
         "ai"
@@ -193,21 +200,7 @@
       ]
     },
     {
-      "tag": "Startup Strategy",
-      "faculty_count": 5,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Supply Chain Management",
-      "faculty_count": 5,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Technology Strategy",
       "faculty_count": 5,
       "sources": [
         "ai"
@@ -221,20 +214,6 @@
       ]
     },
     {
-      "tag": "Brand Strategy",
-      "faculty_count": 4,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Business Valuation",
-      "faculty_count": 4,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Consumer Behavior",
       "faculty_count": 4,
       "sources": [
@@ -242,21 +221,7 @@
       ]
     },
     {
-      "tag": "Financial Intermediation",
-      "faculty_count": 4,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Healthcare Management",
-      "faculty_count": 4,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Industrial Organization",
+      "tag": "International Trade",
       "faculty_count": 4,
       "sources": [
         "ai"
@@ -292,13 +257,6 @@
     },
     {
       "tag": "Accounting Standards",
-      "faculty_count": 3,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Business Model Innovation",
       "faculty_count": 3,
       "sources": [
         "ai"
@@ -347,6 +305,13 @@
       ]
     },
     {
+      "tag": "Financial Regulation",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Healthcare Economics",
       "faculty_count": 3,
       "sources": [
@@ -355,13 +320,6 @@
     },
     {
       "tag": "Institutional Economics",
-      "faculty_count": 3,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "International Trade",
       "faculty_count": 3,
       "sources": [
         "ai"
@@ -564,13 +522,6 @@
       ]
     },
     {
-      "tag": "Financial Regulation",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Financial Stability",
       "faculty_count": 2,
       "sources": [
@@ -606,21 +557,7 @@
       ]
     },
     {
-      "tag": "Healthcare Innovation",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Implementation Science",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Innovation Economics",
       "faculty_count": 2,
       "sources": [
         "ai"
@@ -704,13 +641,6 @@
       ]
     },
     {
-      "tag": "R&D Strategy",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Retail Strategy",
       "faculty_count": 2,
       "sources": [
@@ -753,13 +683,6 @@
       ]
     },
     {
-      "tag": "Technology Commercialization",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
       "tag": "Technology Ventures",
       "faculty_count": 2,
       "sources": [
@@ -768,13 +691,6 @@
     },
     {
       "tag": "Value Creation",
-      "faculty_count": 2,
-      "sources": [
-        "ai"
-      ]
-    },
-    {
-      "tag": "Value-Based Care",
       "faculty_count": 2,
       "sources": [
         "ai"
@@ -852,6 +768,13 @@
     },
     {
       "tag": "African Economic Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Agile Processes",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -1236,6 +1159,13 @@
       ]
     },
     {
+      "tag": "Central Banking",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "CEO Compensation",
       "faculty_count": 1,
       "sources": [
@@ -1258,6 +1188,13 @@
     },
     {
       "tag": "Change Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "China Business Development",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -1544,6 +1481,13 @@
       ]
     },
     {
+      "tag": "Cross-Border Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Cross-Border Investment",
       "faculty_count": 1,
       "sources": [
@@ -1559,6 +1503,13 @@
     },
     {
       "tag": "Cultural Industries",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Currency Markets",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -1733,6 +1684,13 @@
       ]
     },
     {
+      "tag": "Digital Technology Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Diplomatic Negotiation",
       "faculty_count": 1,
       "sources": [
@@ -1853,6 +1811,13 @@
     },
     {
       "tag": "Electoral Participation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Emerging Market Finance",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -2203,6 +2168,13 @@
     },
     {
       "tag": "Fiscal Capacity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Fixed Income Markets",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -3189,6 +3161,13 @@
       ]
     },
     {
+      "tag": "Modular Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Monetary Policy",
       "faculty_count": 1,
       "sources": [
@@ -3232,6 +3211,13 @@
     },
     {
       "tag": "Net Zero Transition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "New Product Development",
       "faculty_count": 1,
       "sources": [
         "ai"
@@ -3665,6 +3651,13 @@
       ]
     },
     {
+      "tag": "Product Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Product Innovation Diffusion",
       "faculty_count": 1,
       "sources": [
@@ -4050,6 +4043,13 @@
       ]
     },
     {
+      "tag": "Software Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
       "tag": "Software Industry",
       "faculty_count": 1,
       "sources": [
@@ -4149,6 +4149,13 @@
     },
     {
       "tag": "State-Business Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "State-Owned Enterprises",
       "faculty_count": 1,
       "sources": [
         "ai"

@@ -58,14 +58,14 @@ export default function Faculty() {
     return [...set].sort()
   }, [faculty])
 
-  // Derive cross-cutting tags (appear on 3+ faculty), sorted by frequency
+  // Derive cross-cutting tags (appear on 4+ faculty), sorted by frequency
   const popularTags = useMemo(() => {
     const count = {}
     Object.values(tagsByFaculty).forEach(tags =>
       tags.forEach(t => { count[t] = (count[t] ?? 0) + 1 })
     )
     return Object.entries(count)
-      .filter(([, n]) => n >= 3)
+      .filter(([, n]) => n >= 4)
       .sort((a, b) => b[1] - a[1])
       .map(([tag]) => tag)
   }, [tagsByFaculty])
