@@ -69,8 +69,8 @@ export default function ProfileDetail() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <p className="text-gray-500">Profile not found.</p>
-          <button onClick={() => navigate('/dashboard')}
-            className="text-sm font-medium cursor-pointer" style={{ color: '#A51C30' }}>
+          <button type="button" onClick={() => navigate('/dashboard')}
+            className="text-sm font-medium cursor-pointer text-crimson">
             ← Back to dashboard
           </button>
         </div>
@@ -86,7 +86,7 @@ export default function ProfileDetail() {
 
         {/* Header */}
         <div>
-          <button onClick={() => navigate('/dashboard')}
+          <button type="button" onClick={() => navigate('/dashboard')}
             className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer mb-4 flex items-center gap-1">
             ← Back to dashboard
           </button>
@@ -99,12 +99,14 @@ export default function ProfileDetail() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
+                type="button"
                 onClick={() => navigate('/profile/edit')}
                 className="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Edit
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 disabled={deleting}
                 className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50"
@@ -134,8 +136,7 @@ export default function ProfileDetail() {
           <Row label="LinkedIn">
             {profile.linkedin_url && (
               <a href={profile.linkedin_url} target="_blank" rel="noreferrer"
-                className="underline underline-offset-2 hover:opacity-70 transition-opacity"
-                style={{ color: '#A51C30' }}>
+                className="underline underline-offset-2 hover:opacity-70 transition-opacity text-crimson">
                 {profile.linkedin_url}
               </a>
             )}
@@ -143,8 +144,7 @@ export default function ProfileDetail() {
           <Row label="Personal websites" block>
             {profile.website_urls && profile.website_urls.split('\n').filter(Boolean).map((url, i) => (
               <a key={i} href={url.trim()} target="_blank" rel="noreferrer"
-                className="block underline underline-offset-2 hover:opacity-70 transition-opacity"
-                style={{ color: '#A51C30' }}>
+                className="block underline underline-offset-2 hover:opacity-70 transition-opacity text-crimson">
                 {url.trim()}
               </a>
             ))}
@@ -209,8 +209,7 @@ function Row({ label, block, children }) {
 function FileLink({ href, label }) {
   return (
     <a href={href} target="_blank" rel="noreferrer"
-      className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-2 hover:opacity-70 transition-opacity"
-      style={{ color: '#A51C30' }}>
+      className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-2 hover:opacity-70 transition-opacity text-crimson">
       <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
       </svg>

@@ -118,7 +118,7 @@ export default function ProfileEdit() {
       <div className="px-4 py-10">
       <div className="max-w-xl mx-auto">
         <div className="mb-8">
-          <button onClick={() => navigate('/dashboard')} className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer mb-4 flex items-center gap-1">
+          <button type="button" onClick={() => navigate('/dashboard')} className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer mb-4 flex items-center gap-1">
             ← Back to dashboard
           </button>
           <h1 className="text-2xl font-semibold text-gray-900">Edit your profile</h1>
@@ -146,8 +146,7 @@ export default function ProfileEdit() {
           {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}
 
           <button type="submit" disabled={saving}
-            className="w-full py-3 rounded-lg font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: saving ? '#9ca3af' : '#A51C30' }}>
+            className={`w-full py-3 rounded-lg font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${saving ? 'bg-gray-400' : 'bg-crimson'}`}>
             {saving ? 'Saving…' : 'Save changes'}
           </button>
         </form>

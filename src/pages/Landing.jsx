@@ -162,10 +162,10 @@ export default function Landing() {
         </div>
 
         <button
+          type="button"
           onClick={handleGitHubSignIn}
           disabled={signingIn}
-          className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 disabled:opacity-50 font-semibold px-7 py-3 rounded-lg shadow-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
-          style={{ color: '#A51C30' }}
+          className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 disabled:opacity-50 font-semibold px-7 py-3 rounded-lg shadow-lg transition-colors cursor-pointer disabled:cursor-not-allowed text-crimson"
         >
           <GitHubIcon />
           {signingIn ? 'Redirecting…' : 'Sign in with GitHub'}

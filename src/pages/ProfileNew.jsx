@@ -96,7 +96,7 @@ export default function ProfileNew() {
       <div className="px-4 py-10">
       <div className="max-w-xl mx-auto">
         <div className="mb-8">
-          <button onClick={() => navigate('/dashboard')} className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer mb-4 flex items-center gap-1">
+          <button type="button" onClick={() => navigate('/dashboard')} className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer mb-4 flex items-center gap-1">
             ← Back to dashboard
           </button>
           <h1 className="text-2xl font-semibold text-gray-900">Create your profile</h1>
@@ -116,8 +116,7 @@ export default function ProfileNew() {
           {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}
 
           <button type="submit" disabled={saving}
-            className="w-full py-3 rounded-lg font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: saving ? '#9ca3af' : '#A51C30' }}>
+            className={`w-full py-3 rounded-lg font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${saving ? 'bg-gray-400' : 'bg-crimson'}`}>
             {saving ? 'Saving…' : 'Save profile'}
           </button>
         </form>
@@ -157,7 +156,7 @@ export function HBSSection({ form, set }) {
           {PROGRAMS.map(p => (
             <label key={p} className="flex items-center gap-2.5 cursor-pointer">
               <input type="radio" name="program" value={p} checked={form.program === p}
-                onChange={set('program')} className="accent-[#A51C30] w-4 h-4 cursor-pointer" />
+                onChange={set('program')} className="accent-crimson w-4 h-4 cursor-pointer" />
               <span className="text-sm text-gray-800">{p}</span>
             </label>
           ))}
@@ -313,7 +312,7 @@ export function Field({ label, required, hint, children }) {
 
 export const inputCls =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 ' +
-  'focus:outline-none focus:ring-2 focus:ring-[#A51C30] focus:border-transparent ' +
+  'focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent ' +
   'placeholder:text-gray-400'
 
 export const fileCls =

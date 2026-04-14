@@ -89,7 +89,7 @@ export default function Faculty() {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       <div className="flex items-center justify-center py-32">
-        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-[#A51C30] animate-spin" />
+        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
       </div>
     </div>
   )
@@ -193,9 +193,9 @@ export default function Faculty() {
           <div className="py-16 text-center">
             <p className="text-gray-400 text-sm">No faculty matched your search.</p>
             <button
+              type="button"
               onClick={() => { setQuery(''); setSelectedUnit(null); setSelectedTag(null) }}
-              className="mt-3 text-sm font-medium cursor-pointer"
-              style={{ color: '#A51C30' }}
+              className="mt-3 text-sm font-medium cursor-pointer text-crimson"
             >
               Clear filters
             </button>
@@ -221,8 +221,7 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
       {/* Unit badge */}
       {f.unit && (
         <span
-          className="self-start text-[10px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 text-white"
-          style={{ backgroundColor: '#A51C30' }}
+          className="self-start text-[10px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 text-white bg-crimson"
           title={f.unit}
         >
           {abbrev}
@@ -238,10 +237,7 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
             className="w-11 h-11 rounded-full object-cover flex-shrink-0 bg-gray-100"
           />
         ) : (
-          <div
-            className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold"
-            style={{ backgroundColor: '#A51C30' }}
-          >
+          <div className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold bg-crimson">
             {initials(f.name)}
           </div>
         )}
@@ -270,11 +266,11 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
                 onTagClick(selectedTag === tag ? null : tag)
               }}
               className="text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors"
-              style={
+              className={`text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors ${
                 selectedTag === tag
-                  ? { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
-                  : { color: '#A51C30', borderColor: 'rgba(165,28,48,0.3)', backgroundColor: 'rgba(165,28,48,0.04)' }
-              }
+                  ? 'bg-crimson text-white border-crimson'
+                  : 'text-crimson border-crimson/30 bg-crimson/4'
+              }`}
             >
               {tag}
             </button>
@@ -296,7 +292,7 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
             {f.email}
           </a>
         )}
-        <span className="text-xs font-medium flex-shrink-0 ml-auto" style={{ color: '#A51C30' }}>
+        <span className="text-xs font-medium flex-shrink-0 ml-auto text-crimson">
           View profile →
         </span>
       </div>
@@ -312,12 +308,11 @@ function UnitPill({ label, title, active, onClick }) {
       type="button"
       title={title}
       onClick={onClick}
-      className="rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border"
-      style={
+      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border ${
         active
-          ? { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
-          : { backgroundColor: '#fff', color: '#374151', borderColor: '#d1d5db' }
-      }
+          ? 'bg-crimson text-white border-crimson'
+          : 'bg-white text-gray-700 border-gray-300'
+      }`}
     >
       {label}
     </button>

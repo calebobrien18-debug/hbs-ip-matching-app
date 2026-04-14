@@ -72,9 +72,9 @@ export default function Dashboard() {
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
               <p className="text-sm text-gray-500">No profile yet.</p>
               <button
+                type="button"
                 onClick={() => navigate('/profile/new')}
-                className="mt-3 text-sm font-medium cursor-pointer"
-                style={{ color: '#A51C30' }}
+                className="mt-3 text-sm font-medium cursor-pointer text-crimson"
               >
                 Create your profile →
               </button>
@@ -85,7 +85,7 @@ export default function Dashboard() {
                 <li key={p.id}>
                   <Link
                     to={`/profile/${p.id}`}
-                    className="block bg-white rounded-xl border border-gray-200 px-5 py-4 hover:border-[#A51C30] hover:shadow-sm transition-all"
+                    className="block bg-white rounded-xl border border-gray-200 px-5 py-4 hover:border-crimson hover:shadow-sm transition-all"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1 min-w-0">

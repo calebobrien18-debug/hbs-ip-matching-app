@@ -51,7 +51,7 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-30 w-full" style={{ backgroundColor: '#A51C30' }}>
+    <nav className="sticky top-0 z-30 w-full bg-crimson">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
 
         {/* Left: logo mark + wordmark */}
@@ -80,6 +80,7 @@ export default function NavBar() {
             </span>
           )}
           <button
+            type="button"
             onClick={handleSignOut}
             className="text-sm text-white/70 hover:text-white border border-white/30 hover:border-white/60 rounded-md px-3 py-1.5 transition-colors cursor-pointer"
           >

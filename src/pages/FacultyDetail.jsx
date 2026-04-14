@@ -69,7 +69,7 @@ export default function FacultyDetail() {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       <div className="flex items-center justify-center py-32">
-        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-[#A51C30] animate-spin" />
+        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
       </div>
     </div>
   )
@@ -81,8 +81,8 @@ export default function FacultyDetail() {
         <div className="flex items-center justify-center py-32 px-4">
           <div className="text-center space-y-3">
             <p className="text-gray-500">Faculty profile not found.</p>
-            <button onClick={() => navigate('/faculty')}
-              className="text-sm font-medium cursor-pointer" style={{ color: '#A51C30' }}>
+            <button type="button" onClick={() => navigate('/faculty')}
+              className="text-sm font-medium cursor-pointer text-crimson">
               ← Back to faculty
             </button>
           </div>
@@ -98,6 +98,7 @@ export default function FacultyDetail() {
 
         {/* Back */}
         <button
+          type="button"
           onClick={() => navigate('/faculty')}
           className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer flex items-center gap-1"
         >
@@ -117,8 +118,7 @@ export default function FacultyDetail() {
               />
             ) : (
               <div
-                className="w-20 h-20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xl font-semibold"
-                style={{ backgroundColor: '#A51C30' }}
+                className="w-20 h-20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xl font-semibold bg-crimson"
               >
                 {initials(faculty.name)}
               </div>
@@ -135,8 +135,7 @@ export default function FacultyDetail() {
                 </div>
                 {faculty.unit && (
                   <span
-                    className="text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white flex-shrink-0"
-                    style={{ backgroundColor: '#A51C30' }}
+                    className="text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white flex-shrink-0 bg-crimson"
                   >
                     {faculty.unit}
                   </span>
@@ -153,8 +152,7 @@ export default function FacultyDetail() {
                 )}
                 {faculty.profile_url && (
                   <a href={faculty.profile_url} target="_blank" rel="noreferrer"
-                    className="font-medium hover:opacity-70 transition-opacity"
-                    style={{ color: '#A51C30' }}>
+                    className="font-medium hover:opacity-70 transition-opacity text-crimson">
                     HBS Profile →
                   </a>
                 )}
@@ -177,8 +175,7 @@ export default function FacultyDetail() {
               {tags.map(tag => (
                 <span
                   key={tag}
-                  className="text-sm rounded-full px-3 py-1 border font-medium"
-                  style={{ color: '#A51C30', borderColor: '#A51C30', backgroundColor: 'rgba(165,28,48,0.04)' }}
+                  className="text-sm rounded-full px-3 py-1 border font-medium text-crimson border-crimson bg-crimson/4"
                 >
                   {tag}
                 </span>
@@ -261,27 +258,23 @@ function Section({ title, children }) {
 }
 
 function PubTypePill({ label, active, typeStyle, onClick }) {
-  // When active and a typeStyle exists, use the type's own colour scheme
-  // When active with no typeStyle (the "All" pill), use crimson
-  // When inactive, use a neutral style
+  // When active and a typeStyle exists, use the type's own colour scheme (inline lookup)
+  // When active with no typeStyle (the "All" pill), use crimson token
+  // When inactive, use a neutral Tailwind style
+  let pillClass = 'rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border '
   let style
+
   if (!active) {
-    style = { backgroundColor: '#fff', color: '#374151', borderColor: '#d1d5db' }
+    pillClass += 'bg-white text-gray-700 border-gray-300'
   } else if (typeStyle) {
-    // derive inline style from the Tailwind class string isn't practical,
-    // so we use a lookup instead
-    style = ACTIVE_TYPE_STYLES[label] ?? { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
+    style = ACTIVE_TYPE_STYLES[label]
+    if (!style) pillClass += 'bg-crimson text-white border-crimson'
   } else {
-    style = { backgroundColor: '#A51C30', color: '#fff', borderColor: '#A51C30' }
+    pillClass += 'bg-crimson text-white border-crimson'
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border"
-      style={style}
-    >
+    <button type="button" onClick={onClick} className={pillClass} style={style}>
       {label}
     </button>
   )
@@ -312,8 +305,7 @@ function CourseRow({ course }) {
       </div>
       {termLabel && (
         <span
-          className="inline-block text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 border"
-          style={{ color: '#A51C30', borderColor: '#A51C30', backgroundColor: 'rgba(165,28,48,0.06)' }}
+          className="inline-block text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 border text-crimson border-crimson bg-crimson/6"
         >
           {termLabel}
         </span>
