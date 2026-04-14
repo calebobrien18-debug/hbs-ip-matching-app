@@ -170,7 +170,12 @@ def _scrape_bio(soup) -> str | None:
     ]
     for el in candidates:
         if el:
-            text = el.get_text(separator=" ", strip=True)
+            # Prefer paragraph text only — HBS heading elements repeat name/title
+            paras = el.find_all("p")
+            if paras:
+                text = " ".join(p.get_text(separator=" ", strip=True) for p in paras)
+            else:
+                text = el.get_text(separator=" ", strip=True)
             # Bio should be substantial — at least 80 chars
             if text and len(text) >= 80:
                 return _clean_bio(text)

@@ -36,16 +36,39 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-function cleanBio(bio) {
+function cleanBio(bio, name, title) {
   if (!bio) return bio
-  // Strip "Read more" and anything after it (HBS website expand-button artifact)
-  return bio.replace(/\s*\bRead more\b.*/i, '').trim()
+
+  // 1. Strip "Read more" and anything after it (HBS website expand-button artifact)
+  let text = bio.replace(/\s*\bRead more\b.*/i, '').trim()
+
+  // 2. Strip name/title header injected by HBS page structure
+  //    Pattern: "[Name] [Title] [Title] [Name] actual bio..."
+  if (name) {
+    const nameParts = name.trim().split(/\s+/)
+    const firstName = nameParts[0].replace(/\.$/, '')
+    const lastName  = nameParts[nameParts.length - 1]
+
+    if (text.toLowerCase().startsWith(firstName.toLowerCase())) {
+      const titleAnchor = (title ?? '').split(/\s+/).slice(0, 4).join(' ')
+      if (titleAnchor && text.slice(0, 300).toLowerCase().includes(titleAnchor.toLowerCase())) {
+        const first  = text.indexOf(lastName)
+        const second = text.indexOf(lastName, first + lastName.length)
+        if (second !== -1 && second <= 700) {
+          const stripped = text.slice(second).trim()
+          if (stripped.length >= 50) text = stripped
+        }
+      }
+    }
+  }
+
+  return text
 }
 
-// Fetch all faculty with bios
+// Fetch all faculty with bios, names, and titles
 const { data: rows, error } = await supabase
   .from('faculty')
-  .select('id, bio')
+  .select('id, name, title, bio')
   .not('bio', 'is', null)
 
 if (error) {
@@ -59,7 +82,7 @@ let updated = 0
 let skipped = 0
 
 for (const row of rows) {
-  const cleaned = cleanBio(row.bio)
+  const cleaned = cleanBio(row.bio, row.name, row.title)
   if (cleaned === row.bio) { skipped++; continue }
 
   const { error: updateError } = await supabase

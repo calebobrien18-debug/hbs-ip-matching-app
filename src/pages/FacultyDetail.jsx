@@ -154,7 +154,7 @@ export default function FacultyDetail() {
           {/* Bio */}
           {faculty.bio && (
             <p className="mt-5 text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
-              {truncateBio(faculty.bio, 4)}
+              {truncateBio(stripBioHeader(faculty.bio, faculty.name, faculty.title), 4)}
             </p>
           )}
         </div>
@@ -352,6 +352,34 @@ function PublicationRow({ pub }) {
 
 function initials(name) {
   return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
+
+/**
+ * Strip the name/title header that HBS profile pages inject at the top of bio text.
+ * Pattern: "[Name] [Title] [Title] [Name] actual bio..."
+ * Detected by: bio starts with first name AND title appears near the start.
+ */
+function stripBioHeader(bio, name, title) {
+  if (!bio || !name) return bio
+
+  const nameParts = name.trim().split(/\s+/)
+  const firstName = nameParts[0].replace(/\.$/, '')   // e.g. "J." → "J"
+  const lastName  = nameParts[nameParts.length - 1]
+
+  // Only attempt stripping when bio starts with the faculty's first name
+  if (!bio.toLowerCase().startsWith(firstName.toLowerCase())) return bio
+
+  // Confirm the title also appears near the top (header pattern, not normal prose)
+  const titleAnchor = (title ?? '').split(/\s+/).slice(0, 4).join(' ')
+  if (!titleAnchor || !bio.slice(0, 300).toLowerCase().includes(titleAnchor.toLowerCase())) return bio
+
+  // Find the second occurrence of the last name — that's where the real bio begins
+  const first  = bio.indexOf(lastName)
+  const second = bio.indexOf(lastName, first + lastName.length)
+  if (second === -1 || second > 700) return bio
+
+  const stripped = bio.slice(second).trim()
+  return stripped.length >= 50 ? stripped : bio
 }
 
 function truncateBio(text, maxSentences = 4) {
