@@ -1,0 +1,4564 @@
+{
+  "generated": "2026-04-14T19:57:02.007Z",
+  "total_unique_tags": 651,
+  "total_tag_assignments": 1000,
+  "tags": [
+    {
+      "tag": "Leadership Development",
+      "faculty_count": 25,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurship",
+      "faculty_count": 19,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Behavior",
+      "faculty_count": 14,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Finance",
+      "faculty_count": 13,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Private Equity",
+      "faculty_count": 13,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Competitive Strategy",
+      "faculty_count": 12,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Change",
+      "faculty_count": 10,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Capital",
+      "faculty_count": 10,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation",
+      "faculty_count": 9,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Negotiation",
+      "faculty_count": 9,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Governance",
+      "faculty_count": 8,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Decision Making",
+      "faculty_count": 8,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Reporting",
+      "faculty_count": 8,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Behavioral Economics",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Transformation",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operations Management",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Culture",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Economy",
+      "faculty_count": 7,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Asset Pricing",
+      "faculty_count": 6,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Emerging Markets",
+      "faculty_count": 6,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurial Finance",
+      "faculty_count": 6,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Impact Investing",
+      "faculty_count": 6,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketing Strategy",
+      "faculty_count": 6,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Ethics",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Capital Structure",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Nonprofit Management",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Risk Management",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Startup Strategy",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Supply Chain Management",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Strategy",
+      "faculty_count": 5,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Behavioral Finance",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Brand Strategy",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Valuation",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Behavior",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Intermediation",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Management",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Industrial Organization",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Investment Management",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Economics",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Management Control Systems",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Team Dynamics",
+      "faculty_count": 4,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting Standards",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Model Innovation",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Marketing",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic History",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurial Management",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Coaching",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Education",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Field Experiments",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Economics",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Economics",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Trade",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Management Accounting",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Design",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Performance Management",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Portfolio Management",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Service Operations",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Social Enterprise",
+      "faculty_count": 3,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Alternative Investments",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Artificial Intelligence",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business and Society",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Development",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business History",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Causal Inference",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Comparative Politics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Disclosure",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Law",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Performance",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Restructuring",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Social Responsibility",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Sustainability",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Cost Management",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Experience",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Relationship Management",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Data Analytics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Democratic Governance",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Development Economics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Analysis",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Innovation",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Regulation",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Stability",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Fintech",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Foreign Direct Investment",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Fraud Detection",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Innovation",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Implementation Science",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation Economics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Latin America",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Life Sciences Entrepreneurship",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Macroeconomic Policy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Competition",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Design",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Mergers & Acquisitions",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Identity",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Platform Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Power Dynamics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Product Development",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Economics",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "R&D Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Retail Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sales Strategy",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Service Design",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Social Entrepreneurship",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategy Execution",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sustainable Finance",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Commercialization",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Ventures",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Value Creation",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Value-Based Care",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Work-Life Balance",
+      "faculty_count": 2,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "20th Century Business History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "3D Negotiation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "3D Printing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "A/B Testing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting Analysis",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting Controls",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting Disclosure",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Accounting Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "African Economic Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "AI and Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "AI in Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "AI in Education",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "AI Operationalization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "AI Strategy and Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Alzheimer's Research",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Ambidextrous Organizations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "American Business Evolution",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Arbitrage Strategies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Artificial Intelligence in Accounting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Arts & Culture Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Arts Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Asian Economic History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Asset Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Asset Misclassification",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Attention and Cognition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Audit and Accountability",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Authoritarian Governance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Automotive Commerce",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "B2B Marketing Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Bankruptcy Law",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Base of the Pyramid",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Behavioral Consumer Research",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Behavioral Insights",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Behavioral Organization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Biopharmaceutical Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Biotech Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Blended Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Blockchain and Web3",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Blockchain Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Board Advisory",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Board Decision-Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Board Effectiveness",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Bond Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Broadband Access",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Bankruptcy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Experimentation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Finance History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Growth",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Model Evolution",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Model Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Navigation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Operations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Revitalization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Strategy in Developing Economies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business Turnaround Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Business-Government Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Capability Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Capital Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Capitalism Reform",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Career Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Career Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Career Transformation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Case Method Teaching",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "CEO Compensation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "CEO Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "CEO Succession",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Change Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "China Economy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "China's Economic Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Chinese Outward Investment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Civil Rights Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Adaptation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Change Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Migration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Risk",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Climate Risk and Opportunity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Clinical Outcomes",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Cloud Software",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Collective Goal Achievement",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Comparative Governance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Complex Deal-Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Compliance Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Packaged Goods",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Packaged Goods Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Products Marketing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Consumer Psychology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Conversational Dynamics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Accountability",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Bankruptcy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Control",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Incentives",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Integrity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Investment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Litigation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Purpose",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate Transformation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corporate-Entrepreneurial Collaboration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Corruption and Accountability",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Courageous Decision-Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Credit Analysis",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Credit Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Credit Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Crisis Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Crisis Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Cross-Border Investment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Cryptocurrency",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Cultural Industries",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Analytics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Loyalty",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer Psychology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer-Centric Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Customer-Driven Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Data Science",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Data Science and AI",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Data Visualization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Data-Driven Decision Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Decision Analytics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Demand Forecasting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Demand Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Democratic Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Design Thinking",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Development Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Business Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Distribution",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Platform Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Platform Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Platforms",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Products and Gaming",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Skills Training",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Digital Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Diplomatic Negotiation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Disclosure Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Dispute Resolution",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Distressed Companies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Distressed Debt",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Diversification",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Drug Pricing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Early-Stage Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Experiments",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Forecasting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Growth",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Mobility",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Policy Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Policy Effects",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Economic Theory",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Electoral Participation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Emerging Markets Entrepreneurship",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Emerging Markets Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Emerging Markets Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Empirical Asset Pricing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Empirical Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Employee Engagement",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Employer Practices",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Energy Efficiency Standards",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Energy Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entertainment Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurial Marketing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurial Sales & Marketing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Entrepreneurship Education",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Environmental Compliance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Environmental Sustainability",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Equity Derivatives",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "ESG Flows",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Ethical Marketing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Ethics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "European Politics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Communication",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Compensation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Labor Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Executive Search Practices",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Experimental Methods",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Experimental Political Science",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Experimentation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Faculty Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Failure and Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Fairness and Reciprocity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Family Business Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Feedback Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Female Labor Participation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Finance Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Engineering",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Institutions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Markets and Inequality",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Reporting Standards",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Services",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Financial Statement Analysis",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Firm Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Firm Productivity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Firm Stakeholder Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Firm Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Fiscal Capacity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Food Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Founder Bias and Learning",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Founder Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Founder Mindset",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Gender & Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Gender and Diversity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Gender and Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Gender Differences",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Gender Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "General Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Geopolitical Risk Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "GHG Regulation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Global Branding",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Global Business Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Global Expansion",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Global Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Global Value Chains",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Government Administration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Government Debt Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Government Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Government Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Government-Business Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Growth Equity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Happiness Research",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Health Care Delivery",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Health Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Cost Containment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Delivery Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Entrepreneurship",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Industry",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Healthcare Pricing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Hedge Fund Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "High-Frequency Pricing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "High-Growth Companies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "High-Growth Firms",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "High-Stakes Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Historical Institutions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Hospitality Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Household Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Human Capital Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Human Resources Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Immigration and Talent",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Immigration Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Incentive Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Inequality",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Inequality Reduction",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Inflation Measurement",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Information Processing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Information Technology & Politics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Infrastructure Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation and Entrepreneurship",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation Financing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Innovation Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Change",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Frictions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Power Dynamics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Transformation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Institutional Values",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Inter-firm Networks",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Intergroup Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Internal Controls",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Capital Flows",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Comparative Studies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Financial Reporting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Political Economy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "International Taxation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Internet Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Interpersonal Dynamics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Interpersonal Skills",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Inventory Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Investment Analysis",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Investment Decision Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Investment Strategies",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Investor Beliefs",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "IPO Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Italian Capitalism",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Judgment Biases",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Knowledge Commercialization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Market Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Market Frictions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Market Institutions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Labor Supply",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Land Politics and Urbanization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Latin American Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leader Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leadership & Governance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leadership and Social Change",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leadership Cognition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leadership History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Leadership Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Legal System & Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Life Sciences Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Life Sciences Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Logistics Optimization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Long-Term Capital",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Long-term Growth Patterns",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Long-Term Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Loss Aversion",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Machine Learning Algorithms",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Machine Learning Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Macro-Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Macroeconomics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Management Practices",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Management Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Manager Transitions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Managerial Capitalism",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Manufacturing Systems",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Bubbles",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Efficiency",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Microstructure",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Market Structure",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketing Channels",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketing Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Marketplace Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Materials Science",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Mechanism Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Media Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Media Industry Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Media Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Medical Malpractice",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Medical Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Mentoring",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Mergers and Acquisitions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Microfinance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Migration Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Military Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Misinformation & Disinformation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Monetary Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Multinational Location Decisions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Municipal Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Mutual Fund Performance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Negotiation Theory",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Net Promoter Score",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Net Zero Transition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "NFTs and Web3",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "No-Code Platforms",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Nonbank Financial Institutions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Nonprofit Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Normative Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Online Data Analysis",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Open Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Open Source Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operational Excellence",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operational Metrics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operational Performance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operations Analytics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Operations Research",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Optimal Taxation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organization Design",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Adaptation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Architecture",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Communication",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Culture Change",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Decision-Making",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Efficiency",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Environment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Ethnography",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Happiness",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Inequality",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Learning",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Legitimacy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Networks",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Performance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Productivity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Purpose",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Reinvention",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Organizational Resilience",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Participant-Centered Learning",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Pay Transparency",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Pedagogical Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "People Analytics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Performance Acceleration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Performance Evaluation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Personal Fulfillment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Pharmaceutical Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Pharmaceutical Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Campaigns",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Connections",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Identity Formation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Institutions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Political Polarization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Populism",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Portfolio Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Post-Conflict Peace",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Preferences and Beliefs",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Price Dynamics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Private Investment Funds",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Process Improvement",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Process Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Process Optimization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Product Innovation Diffusion",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Product Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Product Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Professional Services",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Project Selection",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Provider Competition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Psychological Safety",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Company Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Entrepreneurship",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Equity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Finance Philosophy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Goods Provision",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Market Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Sector Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public Sector Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public-Private Collaboration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Public-Private Partnerships",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Purpose-Driven Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Quantitative Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "R&D Competition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Race & Gender Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Racial Disparities in Healthcare",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Racial Dynamics in Organizations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Real Estate Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Real Estate Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Real Estate Investment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Real Estate Private Equity",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Regional Economic Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Regulation of Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Regulatory Affairs",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Regulatory Risk",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Regulatory Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Remote Work",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Restaurant Industry",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Retail Banking",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Retail Trading Behavior",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Revenue Growth",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Ride-Hailing Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Risk Preferences",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "SaaS Business Models",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sales and Marketing History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Scale-up Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Scaling International Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Scaling Operations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Service Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Slave Trade History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Small Business Acquisition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Small Business Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Small Business Growth",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Small Cap Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "SMB Technology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Social Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Social Integration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Social Psychology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Software Industry",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Software Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sovereign Debt",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Space Sector Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Spatial Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Stakeholder Capitalism",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Stakeholder Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Stakeholder Responsibility",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Stakeholder Trust",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Stakeholder Value Creation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Startup Advisory",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Startup Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Startup Failure",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Startup Finance",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "State-Business Relations",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Statistical Methodology",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategic Interaction",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategic Leadership",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategic Renewal",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategy Consulting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Strategy Formulation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Structural Estimation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Supply Chain Optimization",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sustainability Reporting",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sustainable Business",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Sustainable Investing",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Systems Change",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Talent Allocation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Talent Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Talent Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Talent Retention",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Talent Selection",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Team Building",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Team Collaboration",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Tech Competition",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technological Adoption",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technological Disruption",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technological Innovation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Entrepreneurship",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Implementation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Reemergence",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Scaling",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Technology Transfer",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Telecommunications Industry",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Telecommunications Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Time Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Tough Tech Ventures",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Trade Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Trade Policy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Trust Building",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Two-Sided Markets",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Unconscious Bias",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Urban Resilience",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "User Communities",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "User Growth",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Valuation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Capital History",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Creation",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Launch",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Scaling",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Venture Strategy",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Voter Preferences",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Wage Inequality",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Wealth Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Welfare Economics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Well-being and Consumption",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Women Entrepreneurs",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Workforce Development",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Workforce Dynamics",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Working Conditions",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Workplace Diversity & Inclusion",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Workplace Identity Management",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    },
+    {
+      "tag": "Youth Employment",
+      "faculty_count": 1,
+      "sources": [
+        "ai"
+      ]
+    }
+  ]
+}

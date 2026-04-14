@@ -94,7 +94,9 @@ async function extractTags(name, bio) {
 
   const raw = message.content[0]?.text?.trim() ?? '[]'
   try {
-    const tags = JSON.parse(raw)
+    // Strip optional markdown code fences (model sometimes wraps in ```json … ```)
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim()
+    const tags = JSON.parse(cleaned)
     if (!Array.isArray(tags)) return []
     return tags
       .filter(t => typeof t === 'string' && t.trim().length > 1 && t.trim().length < 60)

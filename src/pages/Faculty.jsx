@@ -67,7 +67,7 @@ export default function Faculty() {
       tags.forEach(t => { count[t] = (count[t] ?? 0) + 1 })
     )
     return Object.entries(count)
-      .filter(([, n]) => n >= 2)
+      .filter(([, n]) => n >= 4)
       .sort((a, b) => b[1] - a[1])
       .map(([tag]) => tag)
   }, [tagsByFaculty])
