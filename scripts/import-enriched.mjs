@@ -7,7 +7,7 @@
  * Usage:
  *   node scripts/import-enriched.mjs
  *
- * Reads VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY from .env
+ * Reads VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from .env
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -40,10 +40,10 @@ function loadEnv() {
 loadEnv()
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL
-const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY in .env')
+  console.error('Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env')
   process.exit(1)
 }
 
