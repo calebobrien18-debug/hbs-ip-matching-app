@@ -25,6 +25,8 @@ export default function ProfileEdit() {
   })
   const [resumeFile, setResumeFile] = useState(null)
   const [linkedinPdfFile, setLinkedinPdfFile] = useState(null)
+  const [resumeText, setResumeText] = useState('')
+  const [linkedinText, setLinkedinText] = useState('')
 
   const session = useRequireAuth()
 
@@ -41,6 +43,9 @@ export default function ProfileEdit() {
 
       setExistingResume(!!profile.resume_path)
       setExistingLinkedinPdf(!!profile.linkedin_pdf_path)
+      // Pre-load previously extracted text so it isn't lost if user doesn't re-upload
+      setResumeText(profile.resume_text ?? '')
+      setLinkedinText(profile.linkedin_text ?? '')
       setForm({
         first_name: profile.first_name ?? '',
         last_name: profile.last_name ?? '',
@@ -100,6 +105,8 @@ export default function ProfileEdit() {
           website_urls: form.website_urls.trim() || null,
           additional_background: form.additional_background.trim() || null,
           resume_path, linkedin_pdf_path,
+          resume_text: resumeText || null,
+          linkedin_text: linkedinText || null,
         })
         .eq('user_id', userId)
 
@@ -139,8 +146,12 @@ export default function ProfileEdit() {
             form={form} set={set}
             setResumeFile={setResumeFile}
             setLinkedinPdfFile={setLinkedinPdfFile}
+            onResumeText={setResumeText}
+            onLinkedinText={setLinkedinText}
             existingResume={existingResume}
             existingLinkedinPdf={existingLinkedinPdf}
+            hasExistingResumeText={!!resumeText}
+            hasExistingLinkedinText={!!linkedinText}
           />
 
           {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}

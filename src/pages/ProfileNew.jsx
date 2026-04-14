@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
+import { extractPdfText } from '../lib/pdf'
 
 const HBS_SECTIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 const PROGRAMS = ['MBA', 'Executive Education', 'Other']
@@ -29,6 +30,8 @@ export default function ProfileNew() {
   })
   const [resumeFile, setResumeFile] = useState(null)
   const [linkedinPdfFile, setLinkedinPdfFile] = useState(null)
+  const [resumeText, setResumeText] = useState('')
+  const [linkedinText, setLinkedinText] = useState('')
 
   const session = useRequireAuth()
 
@@ -80,6 +83,8 @@ export default function ProfileNew() {
         website_urls: form.website_urls.trim() || null,
         additional_background: form.additional_background.trim() || null,
         resume_path, linkedin_pdf_path,
+        resume_text: resumeText || null,
+        linkedin_text: linkedinText || null,
       })
       if (insertError) throw insertError
       navigate('/dashboard')
@@ -111,6 +116,8 @@ export default function ProfileNew() {
             form={form} set={set}
             setResumeFile={setResumeFile}
             setLinkedinPdfFile={setLinkedinPdfFile}
+            onResumeText={setResumeText}
+            onLinkedinText={setLinkedinText}
           />
 
           {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}
@@ -214,7 +221,30 @@ export function ResearchSection({ form, set }) {
   )
 }
 
-export function UploadsSection({ form, set, setResumeFile, setLinkedinPdfFile, existingResume, existingLinkedinPdf }) {
+export function UploadsSection({
+  form, set,
+  setResumeFile, setLinkedinPdfFile,
+  onResumeText, onLinkedinText,
+  existingResume, existingLinkedinPdf,
+  hasExistingResumeText, hasExistingLinkedinText,
+}) {
+  const [resumeState, setResumeState]   = useState('idle')   // idle | extracting | done | error
+  const [linkedinState, setLinkedinState] = useState('idle')
+
+  async function handleFileChange(file, setFile, onText, setExtractState) {
+    setFile(file ?? null)
+    if (!file) { setExtractState('idle'); onText?.(''); return }
+    setExtractState('extracting')
+    try {
+      const text = await extractPdfText(file)
+      onText?.(text)
+      setExtractState('done')
+    } catch (err) {
+      console.error('PDF text extraction failed:', err)
+      setExtractState('error')
+    }
+  }
+
   return (
     <section className={card}>
       <div>
@@ -229,9 +259,13 @@ export function UploadsSection({ form, set, setResumeFile, setLinkedinPdfFile, e
       </div>
 
       <Field label="Resume" hint="PDF only">
-        {existingResume && <UploadedBadge label="Resume previously uploaded" />}
+        {existingResume && resumeState === 'idle' && (
+          <UploadedBadge label="Resume previously uploaded" hasText={hasExistingResumeText} />
+        )}
         <input type="file" accept=".pdf"
-          onChange={e => setResumeFile(e.target.files[0] ?? null)} className={fileCls} />
+          onChange={e => handleFileChange(e.target.files[0], setResumeFile, onResumeText, setResumeState)}
+          className={fileCls} />
+        <ExtractionStatus state={resumeState} />
       </Field>
 
       <div className="space-y-1">
@@ -250,9 +284,13 @@ export function UploadsSection({ form, set, setResumeFile, setLinkedinPdfFile, e
             </p>
           </InfoTooltip>
         </div>
-        {existingLinkedinPdf && <UploadedBadge label="LinkedIn PDF previously uploaded" />}
+        {existingLinkedinPdf && linkedinState === 'idle' && (
+          <UploadedBadge label="LinkedIn PDF previously uploaded" hasText={hasExistingLinkedinText} />
+        )}
         <input type="file" accept=".pdf"
-          onChange={e => setLinkedinPdfFile(e.target.files[0] ?? null)} className={fileCls} />
+          onChange={e => handleFileChange(e.target.files[0], setLinkedinPdfFile, onLinkedinText, setLinkedinState)}
+          className={fileCls} />
+        <ExtractionStatus state={linkedinState} />
       </div>
 
       <Field label="Additional background" hint="optional">
@@ -265,13 +303,37 @@ export function UploadsSection({ form, set, setResumeFile, setLinkedinPdfFile, e
   )
 }
 
+function ExtractionStatus({ state }) {
+  if (state === 'idle') return null
+  if (state === 'extracting') return (
+    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+      <span className="inline-block w-3 h-3 rounded-full border-2 border-gray-300 border-t-gray-600 animate-spin" />
+      Extracting text for matching…
+    </p>
+  )
+  if (state === 'done') return (
+    <p className="text-xs text-green-700 mt-1">✓ Text extracted — this file will be used for matching</p>
+  )
+  if (state === 'error') return (
+    <p className="text-xs text-amber-600 mt-1">Could not extract text from this PDF. The file will still be uploaded.</p>
+  )
+  return null
+}
+
 // ── Shared UI primitives ────────────────────────────────────────────────────
 
-function UploadedBadge({ label }) {
+function UploadedBadge({ label, hasText }) {
   return (
-    <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1 mb-1.5 inline-flex items-center gap-1">
-      <span>✓</span> {label} — upload a new file to replace it
-    </p>
+    <div className="mb-1.5 space-y-1">
+      <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1 inline-flex items-center gap-1">
+        <span>✓</span> {label} — upload a new file to replace it
+      </p>
+      {!hasText && (
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1 inline-flex items-center gap-1">
+          ⚠ Re-upload this file so we can extract its text for matching
+        </p>
+      )}
+    </div>
   )
 }
 

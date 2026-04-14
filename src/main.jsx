@@ -10,6 +10,7 @@ import ProfileEdit from './pages/ProfileEdit.jsx'
 import ProfileDetail from './pages/ProfileDetail.jsx'
 import Faculty from './pages/Faculty.jsx'
 import FacultyDetail from './pages/FacultyDetail.jsx'
+import Matching from './pages/Matching.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/profile/:id" element={<ProfileDetail />} />
         <Route path="/faculty" element={<Faculty />} />
         <Route path="/faculty/:id" element={<FacultyDetail />} />
+        <Route path="/match" element={<Matching />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

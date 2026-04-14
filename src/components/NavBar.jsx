@@ -69,6 +69,7 @@ export default function NavBar() {
         <div className="flex items-center gap-6">
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
+          {navLink('/match', 'Matching')}
           {navLink('/profile/new', 'My Profile')}
         </div>
 
