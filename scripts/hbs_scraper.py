@@ -61,7 +61,7 @@ PILOT_FACULTY = [
     ("14938",   "Feng Zhu"),
 ]
 
-PROFILE_BASE  = "https://www.hbs.edu/faculty/Pages/profile.aspx?facId={}"
+PROFILE_BASE  = "https://www.hbs.edu/faculty/Pages/profile.aspx?facId={}&view=publications"
 # HBS headshot API — returns a JPEG for any valid facId
 HEADSHOT_BASE = "https://www.hbs.edu/Style%20Library/api/headshot.aspx?id={}"
 
@@ -182,18 +182,25 @@ def _parse_pub_entry(entry, pub_type: str):
     if len(text) < 10:
         return None
 
-    # Find the first <a> that is NOT a "View Details" link
+    # Find the first <a> that is NOT a "View Details" / toggle link
     title_tag = None
     url = None
+    view_details_url = None
     for a in entry.find_all("a"):
         a_text = a.get_text(strip=True)
-        if a_text.lower() in ("view details", "view detail", ""):
+        href = a.get("href", "")
+        if a_text.lower() in ("view details", "view detail", "") or href.startswith("#"):
+            # Capture View Details URL as fallback for case entries
+            if a_text.lower().startswith("view detail") and href and not href.startswith("#"):
+                view_details_url = href if href.startswith("http") else "https://www.hbs.edu" + href
             continue
         title_tag = a
-        href = a.get("href", "")
         if href and not href.startswith("#"):
             url = href if href.startswith("http") else "https://www.hbs.edu" + href
         break
+    # Use View Details URL when there's no primary link (common for cases)
+    if not url and view_details_url:
+        url = view_details_url
 
     if title_tag:
         # Get title text, strip surrounding quotes and the "(pdf)" suffix
@@ -201,7 +208,15 @@ def _parse_pub_entry(entry, pub_type: str):
         raw_title = re.sub(r"\s*\(pdf\)\s*$", "", raw_title, flags=re.I).strip()
         title = raw_title.strip('"').strip("\u201c\u201d").strip("'").strip()
     else:
-        title = re.split(r"[.!?]", text)[0].strip()
+        # No title link — title is in the plain text, usually in quotes.
+        # e.g. 'Smith, J. "Case Title." HBS Case 123-456, 2024. View Details'
+        quoted = re.search(r'["\u201c\u201e]([^"\u201c\u201d\u201e]{10,})["\u201d]', text)
+        if quoted:
+            title = quoted.group(1).strip().rstrip(".")
+        else:
+            # Last resort: use the italicised text if present
+            italic = entry.find("i")
+            title = italic.get_text(strip=True) if italic else ""
 
     if not title or len(title) < 5:
         return None
