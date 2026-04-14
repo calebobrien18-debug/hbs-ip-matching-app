@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -26,12 +26,11 @@ export default function Faculty() {
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [selectedUnit, setSelectedUnit] = useState(null)
-  const [selectedTag, setSelectedTag] = useState(null)
+  const [selectedTags, setSelectedTags] = useState(new Set())
 
   useEffect(() => {
     if (!session) return
     async function load() {
-      // Fetch faculty and all tags in parallel
       const [
         { data: facultyData, error: facultyError },
         { data: tagsData },
@@ -42,7 +41,6 @@ export default function Faculty() {
 
       if (!facultyError) setFaculty(facultyData ?? [])
 
-      // Build a map: faculty_id → string[]
       const tagMap = {}
       for (const row of (tagsData ?? [])) {
         if (!tagMap[row.faculty_id]) tagMap[row.faculty_id] = []
@@ -60,7 +58,7 @@ export default function Faculty() {
     return [...set].sort()
   }, [faculty])
 
-  // Derive cross-cutting tags (appear on 2+ faculty), sorted by frequency
+  // Derive cross-cutting tags (appear on 4+ faculty), sorted by frequency
   const popularTags = useMemo(() => {
     const count = {}
     Object.values(tagsByFaculty).forEach(tags =>
@@ -72,18 +70,30 @@ export default function Faculty() {
       .map(([tag]) => tag)
   }, [tagsByFaculty])
 
-  // Client-side filter: name, title, bio, unit, tags
+  function toggleTag(tag) {
+    setSelectedTags(prev => {
+      const next = new Set(prev)
+      next.has(tag) ? next.delete(tag) : next.add(tag)
+      return next
+    })
+  }
+
+  function clearTags() { setSelectedTags(new Set()) }
+
+  // Client-side filter: name, title, bio, unit, tags (OR logic for multi-tag)
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return faculty.filter(f => {
       const matchesUnit = !selectedUnit || f.unit === selectedUnit
       const facTags = tagsByFaculty[f.id] ?? []
-      const matchesTag = !selectedTag || facTags.includes(selectedTag)
+      const matchesTags = selectedTags.size === 0 || facTags.some(t => selectedTags.has(t))
       const matchesQuery = !q || [f.name, f.title, f.bio, f.unit, ...facTags]
         .some(field => field?.toLowerCase().includes(q))
-      return matchesUnit && matchesTag && matchesQuery
+      return matchesUnit && matchesTags && matchesQuery
     })
-  }, [faculty, tagsByFaculty, query, selectedUnit, selectedTag])
+  }, [faculty, tagsByFaculty, query, selectedUnit, selectedTags])
+
+  const hasFilters = query || selectedUnit || selectedTags.size > 0
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50">
@@ -110,23 +120,34 @@ export default function Faculty() {
 
         {/* Search + filters */}
         <div className="mb-6 space-y-3">
-          {/* Search input */}
-          <div className="relative max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-              <SearchIcon />
+          {/* Row 1: search + research topics dropdown */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative w-full max-w-md">
+              <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+                <SearchIcon />
+              </div>
+              <input
+                type="text"
+                placeholder="Search faculty…"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm text-gray-900
+                           focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent
+                           placeholder:text-gray-400 bg-white"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search faculty…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm text-gray-900
-                         focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent
-                         placeholder:text-gray-400 bg-white"
-            />
+
+            {popularTags.length > 0 && (
+              <ResearchTopicsDropdown
+                tags={popularTags}
+                selectedTags={selectedTags}
+                onToggle={toggleTag}
+                onClear={clearTags}
+              />
+            )}
           </div>
 
-          {/* Unit filter pills */}
+          {/* Row 2: unit pills */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-gray-400 mr-1 w-10 flex-shrink-0">Unit</span>
             <UnitPill
@@ -145,33 +166,45 @@ export default function Faculty() {
             ))}
           </div>
 
-          {/* Topic tag filter pills (cross-cutting tags only) */}
-          {popularTags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-gray-400 mr-1 w-10 flex-shrink-0">Topic</span>
-              <UnitPill
-                label="All"
-                active={selectedTag === null}
-                onClick={() => setSelectedTag(null)}
-              />
-              {popularTags.map(tag => (
-                <UnitPill
+          {/* Row 3: active topic chips */}
+          {selectedTags.size > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-medium text-gray-400 mr-1 flex-shrink-0">Filtering by</span>
+              {[...selectedTags].map(tag => (
+                <button
                   key={tag}
-                  label={tag}
-                  active={selectedTag === tag}
-                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                />
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className="inline-flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-0.5
+                             bg-crimson/8 text-crimson border border-crimson/20 hover:bg-crimson/15 transition-colors cursor-pointer"
+                >
+                  {tag}
+                  <span className="text-crimson/50 text-sm leading-none">×</span>
+                </button>
               ))}
+              <button
+                type="button"
+                onClick={clearTags}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer ml-1"
+              >
+                Clear all
+              </button>
             </div>
           )}
         </div>
 
         {/* Results count */}
-        {(query || selectedUnit || selectedTag) && (
+        {hasFilters && (
           <p className="text-sm text-gray-500 mb-4">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
             {selectedUnit && <> in <span className="font-medium text-gray-700">{selectedUnit}</span></>}
-            {selectedTag && <> tagged <span className="font-medium text-gray-700">"{selectedTag}"</span></>}
+            {selectedTags.size > 0 && (
+              <> matching <span className="font-medium text-gray-700">
+                {selectedTags.size === 1
+                  ? `"${[...selectedTags][0]}"`
+                  : `${selectedTags.size} research topics`}
+              </span></>
+            )}
             {query && <> matching <span className="font-medium text-gray-700">"{query}"</span></>}
           </p>
         )}
@@ -184,8 +217,8 @@ export default function Faculty() {
                 key={f.id}
                 faculty={f}
                 tags={tagsByFaculty[f.id] ?? []}
-                selectedTag={selectedTag}
-                onTagClick={setSelectedTag}
+                selectedTags={selectedTags}
+                onTagClick={toggleTag}
               />
             ))}
           </div>
@@ -194,7 +227,7 @@ export default function Faculty() {
             <p className="text-gray-400 text-sm">No faculty matched your search.</p>
             <button
               type="button"
-              onClick={() => { setQuery(''); setSelectedUnit(null); setSelectedTag(null) }}
+              onClick={() => { setQuery(''); setSelectedUnit(null); clearTags() }}
               className="mt-3 text-sm font-medium cursor-pointer text-crimson"
             >
               Clear filters
@@ -206,9 +239,126 @@ export default function Faculty() {
   )
 }
 
+// ── Research Topics dropdown ──────────────────────────────────────────────────
+
+function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const ref = useRef(null)
+
+  // Close on outside click
+  useEffect(() => {
+    function handle(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [])
+
+  // Close on Escape
+  useEffect(() => {
+    function handle(e) { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('keydown', handle)
+    return () => document.removeEventListener('keydown', handle)
+  }, [])
+
+  const filtered = search.trim()
+    ? tags.filter(t => t.toLowerCase().includes(search.trim().toLowerCase()))
+    : tags
+
+  const count = selectedTags.size
+  const isActive = count > 0
+
+  return (
+    <div className="relative flex-shrink-0" ref={ref}>
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium
+                    transition-colors cursor-pointer select-none ${
+          isActive
+            ? 'bg-crimson text-white border-crimson'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+        }`}
+      >
+        Research Topics
+        {isActive && (
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/25 text-xs font-bold">
+            {count}
+          </span>
+        )}
+        <ChevronIcon className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''} ${isActive ? 'text-white/70' : 'text-gray-400'}`} />
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-72 bg-white rounded-xl border border-gray-200
+                        shadow-lg z-20 overflow-hidden">
+
+          {/* Search inside dropdown */}
+          <div className="p-2 border-b border-gray-100">
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
+                <SearchIcon />
+              </div>
+              <input
+                type="text"
+                placeholder="Search topics…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full text-sm pl-8 pr-3 py-1.5 rounded-lg border border-gray-200
+                           focus:outline-none focus:ring-2 focus:ring-crimson focus:border-transparent
+                           placeholder:text-gray-400"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Tag list */}
+          <div className="max-h-60 overflow-y-auto py-1">
+            {filtered.length > 0 ? filtered.map(tag => (
+              <label
+                key={tag}
+                className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedTags.has(tag)}
+                  onChange={() => onToggle(tag)}
+                  className="accent-crimson w-3.5 h-3.5 flex-shrink-0 cursor-pointer"
+                />
+                <span className={`text-sm leading-snug ${selectedTags.has(tag) ? 'text-crimson font-medium' : 'text-gray-700'}`}>
+                  {tag}
+                </span>
+              </label>
+            )) : (
+              <p className="text-xs text-gray-400 text-center py-4">No topics match "{search}"</p>
+            )}
+          </div>
+
+          {/* Footer: clear + count */}
+          {count > 0 && (
+            <div className="px-3 py-2 border-t border-gray-100 flex items-center justify-between">
+              <span className="text-xs text-gray-500">{count} selected</span>
+              <button
+                type="button"
+                onClick={onClear}
+                className="text-xs font-medium text-crimson hover:underline cursor-pointer"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Faculty card ──────────────────────────────────────────────────────────────
 
-function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
+function FacultyCard({ faculty: f, tags, selectedTags, onTagClick }) {
   const abbrev = UNIT_ABBREV[f.unit] ?? f.unit
   const previewTags = tags.slice(0, 4)
 
@@ -254,7 +404,7 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
         <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 flex-1">{f.bio}</p>
       )}
 
-      {/* Research tag pills — clicking a tag filters by it */}
+      {/* Research tag pills — clicking a tag toggles it in the filter */}
       {previewTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
           {previewTags.map(tag => (
@@ -263,11 +413,10 @@ function FacultyCard({ faculty: f, tags, selectedTag, onTagClick }) {
               type="button"
               onClick={e => {
                 e.preventDefault()
-                onTagClick(selectedTag === tag ? null : tag)
+                onTagClick(tag)
               }}
-              className="text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors"
               className={`text-[10px] font-medium rounded-full px-2 py-0.5 border cursor-pointer transition-colors ${
-                selectedTag === tag
+                selectedTags.has(tag)
                   ? 'bg-crimson text-white border-crimson'
                   : 'text-crimson border-crimson/30 bg-crimson/4'
               }`}
@@ -327,3 +476,10 @@ function SearchIcon() {
   )
 }
 
+function ChevronIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  )
+}
