@@ -248,7 +248,7 @@ export default function CaseStudyIdeas() {
               value={userContext}
               onChange={e => setUserContext(e.target.value)}
               disabled={generating || limitReached}
-              placeholder="e.g. "Private equity in Southeast Asia" or "founder-led turnarounds in retail""
+              placeholder={'e.g. "Private equity in Southeast Asia" or "founder-led turnarounds in retail"'}
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson placeholder:text-gray-300 disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
