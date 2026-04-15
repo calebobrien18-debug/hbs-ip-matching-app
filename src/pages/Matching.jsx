@@ -60,12 +60,16 @@ export default function Matching() {
   const [msgIndex, setMsgIndex] = useState(0)
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [filterStrength, setFilterStrength] = useState(null)  // null = all
+  const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
 
   // Load profile + run history on mount
   useEffect(() => {
     if (!session) return
     async function load() {
-      const [{ data: profileData }, { data: runData }] = await Promise.all([
+      const todayStart = new Date()
+      todayStart.setUTCHours(0, 0, 0, 0)
+
+      const [{ data: profileData }, { data: runData }, { count: todayCount }] = await Promise.all([
         supabase.from('hbs_ip')
           .select('professional_interests, resume_text, linkedin_text, program, graduation_year')
           .eq('user_id', session.user.id)
@@ -74,8 +78,13 @@ export default function Matching() {
           .select('id, created_at')
           .eq('user_id', session.user.id)
           .order('created_at', { ascending: false }),
+        supabase.from('match_runs')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .gte('created_at', todayStart.toISOString()),
       ])
 
+      setRunsToday(todayCount ?? 0)
       setProfile(profileData)
 
       if (!profileData) { setPageState('no-profile'); return }
@@ -153,6 +162,7 @@ export default function Matching() {
       setRuns(runData ?? [])
       setMatches(data.matches ?? [])
       setSelectedRunId(data.run_id)
+      setRunsToday(prev => prev + 1)
       setPageState('results')
     } catch (err) {
       console.error('Matching error:', err)
@@ -276,11 +286,24 @@ export default function Matching() {
         <button
           type="button"
           onClick={handleMatch}
-          className="w-full py-3.5 rounded-xl bg-crimson text-white font-semibold text-base cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          disabled={runsToday >= 3}
+          className={`w-full py-3.5 rounded-xl font-semibold text-base transition-opacity flex items-center justify-center gap-2 ${
+            runsToday >= 3
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-crimson text-white cursor-pointer hover:opacity-90'
+          }`}
         >
           <SparklesIcon className="w-5 h-5" />
-          Match Me
+          {runsToday >= 3 ? 'Daily limit reached (3/3)' : 'Match Me'}
         </button>
+        {runsToday < 3 && (
+          <p className="text-xs text-gray-400 text-center -mt-4">
+            {3 - runsToday} run{3 - runsToday !== 1 ? 's' : ''} remaining today
+          </p>
+        )}
+        {runsToday >= 3 && (
+          <p className="text-xs text-gray-400 text-center -mt-4">Resets at midnight UTC</p>
+        )}
       </div>
     </div>
   )
@@ -314,14 +337,27 @@ export default function Matching() {
             )}
           </div>
           {isViewingLatest && (
-            <button
-              type="button"
-              onClick={handleMatch}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-crimson text-crimson text-sm font-semibold hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0"
-            >
-              <RefreshIcon className="w-4 h-4" />
-              Re-run
-            </button>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleMatch}
+                disabled={runsToday >= 3}
+                title={runsToday >= 3 ? 'Daily limit reached — resets at midnight UTC' : undefined}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-semibold transition-colors ${
+                  runsToday >= 3
+                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                    : 'border-crimson text-crimson hover:bg-crimson/6 cursor-pointer'
+                }`}
+              >
+                <RefreshIcon className="w-4 h-4" />
+                Re-run
+              </button>
+              {runsToday > 0 && (
+                <span className="text-[10px] text-gray-400">
+                  {runsToday >= 3 ? 'Limit reached (3/3)' : `${3 - runsToday} run${3 - runsToday !== 1 ? 's' : ''} left today`}
+                </span>
+              )}
+            </div>
           )}
           {!isViewingLatest && (
             <button
@@ -535,7 +571,7 @@ function MatchCard({ match, isSaved, onSaveToggle }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100 flex-wrap">
         <div className="relative group/save-tip">
           <button
             type="button"
@@ -555,6 +591,14 @@ function MatchCard({ match, isSaved, onSaveToggle }) {
             {isSaved ? 'Remove from saved faculty' : 'Save to Dashboard — appears in My Saved Faculty'}
           </div>
         </div>
+
+        <Link
+          to={`/case-ideas/${match.id}`}
+          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-crimson hover:text-crimson hover:bg-crimson/4 transition-colors"
+        >
+          <LightbulbIcon className="w-3.5 h-3.5" />
+          Case study ideas
+        </Link>
 
         <Link
           to={`/faculty/${f.id}`}
@@ -589,6 +633,14 @@ function ChevronIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor">
       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function LightbulbIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
     </svg>
   )
 }

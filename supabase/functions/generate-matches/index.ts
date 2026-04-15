@@ -26,6 +26,7 @@ const supabase = createClient(
 )
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
+const DAILY_LIMIT = 3
 
 // ── CORS headers included on every response ───────────────────────────────────
 const CORS = {
@@ -148,6 +149,24 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'Unauthorized' }, 401)
     }
     console.log('Step 1: Authenticated', user.id)
+
+    // ── 1b. Rate limit check ──────────────────────────────────────────────────
+    const todayStart = new Date()
+    todayStart.setUTCHours(0, 0, 0, 0)
+
+    const { count: runsToday } = await supabase
+      .from('match_runs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', todayStart.toISOString())
+
+    console.log('Step 1b: runs today:', runsToday)
+    if ((runsToday ?? 0) >= DAILY_LIMIT) {
+      return jsonResponse({
+        error: 'Daily limit reached. You can run matching up to 3 times per day.',
+        limitReached: true,
+      }, 429)
+    }
 
     // ── 2. Load user profile ──────────────────────────────────────────────────
     const { data: profile, error: profileError } = await supabase
