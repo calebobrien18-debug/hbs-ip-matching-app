@@ -25,6 +25,9 @@ export default function Dashboard() {
   const [savedFaculty, setSavedFaculty] = useState([])
   const [savedLoading, setSavedLoading] = useState(true)
 
+  const [matches, setMatches] = useState([])
+  const [matchesLoading, setMatchesLoading] = useState(true)
+
   useEffect(() => {
     if (!session) return
     supabase
@@ -35,6 +38,28 @@ export default function Dashboard() {
       .then(({ data }) => {
         setProfiles(data ?? [])
         setLoading(false)
+      })
+  }, [session])
+
+  // Load latest match run
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('match_runs')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(async ({ data: latestRun }) => {
+        if (!latestRun) { setMatchesLoading(false); return }
+        const { data: matchData } = await supabase
+          .from('faculty_matches')
+          .select('id, rank, match_strength, faculty(id, name, unit, image_url, title)')
+          .eq('run_id', latestRun.id)
+          .order('rank')
+        setMatches(matchData ?? [])
+        setMatchesLoading(false)
       })
   }, [session])
 
@@ -149,6 +174,89 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* My Matches */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              My Matches
+            </h2>
+            <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+              {matches.length > 0 ? 'View & re-run →' : 'Get matched →'}
+            </Link>
+          </div>
+
+          {matchesLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            </div>
+          ) : matches.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+              <p className="text-sm text-gray-500">No matches yet.</p>
+              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-crimson">
+                Find your faculty matches →
+              </Link>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {matches.map(m => {
+                const f = m.faculty
+                if (!f) return null
+                return (
+                  <li key={m.id}>
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-gray-300 hover:shadow-sm transition-all group">
+
+                      {/* Rank badge */}
+                      <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        {m.rank}
+                      </span>
+
+                      {/* Avatar */}
+                      {f.image_url ? (
+                        <img src={f.image_url} alt={f.name}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-gray-100" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-semibold bg-crimson">
+                          {initials(f.name)}
+                        </div>
+                      )}
+
+                      {/* Name + unit + strength */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-semibold text-gray-900 leading-snug">{f.name}</p>
+                          <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${STRENGTH_STYLES[m.match_strength] ?? STRENGTH_STYLES.good}`}>
+                            {STRENGTH_LABELS[m.match_strength] ?? 'Match'}
+                          </span>
+                        </div>
+                        {f.unit && <p className="text-xs text-gray-500 mt-0.5 truncate">{f.unit}</p>}
+                      </div>
+
+                      {/* Action links */}
+                      <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link
+                          to={`/case-ideas/${m.id}`}
+                          title="Generate case study ideas"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors"
+                        >
+                          <LightbulbIcon className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          to={`/faculty/${f.id}`}
+                          title="View full profile"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors"
+                        >
+                          <ArrowRightIcon className="w-4 h-4" />
+                        </Link>
+                      </div>
+
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
         {/* Saved Faculty */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -223,5 +331,32 @@ function Badge({ children }) {
     <span className="inline-block text-xs font-medium bg-gray-100 text-gray-600 rounded-md px-2 py-0.5">
       {children}
     </span>
+  )
+}
+
+const STRENGTH_STYLES = {
+  strong:      'bg-green-700 text-white',
+  good:        'bg-green-100 text-green-800 border border-green-300',
+  exploratory: 'bg-green-50 text-green-600 border border-green-200',
+}
+const STRENGTH_LABELS = {
+  strong:      'Strong',
+  good:        'Good',
+  exploratory: 'Exploratory',
+}
+
+function LightbulbIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
+    </svg>
+  )
+}
+
+function ArrowRightIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+    </svg>
   )
 }

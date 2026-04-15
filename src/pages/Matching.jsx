@@ -252,7 +252,7 @@ export default function Matching() {
             {[
               { n: '1', title: 'We analyze your profile', body: 'Your stated interests, additional background, and uploaded resume and LinkedIn PDF are all used as inputs.' },
               { n: '2', title: 'We scan faculty research', body: "Every HBS faculty member's research areas, publications, case studies, and courses are compared against your background." },
-              { n: '3', title: 'We surface your best matches', body: 'You receive 2–10 ranked faculty matches with specific reasoning and concrete suggestions for how to work together.' },
+              { n: '3', title: 'We surface your best matches', body: 'You receive up to 6 ranked faculty matches with specific reasoning and concrete suggestions for how to work together.' },
             ].map(({ n, title, body }) => (
               <div key={n} className="flex gap-4">
                 <div className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{n}</div>

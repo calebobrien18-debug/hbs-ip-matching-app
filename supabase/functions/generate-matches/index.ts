@@ -260,7 +260,7 @@ Deno.serve(async (req: Request) => {
 
     const systemPrompt = `You are a faculty matching assistant for Harvard Business School's ProfFound platform.
 
-Your task: given a student profile and a list of HBS faculty candidates, select the 2–10 faculty who would be the most compelling thought partners for this student. Order from strongest to weakest match.
+Your task: given a student profile and a list of HBS faculty candidates, select the 2–6 faculty who would be the most compelling thought partners for this student. Prioritize quality over quantity — only include a faculty member if the match is genuinely strong and specific. Order from strongest to weakest match.
 
 For each selected faculty return a JSON object with these exact keys:
 - "faculty_id": the exact UUID string provided in the candidate's ID field
@@ -298,7 +298,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
 
     matches = matches
       .filter(m => m.faculty_id && m.rank && Array.isArray(m.match_reasons) && Array.isArray(m.collaboration_ideas))
-      .slice(0, 10)
+      .slice(0, 6)
 
     if (matches.length < 2) {
       return jsonResponse({ error: 'Could not generate enough matches. Try enriching your profile.' }, 500)
