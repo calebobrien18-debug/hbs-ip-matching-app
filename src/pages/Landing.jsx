@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import ProfFoundLogo from '../components/ProfFoundLogo'
+import ProFoundLogo from '../components/ProFoundLogo'
+import Footer from '../components/Footer'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -26,155 +27,53 @@ export default function Landing() {
   if (loading) return null
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-white">
 
-      {/* Deep crimson gradient sky */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at 50% 80%, #5c0a1a 0%, #2a0508 45%, #080104 100%)',
-        }}
-      />
+      {/* ── Main content ── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+        <div className="max-w-xl w-full text-center space-y-7">
 
-      {/* Warm horizon glow behind the building */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 35% at 50% 100%, rgba(165,28,48,0.4) 0%, transparent 100%)',
-        }}
-      />
-
-      {/* Baker Library silhouette */}
-      <div className="absolute bottom-0 left-0 right-0 w-full">
-        <svg
-          viewBox="0 0 1440 360"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMax slice"
-          className="w-full"
-          aria-hidden="true"
-        >
-          {/* ── Main building masses ── */}
-          <g fill="#1c0307" opacity="0.93">
-            {/* Far left end */}
-            <rect x="0"    y="282" width="178" height="78" />
-            {/* Left main wing */}
-            <rect x="178"  y="265" width="312" height="95" />
-            {/* Left pavilion (stepped up) */}
-            <rect x="490"  y="248" width="82"  height="112" />
-            {/* Central block */}
-            <rect x="572"  y="218" width="296" height="142" />
-            {/* Right pavilion */}
-            <rect x="868"  y="248" width="82"  height="112" />
-            {/* Right main wing */}
-            <rect x="950"  y="265" width="312" height="95" />
-            {/* Far right end */}
-            <rect x="1262" y="282" width="178" height="78" />
-          </g>
-
-          {/* ── Pediment — triangular gable crowning the central portico ── */}
-          <polygon points="614,218 826,218 720,192" fill="#1c0307" opacity="0.93" />
-
-          {/* ── Tower ── */}
-          <g fill="#1c0307" opacity="0.96">
-            {/* Square base shaft rising from central block roof */}
-            <rect x="699" y="165" width="42" height="54" />
-            {/* Belfry drum */}
-            <rect x="701" y="128" width="38" height="38" />
-            {/* Dome — bezier curves for the outward-convex cupola profile */}
-            <path d="M 701,128 C 694,115 697,102 720,93 C 743,102 746,115 739,128 Z" />
-            {/* Lantern */}
-            <rect x="714" y="76" width="12" height="18" />
-            {/* Spire */}
-            <polygon points="720,42 713,76 727,76" />
-          </g>
-
-          {/* ── Belfry arched openings ── */}
-          <g fill="#340610" opacity="0.85">
-            <rect x="705" y="133" width="7" height="12" rx="3.5" />
-            <rect x="716" y="133" width="7" height="12" rx="3.5" />
-            <rect x="727" y="133" width="7" height="12" rx="3.5" />
-          </g>
-
-          {/* ── Window fenestration ── */}
-          <g fill="#340610" opacity="0.65">
-            {/* Left wing */}
-            {[200,228,256,284,312,340,368,396,424,452].map(x => (
-              <rect key={x} x={x} y="275" width="6" height="15" rx="3" />
-            ))}
-            {/* Right wing */}
-            {[968,996,1024,1052,1080,1108,1136,1164,1192,1220].map(x => (
-              <rect key={x} x={x} y="275" width="6" height="15" rx="3" />
-            ))}
-            {/* Central block — tall arched windows flanking the portico */}
-            <rect x="590" y="232" width="8" height="22" rx="4" />
-            <rect x="618" y="232" width="8" height="22" rx="4" />
-            <rect x="814" y="232" width="8" height="22" rx="4" />
-            <rect x="842" y="232" width="8" height="22" rx="4" />
-            {/* Central arched entry */}
-            <rect x="706" y="238" width="28" height="30" rx="14" />
-          </g>
-
-          {/* ── Roofline accent strokes ── */}
-          <g stroke="#5c1020" strokeWidth="0.8" fill="none" opacity="0.4">
-            <line x1="0"    y1="282" x2="178"  y2="282" />
-            <line x1="178"  y1="265" x2="490"  y2="265" />
-            <line x1="490"  y1="248" x2="572"  y2="248" />
-            <line x1="572"  y1="218" x2="868"  y2="218" />
-            <line x1="868"  y1="248" x2="950"  y2="248" />
-            <line x1="950"  y1="265" x2="1262" y2="265" />
-            <line x1="1262" y1="282" x2="1440" y2="282" />
-          </g>
-        </svg>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 max-w-xl w-full text-center px-6 space-y-7">
-        <div className="space-y-4">
-
-          {/* Logo mark */}
-          <div className="flex justify-center mb-2">
-            <div className="relative">
-              {/* Soft radial glow behind the mark */}
-              <div
-                className="absolute inset-0 rounded-full blur-2xl"
-                style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)',
-                  transform: 'scale(2.2)',
-                }}
-              />
-              <ProfFoundLogo size={88} color="#ffffff" />
-            </div>
+          {/* Logo — large */}
+          <div className="flex justify-center">
+            <ProFoundLogo size="lg" />
           </div>
 
-          <h1 className="text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-            ProfFound
-          </h1>
-          <p className="text-xl font-medium tracking-wide" style={{ color: '#e87088' }}>
-            Find faculty who share your passions.
-          </p>
-          <p className="text-base leading-relaxed" style={{ color: '#c49aa4' }}>
-            Great research starts with the right team. Turn common interests
-            into independent projects, case writing collaborations, and lifelong
-            relationships.
-          </p>
-        </div>
+          {/* Tagline + description */}
+          <div className="space-y-3">
+            <p className="text-xl font-semibold text-crimson tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              Find faculty who share your passions.
+            </p>
+            <p className="text-base leading-relaxed text-gray-500 max-w-md mx-auto">
+              Great research starts with the right team. Turn shared interests
+              into independent projects, case writing collaborations, and lifelong
+              relationships.
+            </p>
+          </div>
 
-        <button
-          type="button"
-          onClick={handleGitHubSignIn}
-          disabled={signingIn}
-          className="inline-flex items-center gap-3 bg-white hover:bg-gray-100 disabled:opacity-50 font-semibold px-7 py-3 rounded-lg shadow-lg transition-colors cursor-pointer disabled:cursor-not-allowed text-crimson"
-        >
-          <GitHubIcon />
-          {signingIn ? 'Redirecting…' : 'Sign in with GitHub'}
-        </button>
+          {/* Sign-in button */}
+          <div>
+            <button
+              type="button"
+              onClick={handleGitHubSignIn}
+              disabled={signingIn}
+              className="inline-flex items-center gap-3 bg-crimson hover:bg-crimson-dark disabled:opacity-50 font-semibold px-7 py-3 rounded-lg shadow-md transition-colors cursor-pointer disabled:cursor-not-allowed text-white"
+            >
+              <GitHubIcon />
+              {signingIn ? 'Redirecting…' : 'Sign in with GitHub'}
+            </button>
+          </div>
+
+        </div>
       </div>
+
+      {/* ── Footer — copyright only ── */}
+      <Footer showFeedback={false} />
 
     </div>
   )
 }
+
+// ── GitHub icon ────────────────────────────────────────────────────────────────
 
 function GitHubIcon() {
   return (

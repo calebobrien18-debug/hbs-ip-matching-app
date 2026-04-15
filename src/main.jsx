@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
+import Layout from './components/Layout.jsx'
 import Landing from './pages/Landing.jsx'
 import AuthCallback from './pages/AuthCallback.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -17,16 +18,19 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
+        {/* Public — Landing handles its own layout + footer */}
         <Route path="/" element={<Landing />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile/new" element={<ProfileNew />} />
-        <Route path="/profile/edit" element={<ProfileEdit />} />
-        <Route path="/profile/:id" element={<ProfileDetail />} />
-        <Route path="/faculty" element={<Faculty />} />
-        <Route path="/faculty/:id" element={<FacultyDetail />} />
-        <Route path="/match" element={<Matching />} />
-        <Route path="/case-ideas/:matchId" element={<CaseStudyIdeas />} />
+
+        {/* Authenticated — Layout appends the feedback-enabled footer */}
+        <Route path="/dashboard"       element={<Layout><Dashboard /></Layout>} />
+        <Route path="/profile/new"     element={<Layout><ProfileNew /></Layout>} />
+        <Route path="/profile/edit"    element={<Layout><ProfileEdit /></Layout>} />
+        <Route path="/profile/:id"     element={<Layout><ProfileDetail /></Layout>} />
+        <Route path="/faculty"         element={<Layout><Faculty /></Layout>} />
+        <Route path="/faculty/:id"     element={<Layout><FacultyDetail /></Layout>} />
+        <Route path="/match"           element={<Layout><Matching /></Layout>} />
+        <Route path="/case-ideas/:matchId" element={<Layout><CaseStudyIdeas /></Layout>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

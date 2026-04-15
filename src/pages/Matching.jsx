@@ -177,6 +177,11 @@ export default function Matching() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  async function handleUnmatch(matchId) {
+    setMatches(prev => prev.filter(m => m.id !== matchId))  // optimistic
+    await supabase.from('faculty_matches').delete().eq('id', matchId)
+  }
+
   const latestRunId = runs[0]?.id ?? null
   const isViewingLatest = selectedRunId === latestRunId
   const archivedRuns = runs.slice(1)  // all but the newest
@@ -391,6 +396,22 @@ export default function Matching() {
           </div>
         )}
 
+        {/* "Next step" callout */}
+        {isViewingLatest && matches.length > 0 && (
+          <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 flex items-start gap-3">
+            <LightbulbIcon className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-indigo-900">Next step: explore case study opportunities</p>
+              <p className="text-sm text-indigo-700 mt-0.5">
+                For each match, use the Case Study Idea Generator to brainstorm HBS teaching cases you
+                could co-develop with that professor. Click{' '}
+                <span className="font-semibold">Case study ideas</span>{' '}
+                on any match card below to get started.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Profile completeness nudge */}
         {!profile?.professional_interests && !profile?.resume_text && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 flex gap-2">
@@ -400,6 +421,26 @@ export default function Matching() {
               <Link to="/profile/edit" className="font-semibold underline underline-offset-2">Update your profile</Link>{' '}
               and re-run for better results.
             </span>
+          </div>
+        )}
+
+        {/* Empty state when all matches removed */}
+        {matches.length === 0 && (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center space-y-3">
+            <p className="text-sm text-gray-500">All matches removed from this run.</p>
+            <button
+              type="button"
+              onClick={handleMatch}
+              disabled={runsToday >= 3}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-opacity ${
+                runsToday >= 3
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-crimson text-white cursor-pointer hover:opacity-90'
+              }`}
+            >
+              <RefreshIcon className="w-4 h-4" />
+              Re-run matching
+            </button>
           </div>
         )}
 
@@ -439,21 +480,25 @@ export default function Matching() {
         )}
 
         {/* Match cards */}
-        <div className="space-y-4">
-          {filteredMatches.map(match => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              isSaved={savedIds.has(match.faculty?.id)}
-              onSaveToggle={() => toggleSave(match.faculty?.id)}
-            />
-          ))}
-          {filteredMatches.length === 0 && filterStrength && (
-            <p className="text-sm text-gray-500 text-center py-8">
-              No {STRENGTH_LABELS[filterStrength].toLowerCase()} matches in this run.
-            </p>
-          )}
-        </div>
+        {matches.length > 0 && (
+          <div className="space-y-4">
+            {filteredMatches.map(match => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                isSaved={savedIds.has(match.faculty?.id)}
+                onSaveToggle={() => toggleSave(match.faculty?.id)}
+                canUnmatch={isViewingLatest}
+                onUnmatch={() => handleUnmatch(match.id)}
+              />
+            ))}
+            {filteredMatches.length === 0 && filterStrength && (
+              <p className="text-sm text-gray-500 text-center py-8">
+                No {STRENGTH_LABELS[filterStrength].toLowerCase()} matches in this run.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Archive */}
         {archivedRuns.length > 0 && (
@@ -495,7 +540,7 @@ export default function Matching() {
 
 // ── Match card ─────────────────────────────────────────────────────────────────
 
-function MatchCard({ match, isSaved, onSaveToggle }) {
+function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
   const f = match.faculty
   if (!f) return null
 
@@ -572,40 +617,57 @@ function MatchCard({ match, isSaved, onSaveToggle }) {
 
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100 flex-wrap">
-        <div className="relative group/save-tip">
-          <button
-            type="button"
-            onClick={onSaveToggle}
-            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
-              isSaved
-                ? 'text-crimson bg-crimson/6'
-                : 'text-gray-400 hover:text-crimson hover:bg-crimson/6'
-            }`}
-          >
-            <BookmarkIcon filled={isSaved} />
-            {isSaved ? 'Saved' : 'Save'}
-          </button>
-          <div className="absolute left-0 top-full mt-1 w-52 rounded-lg bg-gray-800 text-white text-xs
-                          px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
-                          pointer-events-none z-10 leading-snug shadow-lg">
-            {isSaved ? 'Remove from saved faculty' : 'Save to Dashboard — appears in My Saved Faculty'}
+        <div className="flex items-center gap-1 flex-wrap">
+          {/* Save button */}
+          <div className="relative group/save-tip">
+            <button
+              type="button"
+              onClick={onSaveToggle}
+              className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                isSaved
+                  ? 'text-crimson bg-crimson/6'
+                  : 'text-gray-400 hover:text-crimson hover:bg-crimson/6'
+              }`}
+            >
+              <BookmarkIcon filled={isSaved} />
+              {isSaved ? 'Saved' : 'Save'}
+            </button>
+            <div className="absolute left-0 top-full mt-1 w-52 rounded-lg bg-gray-800 text-white text-xs
+                            px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
+                            pointer-events-none z-10 leading-snug shadow-lg">
+              {isSaved ? 'Remove from saved faculty' : 'Save to Dashboard — appears in My Saved Faculty'}
+            </div>
           </div>
+
+          {/* Remove match button */}
+          {canUnmatch && (
+            <button
+              type="button"
+              onClick={onUnmatch}
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              <XIcon className="w-3.5 h-3.5" />
+              Remove
+            </button>
+          )}
         </div>
 
-        <Link
-          to={`/case-ideas/${match.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-crimson hover:text-crimson hover:bg-crimson/4 transition-colors"
-        >
-          <LightbulbIcon className="w-3.5 h-3.5" />
-          Case study ideas
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <Link
+            to={`/case-ideas/${match.id}`}
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors"
+          >
+            <LightbulbIcon className="w-3.5 h-3.5" />
+            Case study ideas
+          </Link>
 
-        <Link
-          to={`/faculty/${f.id}`}
-          className="text-sm font-semibold text-crimson hover:opacity-70 transition-opacity"
-        >
-          View full profile →
-        </Link>
+          <Link
+            to={`/faculty/${f.id}`}
+            className="text-sm font-semibold text-crimson hover:opacity-70 transition-opacity"
+          >
+            View full profile →
+          </Link>
+        </div>
       </div>
     </div>
   )
@@ -653,6 +715,14 @@ function BookmarkIcon({ filled }) {
   ) : (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+    </svg>
+  )
+}
+
+function XIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
     </svg>
   )
 }

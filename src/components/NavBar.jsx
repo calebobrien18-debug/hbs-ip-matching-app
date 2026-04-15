@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import ProfFoundLogo from './ProfFoundLogo'
+import ProFoundLogo from './ProFoundLogo'
 
 export default function NavBar() {
   const location = useLocation()
@@ -41,8 +41,8 @@ export default function NavBar() {
         to={to}
         className={`text-sm font-medium transition-colors pb-0.5 ${
           active
-            ? 'text-white border-b-2 border-white'
-            : 'text-white/70 hover:text-white border-b-2 border-transparent'
+            ? 'text-crimson border-b-2 border-crimson'
+            : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
         }`}
       >
         {label}
@@ -51,19 +51,13 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-30 w-full bg-crimson">
+    <nav className="sticky top-0 z-30 w-full bg-white border-b border-gray-200">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
 
-        {/* Left: logo mark + wordmark */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <ProfFoundLogo size={30} color="#ffffff" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-white font-bold text-base tracking-tight">ProfFound</span>
-            <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">
-              Harvard Business School
-            </span>
-          </div>
-        </div>
+        {/* Left: logo */}
+        <Link to="/dashboard" className="flex-shrink-0">
+          <ProFoundLogo size="sm" />
+        </Link>
 
         {/* Center: nav links */}
         <div className="flex items-center gap-6">
@@ -76,14 +70,14 @@ export default function NavBar() {
         {/* Right: user + sign out */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {displayName && (
-            <span className="text-white/80 text-sm hidden sm:block truncate max-w-[160px]">
+            <span className="text-gray-500 text-sm hidden sm:block truncate max-w-[160px]">
               Hi, {displayName}
             </span>
           )}
           <button
             type="button"
             onClick={handleSignOut}
-            className="text-sm text-white/70 hover:text-white border border-white/30 hover:border-white/60 rounded-md px-3 py-1.5 transition-colors cursor-pointer"
+            className="text-sm text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-500 rounded-md px-3 py-1.5 transition-colors cursor-pointer"
           >
             Sign out
           </button>

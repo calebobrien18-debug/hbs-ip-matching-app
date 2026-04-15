@@ -28,6 +28,9 @@ export default function Dashboard() {
   const [matches, setMatches] = useState([])
   const [matchesLoading, setMatchesLoading] = useState(true)
 
+  const [savedIdeas, setSavedIdeas] = useState([])
+  const [savedIdeasLoading, setSavedIdeasLoading] = useState(true)
+
   useEffect(() => {
     if (!session) return
     supabase
@@ -63,6 +66,21 @@ export default function Dashboard() {
       })
   }, [session])
 
+  // Load saved case study ideas
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('saved_case_ideas')
+      .select('id, match_id, title, faculty:faculty_id(id, name, image_url)')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error) console.error('[Dashboard] saved_case_ideas load error:', error)
+        setSavedIdeas(data ?? [])
+        setSavedIdeasLoading(false)
+      })
+  }, [session])
+
   // Load saved faculty details
   useEffect(() => {
     if (!session) return
@@ -93,6 +111,16 @@ export default function Dashboard() {
       .delete()
       .eq('user_id', session.user.id)
       .eq('faculty_id', facultyId)
+  }
+
+  async function handleUnmatchFromDashboard(matchId) {
+    setMatches(prev => prev.filter(m => m.id !== matchId))  // optimistic
+    await supabase.from('faculty_matches').delete().eq('id', matchId)
+  }
+
+  async function handleDeleteSavedIdea(ideaId) {
+    setSavedIdeas(prev => prev.filter(i => i.id !== ideaId))  // optimistic
+    await supabase.from('saved_case_ideas').delete().eq('id', ideaId)
   }
 
   if (loading) return null
@@ -232,7 +260,7 @@ export default function Dashboard() {
                       </div>
 
                       {/* Action links */}
-                      <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link
                           to={`/case-ideas/${m.id}`}
                           title="Generate case study ideas"
@@ -247,8 +275,82 @@ export default function Dashboard() {
                         >
                           <ArrowRightIcon className="w-4 h-4" />
                         </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleUnmatchFromDashboard(m.id)}
+                          title="Remove match"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
+                          <XIcon className="w-4 h-4" />
+                        </button>
                       </div>
 
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Saved Case Study Ideas */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              Saved Case Study Ideas
+            </h2>
+            <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+              Explore matches →
+            </Link>
+          </div>
+
+          {savedIdeasLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            </div>
+          ) : savedIdeas.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+              <p className="text-sm text-gray-500">No saved ideas yet.</p>
+              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-crimson">
+                Explore your matches to generate ideas →
+              </Link>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {savedIdeas.map(idea => {
+                const fac = idea.faculty
+                return (
+                  <li key={idea.id}>
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-indigo-200 hover:shadow-sm transition-all group">
+                      {/* Faculty avatar */}
+                      {fac?.image_url ? (
+                        <img src={fac.image_url} alt={fac.name}
+                          className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-gray-100" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-semibold bg-crimson">
+                          {initials(fac?.name ?? '?')}
+                        </div>
+                      )}
+
+                      {/* Title + faculty name */}
+                      <Link to={`/case-ideas/${idea.match_id}`} className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 leading-snug truncate">{idea.title}</p>
+                        {fac?.name && (
+                          <p className="text-xs text-gray-400 mt-0.5">with {fac.name}</p>
+                        )}
+                      </Link>
+
+                      {/* Delete button */}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSavedIdea(idea.id)}
+                        title="Remove saved idea"
+                        className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-0 group-hover:opacity-100"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                          <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+                        </svg>
+                      </button>
                     </div>
                   </li>
                 )
@@ -357,6 +459,14 @@ function ArrowRightIcon({ className }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+    </svg>
+  )
+}
+
+function XIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
     </svg>
   )
 }

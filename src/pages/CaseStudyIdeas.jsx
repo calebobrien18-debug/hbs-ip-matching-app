@@ -46,14 +46,18 @@ export default function CaseStudyIdeas() {
   const [ideasToday, setIdeasToday]   = useState(0)
   const limitReached = ideasToday >= DAILY_LIMIT
 
-  // ── Load match data + today's run count ──────────────────────────────────────
+  // Saved ideas — Map<idea.title, saved_case_ideas.id | 'optimistic'>
+  const [savedIdeaMap, setSavedIdeaMap]   = useState(new Map())
+  const [savingIdeaTitle, setSavingIdeaTitle] = useState(null)  // title of in-flight save
+
+  // ── Load match data + today's run count + existing saves ─────────────────────
   useEffect(() => {
     if (!session || !matchId) return
     async function load() {
       const todayStart = new Date()
       todayStart.setUTCHours(0, 0, 0, 0)
 
-      const [{ data: match }, { count }] = await Promise.all([
+      const [{ data: match }, { count }, { data: savedRows }] = await Promise.all([
         supabase
           .from('faculty_matches')
           .select('*, faculty(id, name, unit, image_url, title, bio)')
@@ -64,11 +68,17 @@ export default function CaseStudyIdeas() {
           .select('*', { count: 'exact', head: true })
           .eq('user_id', session.user.id)
           .gte('created_at', todayStart.toISOString()),
+        supabase
+          .from('saved_case_ideas')
+          .select('id, title')
+          .eq('match_id', matchId)
+          .eq('user_id', session.user.id),
       ])
 
       if (!match) { setNotFound(true); setLoading(false); return }
       setMatchData(match)
       setIdeasToday(count ?? 0)
+      setSavedIdeaMap(new Map((savedRows ?? []).map(r => [r.title, r.id])))
       setLoading(false)
     }
     load()
@@ -111,10 +121,19 @@ export default function CaseStudyIdeas() {
       }
       if (data?.error) throw new Error(data.error)
 
-      setIdeas(data.ideas ?? [])
+      const newIdeas = data.ideas ?? []
+      setIdeas(newIdeas)
       setHasGenerated(true)
       // Optimistic increment so button disables immediately after 3rd run
       setIdeasToday(prev => Math.max(prev, data.runsToday ?? prev + 1))
+      // Preserve saved state for ideas that still exist; clear orphaned titles
+      setSavedIdeaMap(prev => {
+        const next = new Map()
+        for (const idea of newIdeas) {
+          if (prev.has(idea.title)) next.set(idea.title, prev.get(idea.title))
+        }
+        return next
+      })
     } catch (err) {
       console.error('Case idea generation error:', err)
       setGenError(err.message || 'Something went wrong. Please try again.')
@@ -122,6 +141,50 @@ export default function CaseStudyIdeas() {
       setGenerating(false)
     }
   }, [matchId, userContext])
+
+  // ── Save / unsave handlers ────────────────────────────────────────────────────
+  const handleSaveIdea = useCallback(async (idea) => {
+    if (!matchData?.faculty) return
+    setSavingIdeaTitle(idea.title)
+    // Optimistic
+    setSavedIdeaMap(prev => new Map(prev).set(idea.title, 'optimistic'))
+
+    const { data, error } = await supabase
+      .from('saved_case_ideas')
+      .insert({
+        user_id:         session.user.id,
+        match_id:        matchId,
+        faculty_id:      matchData.faculty.id,
+        title:           idea.title,
+        premise:         idea.premise ?? null,
+        protagonist:     idea.protagonist ?? null,
+        teaching_themes: idea.teaching_themes ?? [],
+        student_angle:   idea.student_angle ?? null,
+        faculty_angle:   idea.faculty_angle ?? null,
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      console.error('Save idea error:', error)
+      setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea.title); return n })
+    } else {
+      setSavedIdeaMap(prev => new Map(prev).set(idea.title, data.id))
+    }
+    setSavingIdeaTitle(null)
+  }, [session, matchId, matchData])
+
+  const handleUnsaveIdea = useCallback(async (idea) => {
+    const rowId = savedIdeaMap.get(idea.title)
+    if (!rowId || rowId === 'optimistic') return
+    // Optimistic
+    setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea.title); return n })
+    const { error } = await supabase.from('saved_case_ideas').delete().eq('id', rowId)
+    if (error) {
+      console.error('Unsave idea error:', error)
+      setSavedIdeaMap(prev => new Map(prev).set(idea.title, rowId))
+    }
+  }, [savedIdeaMap])
 
   // ── Loading / not-found states ────────────────────────────────────────────────
   if (loading) return (
@@ -160,41 +223,49 @@ export default function CaseStudyIdeas() {
           ← Back to matches
         </Link>
 
-        {/* Faculty header card */}
+        {/* Page title */}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Case Study Idea Generator</h1>
+          {f && (
+            <p className="text-base text-gray-500 mt-1">with {f.name}</p>
+          )}
+        </div>
+
+        {/* Explanation paragraph */}
+        <p className="text-sm text-gray-600 leading-relaxed -mt-2">
+          Use this tool to brainstorm HBS teaching case concepts you could co-develop
+          with {f?.name ?? 'this faculty member'}. Each idea is tailored to your background
+          and their published research. Steer the generator toward specific industries or
+          topics, then save ideas you want to revisit.
+        </p>
+
+        {/* Compact faculty reference card */}
         {f && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-start gap-4">
+          <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+            <div className="flex items-center gap-3">
               {/* Avatar */}
               {f.image_url ? (
                 <img src={f.image_url} alt={f.name}
-                  className="w-14 h-14 rounded-full object-cover flex-shrink-0 bg-gray-100" />
+                  className="w-11 h-11 rounded-full object-cover flex-shrink-0 bg-gray-100" />
               ) : (
-                <div className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center text-white font-semibold bg-crimson">
+                <div className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white font-semibold bg-crimson text-sm">
                   {initials(f.name)}
                 </div>
               )}
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 flex-wrap">
-                  <div>
-                    <h1 className="text-lg font-semibold text-gray-900 leading-snug">{f.name}</h1>
-                    {f.title && <p className="text-xs text-gray-500 mt-0.5">{f.title}</p>}
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {f.unit && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 text-white bg-crimson">
-                        {f.unit}
-                      </span>
-                    )}
-                    <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${STRENGTH_STYLES[matchData.match_strength] ?? STRENGTH_STYLES.good}`}>
-                      {STRENGTH_LABELS[matchData.match_strength] ?? 'Match'}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-semibold text-gray-900 leading-snug">{f.name}</p>
+                  {f.unit && (
+                    <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 text-white bg-crimson flex-shrink-0">
+                      {f.unit}
                     </span>
-                  </div>
+                  )}
+                  <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 flex-shrink-0 ${STRENGTH_STYLES[matchData.match_strength] ?? STRENGTH_STYLES.good}`}>
+                    {STRENGTH_LABELS[matchData.match_strength] ?? 'Match'}
+                  </span>
                 </div>
-
-                <p className="text-xs text-gray-400 mt-2">
-                  Case Study Idea Generator
-                </p>
+                {f.title && <p className="text-xs text-gray-400 mt-0.5 truncate">{f.title}</p>}
               </div>
             </div>
           </div>
@@ -304,7 +375,15 @@ export default function CaseStudyIdeas() {
               {ideas.length} case study idea{ideas.length !== 1 ? 's' : ''}
             </h2>
             {ideas.map((idea, i) => (
-              <IdeaCard key={i} idea={idea} index={i} />
+              <IdeaCard
+                key={i}
+                idea={idea}
+                index={i}
+                isSaved={savedIdeaMap.has(idea.title)}
+                isSaving={savingIdeaTitle === idea.title}
+                onSave={() => handleSaveIdea(idea)}
+                onUnsave={() => handleUnsaveIdea(idea)}
+              />
             ))}
           </div>
         )}
@@ -323,16 +402,29 @@ export default function CaseStudyIdeas() {
 
 // ── Idea card ──────────────────────────────────────────────────────────────────
 
-function IdeaCard({ idea, index }) {
+function IdeaCard({ idea, index, isSaved, isSaving, onSave, onUnsave }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
 
-      {/* Number + title */}
+      {/* Number + title + bookmark */}
       <div className="flex items-start gap-3">
         <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
           {index + 1}
         </span>
-        <h3 className="text-base font-semibold text-gray-900 leading-snug">{idea.title}</h3>
+        <h3 className="text-base font-semibold text-gray-900 leading-snug flex-1">{idea.title}</h3>
+        <button
+          type="button"
+          onClick={isSaved ? onUnsave : onSave}
+          disabled={isSaving}
+          title={isSaved ? 'Remove from saved ideas' : 'Save this idea to Dashboard'}
+          className={`flex-shrink-0 p-1.5 rounded-lg transition-colors disabled:opacity-40 ${
+            isSaved
+              ? 'text-crimson bg-crimson/6 hover:bg-crimson/10'
+              : 'text-gray-300 hover:text-crimson hover:bg-crimson/6'
+          }`}
+        >
+          <BookmarkIcon filled={isSaved} className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Protagonist chip */}
@@ -383,12 +475,24 @@ function IdeaCard({ idea, index }) {
   )
 }
 
-// ── Icon ───────────────────────────────────────────────────────────────────────
+// ── Icons ──────────────────────────────────────────────────────────────────────
 
 function LightbulbIcon({ className }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
+    </svg>
+  )
+}
+
+function BookmarkIcon({ filled, className }) {
+  return filled ? (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+    </svg>
+  ) : (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
     </svg>
   )
 }
