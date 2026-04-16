@@ -1,37 +1,64 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useRequireAuth } from '../lib/hooks'
 import { initials } from '../lib/utils'
 import NavBar from '../components/NavBar'
 
+const EMAIL_DAILY_LIMIT = 10
+
 export default function SavedIdeas() {
   const session = useRequireAuth()
   const [ideas, setIdeas] = useState([])
   const [loading, setLoading] = useState(true)
   const [deletingIds, setDeletingIds] = useState(new Set())
+  const [emailsToday, setEmailsToday] = useState(0)
+
+  // Per-faculty draft panel state: { [facultyId]: { open, selectedIds, loading, subject, body, error, copied } }
+  const [draftStates, setDraftStates] = useState({})
 
   useEffect(() => {
     if (!session) return
-    supabase
-      .from('saved_case_ideas')
-      .select('id, match_id, title, premise, protagonist, teaching_themes, student_angle, faculty_angle, created_at, faculty:faculty_id(id, name, image_url, title)')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) console.error('[SavedIdeas] load error:', error)
-        setIdeas(data ?? [])
-        setLoading(false)
-      })
+    const todayStart = new Date()
+    todayStart.setUTCHours(0, 0, 0, 0)
+
+    Promise.all([
+      supabase
+        .from('saved_case_ideas')
+        .select('id, match_id, title, premise, protagonist, teaching_themes, student_angle, faculty_angle, created_at, faculty:faculty_id(id, name, image_url, title)')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('email_draft_runs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .gte('created_at', todayStart.toISOString()),
+    ]).then(([{ data, error }, { count }]) => {
+      if (error) console.error('[SavedIdeas] load error:', error)
+      setIdeas(data ?? [])
+      setEmailsToday(count ?? 0)
+      setLoading(false)
+    })
   }, [session])
 
+  // Group ideas by faculty
+  const facultyGroups = useMemo(() => {
+    const map = {}
+    for (const idea of ideas) {
+      const key = idea.faculty?.id ?? 'unknown'
+      if (!map[key]) map[key] = { faculty: idea.faculty, ideas: [] }
+      map[key].ideas.push(idea)
+    }
+    return Object.values(map)
+  }, [ideas])
+
+  // ── Delete handlers ───────────────────────────────────────────────────────────
   async function handleDelete(ideaId) {
     setDeletingIds(prev => new Set(prev).add(ideaId))
-    setIdeas(prev => prev.filter(i => i.id !== ideaId))   // optimistic
+    setIdeas(prev => prev.filter(i => i.id !== ideaId))
     const { error } = await supabase.from('saved_case_ideas').delete().eq('id', ideaId)
     if (error) {
       console.error('[SavedIdeas] delete error:', error)
-      // re-fetch to restore state on failure
       supabase
         .from('saved_case_ideas')
         .select('id, match_id, title, premise, protagonist, teaching_themes, student_angle, faculty_angle, created_at, faculty:faculty_id(id, name, image_url, title)')
@@ -42,13 +69,94 @@ export default function SavedIdeas() {
     setDeletingIds(prev => { const next = new Set(prev); next.delete(ideaId); return next })
   }
 
+  // ── Draft panel state helpers ─────────────────────────────────────────────────
+  function getDraftState(fid) {
+    return draftStates[fid] ?? {
+      open: false,
+      selectedIds: null,   // null = not yet initialized (use all by default on first open)
+      loading: false,
+      subject: '', body: '', error: null, copied: false,
+    }
+  }
+
+  function patchDraftState(fid, patch) {
+    setDraftStates(prev => ({ ...prev, [fid]: { ...getDraftState(fid), ...patch } }))
+  }
+
+  const handleToggleDraftPanel = useCallback((fid, groupIdeas) => {
+    const state = getDraftState(fid)
+    if (state.open) {
+      patchDraftState(fid, { open: false })
+    } else {
+      // Pre-select all ideas in this group on first open
+      const selectedIds = state.selectedIds ?? new Set(groupIdeas.map(i => i.id))
+      patchDraftState(fid, { open: true, selectedIds })
+    }
+  }, [draftStates])
+
+  const handleToggleDraftIdea = useCallback((fid, ideaId) => {
+    const state = getDraftState(fid)
+    const prev = state.selectedIds ?? new Set()
+    const next = new Set(prev)
+    if (next.has(ideaId)) next.delete(ideaId)
+    else next.add(ideaId)
+    patchDraftState(fid, { selectedIds: next })
+  }, [draftStates])
+
+  const handleGenerateDraft = useCallback(async (fid) => {
+    const state = getDraftState(fid)
+    patchDraftState(fid, { loading: true, error: null, subject: '', body: '' })
+
+    try {
+      const { data: { session: s } } = await supabase.auth.getSession()
+      if (!s) throw new Error('No active session — please sign in again.')
+      supabase.functions.setAuth(s.access_token)
+
+      const { data, error, response } = await supabase.functions.invoke('generate-email-draft', {
+        body: { faculty_id: fid, idea_ids: [...(state.selectedIds ?? [])] },
+      })
+
+      if (error) {
+        let message = error.message
+        try {
+          const rawResponse = response ?? error.context
+          if (rawResponse) {
+            const body = await rawResponse.json()
+            if (body?.error) message = body.error
+          }
+        } catch { /* fall back */ }
+        throw new Error(message)
+      }
+      if (data?.error) throw new Error(data.error)
+
+      patchDraftState(fid, { subject: data.subject ?? '', body: data.body ?? '', loading: false })
+      setEmailsToday(prev => Math.max(prev, data.draftsToday ?? prev + 1))
+    } catch (err) {
+      console.error('Email draft error:', err)
+      patchDraftState(fid, { error: err.message || 'Something went wrong.', loading: false })
+    }
+  }, [draftStates])
+
+  const handleCopyDraft = useCallback((fid) => {
+    const state = getDraftState(fid)
+    const text = state.subject
+      ? `Subject: ${state.subject}\n\n${state.body}`
+      : state.body
+    navigator.clipboard.writeText(text).then(() => {
+      patchDraftState(fid, { copied: true })
+      setTimeout(() => patchDraftState(fid, { copied: false }), 2000)
+    })
+  }, [draftStates])
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   if (!session) return null
 
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       <div className="px-4 py-10">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-8">
 
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -82,17 +190,202 @@ export default function SavedIdeas() {
               </Link>
             </div>
           ) : (
-            <ul className="space-y-4">
-              {ideas.map(idea => (
-                <li key={idea.id}>
-                  <SavedIdeaCard
-                    idea={idea}
-                    deleting={deletingIds.has(idea.id)}
-                    onDelete={() => handleDelete(idea.id)}
-                  />
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-8">
+              {facultyGroups.map(({ faculty: fac, ideas: groupIdeas }) => {
+                const fid = fac?.id ?? 'unknown'
+                const draft = getDraftState(fid)
+                const emailLimitReached = emailsToday >= EMAIL_DAILY_LIMIT
+                const groupIdeasForDraft = groupIdeas.map(i => ({ id: i.id, title: i.title, premise: i.premise, student_angle: i.student_angle }))
+                const selectedIds = draft.selectedIds ?? new Set(groupIdeas.map(i => i.id))
+
+                return (
+                  <div key={fid} className="space-y-3">
+
+                    {/* Faculty group header */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {fac?.image_url ? (
+                          <img src={fac.image_url} alt={fac.name}
+                            className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-gray-100" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-semibold bg-crimson">
+                            {initials(fac?.name ?? '?')}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{fac?.name ?? 'Unknown faculty'}</p>
+                          {fac?.title && <p className="text-xs text-gray-400 truncate">{fac.title}</p>}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleToggleDraftPanel(fid, groupIdeasForDraft)}
+                        title={emailLimitReached ? `${EMAIL_DAILY_LIMIT}/${EMAIL_DAILY_LIMIT} email drafts used today` : `Draft an outreach email to ${fac?.name ?? 'this professor'}`}
+                        className={`flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors cursor-pointer ${
+                          draft.open
+                            ? 'bg-crimson/8 border-crimson/20 text-crimson'
+                            : emailLimitReached
+                              ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-crimson/40 hover:text-crimson'
+                        }`}
+                      >
+                        <EnvelopeIcon className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{draft.open ? 'Close' : 'Draft email'}</span>
+                      </button>
+                    </div>
+
+                    {/* Draft panel */}
+                    {draft.open && (
+                      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-gray-900">
+                            Draft outreach email to {fac?.name}
+                          </h3>
+                          {!emailLimitReached && (
+                            <span className="text-xs text-gray-400">
+                              {EMAIL_DAILY_LIMIT - emailsToday} draft{EMAIL_DAILY_LIMIT - emailsToday !== 1 ? 's' : ''} remaining today
+                            </span>
+                          )}
+                        </div>
+
+                        {emailLimitReached && (
+                          <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+                            You've used {EMAIL_DAILY_LIMIT}/{EMAIL_DAILY_LIMIT} email drafts today — resets at midnight UTC.
+                          </div>
+                        )}
+
+                        {/* Idea checklist */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Select ideas to pitch
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (selectedIds.size === groupIdeas.length) {
+                                  patchDraftState(fid, { selectedIds: new Set() })
+                                } else {
+                                  patchDraftState(fid, { selectedIds: new Set(groupIdeas.map(i => i.id)) })
+                                }
+                              }}
+                              className="text-xs text-crimson hover:underline cursor-pointer"
+                            >
+                              {selectedIds.size === groupIdeas.length ? 'Deselect all' : 'Select all'}
+                            </button>
+                          </div>
+
+                          {groupIdeas.map(idea => (
+                            <label
+                              key={idea.id}
+                              className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 cursor-pointer transition-colors"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(idea.id)}
+                                onChange={() => handleToggleDraftIdea(fid, idea.id)}
+                                className="mt-0.5 accent-crimson flex-shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-800 leading-snug">{idea.title}</p>
+                                {idea.premise && (
+                                  <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{idea.premise}</p>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateDraft(fid)}
+                            disabled={draft.loading || selectedIds.size === 0 || emailLimitReached}
+                            className="w-full mt-2 py-2.5 rounded-xl font-semibold text-sm transition-opacity flex items-center justify-center gap-2 bg-crimson text-white cursor-pointer hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {draft.loading ? (
+                              <>
+                                <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                Drafting your email…
+                              </>
+                            ) : (
+                              <>
+                                <EnvelopeIcon className="w-4 h-4" />
+                                Generate draft
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Error */}
+                        {draft.error && (
+                          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                            {draft.error}
+                          </div>
+                        )}
+
+                        {/* Draft result */}
+                        {(draft.subject || draft.body) && (
+                          <div className="space-y-3 pt-2 border-t border-gray-100">
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                                Subject
+                              </label>
+                              <input
+                                type="text"
+                                value={draft.subject}
+                                onChange={e => patchDraftState(fid, { subject: e.target.value })}
+                                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                                Body
+                              </label>
+                              <textarea
+                                value={draft.body}
+                                onChange={e => patchDraftState(fid, { body: e.target.value })}
+                                rows={12}
+                                className="w-full resize-y rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyDraft(fid)}
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer bg-gray-900 text-white hover:bg-gray-700"
+                            >
+                              {draft.copied ? (
+                                <>
+                                  <CheckIcon className="w-4 h-4" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <ClipboardIcon className="w-4 h-4" />
+                                  Copy to clipboard
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Ideas for this faculty */}
+                    <ul className="space-y-3">
+                      {groupIdeas.map(idea => (
+                        <li key={idea.id}>
+                          <SavedIdeaCard
+                            idea={idea}
+                            deleting={deletingIds.has(idea.id)}
+                            onDelete={() => handleDelete(idea.id)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
           )}
 
         </div>
@@ -104,37 +397,18 @@ export default function SavedIdeas() {
 // ── Saved idea card ────────────────────────────────────────────────────────────
 
 function SavedIdeaCard({ idea, deleting, onDelete }) {
-  const fac = idea.faculty
-
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
 
-      {/* Faculty row + delete button */}
+      {/* Match link + delete */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          {fac?.image_url ? (
-            <img
-              src={fac.image_url}
-              alt={fac.name}
-              className="w-7 h-7 rounded-full object-cover flex-shrink-0 bg-gray-100"
-            />
-          ) : (
-            <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-semibold bg-crimson">
-              {initials(fac?.name ?? '?')}
-            </div>
-          )}
-          {fac?.name && (
-            <span className="text-xs text-gray-500 truncate">with {fac.name}</span>
-          )}
-          <Link
-            to={`/case-ideas/${idea.match_id}`}
-            className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity flex-shrink-0"
-          >
-            Generate more →
-          </Link>
-        </div>
+        <Link
+          to={`/case-ideas/${idea.match_id}`}
+          className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity"
+        >
+          Generate more ideas →
+        </Link>
 
-        {/* Delete button */}
         <button
           type="button"
           onClick={onDelete}
@@ -168,7 +442,6 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
       {(idea.teaching_themes?.length > 0 || idea.student_angle || idea.faculty_angle) && (
         <div className="border-t border-gray-100 pt-4 space-y-4">
 
-          {/* Teaching themes */}
           {idea.teaching_themes?.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Teaching themes</p>
@@ -182,7 +455,6 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
             </div>
           )}
 
-          {/* Student angle */}
           {idea.student_angle && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Your angle as co-author</p>
@@ -190,7 +462,6 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
             </div>
           )}
 
-          {/* Faculty connection */}
           {idea.faculty_angle && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Faculty connection</p>
@@ -210,6 +481,30 @@ function TrashIcon({ className }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
       <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
+function EnvelopeIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+    </svg>
+  )
+}
+
+function ClipboardIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+    </svg>
+  )
+}
+
+function CheckIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
     </svg>
   )
 }

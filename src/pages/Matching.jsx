@@ -400,7 +400,7 @@ export default function Matching() {
         {isViewingLatest && matches.length > 0 && (
           <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 flex items-start gap-3">
             <LightbulbIcon className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-indigo-900">Next step: explore case study opportunities</p>
               <p className="text-sm text-indigo-700 mt-0.5">
                 For each match, use the Case Study Idea Generator to brainstorm HBS teaching cases you
@@ -408,6 +408,12 @@ export default function Matching() {
                 <span className="font-semibold">Case study ideas</span>{' '}
                 on any match card below to get started.
               </p>
+              <Link
+                to="/saved-ideas"
+                className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                View your saved case study ideas →
+              </Link>
             </div>
           </div>
         )}
