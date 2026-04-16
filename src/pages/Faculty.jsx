@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, lastName } from '../lib/utils'
+import { initials, lastName, isNavContent } from '../lib/utils'
+import { SearchIcon, ChevronIcon, BookmarkIcon } from '../components/Icons'
 
 // Short display labels for unit filter pills
 const UNIT_ABBREV = {
@@ -144,7 +145,7 @@ export default function Faculty() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-48 max-w-md">
               <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-                <SearchIcon />
+                <SearchIcon className="w-4 h-4 text-gray-400" />
               </div>
               <input
                 type="text"
@@ -327,7 +328,7 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
           <div className="p-2 border-b border-gray-100">
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
-                <SearchIcon />
+                <SearchIcon className="w-4 h-4 text-gray-400" />
               </div>
               <input
                 type="text"
@@ -520,37 +521,3 @@ function UnitPill({ label, title, active, onClick }) {
   )
 }
 
-function SearchIcon() {
-  return (
-    <svg className="w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
-function ChevronIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
-const NAV_PHRASES = [
-  'Faculty & Research', 'Baker Library', 'Harvard Business Review',
-  'Academic Programs', 'Map & Directions', 'Soldiers Field', 'Site Map',
-]
-function isNavContent(text) {
-  if (!text) return false
-  return NAV_PHRASES.filter(p => text.includes(p)).length >= 2
-}
-
-function BookmarkIcon({ filled }) {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 20 20" fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round"
-        d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-    </svg>
-  )
-}

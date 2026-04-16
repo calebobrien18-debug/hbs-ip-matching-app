@@ -4,18 +4,9 @@ import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
 import { initials } from '../lib/utils'
-
-// Match strength styles (mirrors Matching.jsx — kept local to avoid shared-state coupling)
-const STRENGTH_STYLES = {
-  strong:      'bg-green-700 text-white',
-  good:        'bg-green-100 text-green-800 border border-green-300',
-  exploratory: 'bg-green-50 text-green-600 border border-green-200',
-}
-const STRENGTH_LABELS = {
-  strong:      'Strong match',
-  good:        'Good match',
-  exploratory: 'Exploratory',
-}
+import { STRENGTH_STYLES, STRENGTH_LABELS, DAILY_LIMIT, EMAIL_DAILY_LIMIT } from '../lib/constants'
+import { LightbulbIcon, EnvelopeIcon, ClipboardIcon, CheckIcon, BookmarkIcon } from '../components/Icons'
+import { invokeEdgeFunction } from '../lib/edgeFunction'
 
 const GEN_MESSAGES = [
   'Reading faculty research areas…',
@@ -24,9 +15,6 @@ const GEN_MESSAGES = [
   'Drafting case study concepts…',
   'Refining ideas for the classroom…',
 ]
-
-const DAILY_LIMIT = 3
-const EMAIL_DAILY_LIMIT = 10
 
 export default function CaseStudyIdeas() {
   const session = useRequireAuth()
@@ -120,26 +108,9 @@ export default function CaseStudyIdeas() {
     setGenerating(true)
 
     try {
-      const { data: { session: s } } = await supabase.auth.getSession()
-      if (!s) throw new Error('No active session — please sign in again.')
-      supabase.functions.setAuth(s.access_token)
-
-      const { data, error, response } = await supabase.functions.invoke('generate-case-ideas', {
-        body: { match_id: matchId, user_context: userContext.trim().slice(0, 1000) },
+      const data = await invokeEdgeFunction('generate-case-ideas', {
+        match_id: matchId, user_context: userContext.trim().slice(0, 1000),
       })
-
-      if (error) {
-        let message = error.message
-        try {
-          const rawResponse = response ?? error.context
-          if (rawResponse) {
-            const body = await rawResponse.json()
-            if (body?.error) message = body.error
-          }
-        } catch { /* fall back */ }
-        throw new Error(message)
-      }
-      if (data?.error) throw new Error(data.error)
 
       const newIdeas = data.ideas ?? []
       setIdeas(newIdeas)
@@ -238,26 +209,9 @@ export default function CaseStudyIdeas() {
     setDraftSubject('')
     setDraftBody('')
     try {
-      const { data: { session: s } } = await supabase.auth.getSession()
-      if (!s) throw new Error('No active session — please sign in again.')
-      supabase.functions.setAuth(s.access_token)
-
-      const { data, error, response } = await supabase.functions.invoke('generate-email-draft', {
-        body: { faculty_id: matchData.faculty.id, idea_ids: [...draftSelectedIds] },
+      const data = await invokeEdgeFunction('generate-email-draft', {
+        faculty_id: matchData.faculty.id, idea_ids: [...draftSelectedIds],
       })
-
-      if (error) {
-        let message = error.message
-        try {
-          const rawResponse = response ?? error.context
-          if (rawResponse) {
-            const body = await rawResponse.json()
-            if (body?.error) message = body.error
-          }
-        } catch { /* fall back */ }
-        throw new Error(message)
-      }
-      if (data?.error) throw new Error(data.error)
 
       setDraftSubject(data.subject ?? '')
       setDraftBody(data.body ?? '')
@@ -735,46 +689,3 @@ function IdeaCard({ idea, index, isSaved, isSaving, onSave, onUnsave }) {
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 
-function LightbulbIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
-    </svg>
-  )
-}
-
-function EnvelopeIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-    </svg>
-  )
-}
-
-function ClipboardIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-    </svg>
-  )
-}
-
-function CheckIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-    </svg>
-  )
-}
-
-function BookmarkIcon({ filled, className }) {
-  return filled ? (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
-    </svg>
-  ) : (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-    </svg>
-  )
-}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { XIcon, CheckIcon } from './Icons'
 
 /**
  * Site footer.
@@ -90,7 +91,7 @@ function FeedbackModal({ onClose }) {
           {status === 'success' ? (
             <div className="py-6 text-center space-y-2">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-                <CheckIcon className="w-5 h-5 text-green-600" />
+                <CheckIcon className="w-5 h-5 text-green-600" strokeWidth={2.5} />
               </div>
               <p className="text-sm font-medium text-gray-800">Thanks for your feedback!</p>
               <p className="text-xs text-gray-400">Your message has been received.</p>
@@ -150,20 +151,3 @@ function FeedbackModal({ onClose }) {
   )
 }
 
-// ── Icons ──────────────────────────────────────────────────────────────────────
-
-function XIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  )
-}
-
-function CheckIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-    </svg>
-  )
-}

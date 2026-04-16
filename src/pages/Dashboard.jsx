@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
 import { initials } from '../lib/utils'
+import { STRENGTH_STYLES } from '../lib/constants'
+import { LightbulbIcon, ArrowRightIcon, XIcon } from '../components/Icons'
 
 const GUEST_GREETINGS = [
   'Adventurer', 'Trailblazer', 'Visionary', 'Pioneer', 'Changemaker',
@@ -438,37 +440,8 @@ function Badge({ children }) {
   )
 }
 
-const STRENGTH_STYLES = {
-  strong:      'bg-green-700 text-white',
-  good:        'bg-green-100 text-green-800 border border-green-300',
-  exploratory: 'bg-green-50 text-green-600 border border-green-200',
-}
 const STRENGTH_LABELS = {
   strong:      'Strong',
   good:        'Good',
   exploratory: 'Exploratory',
-}
-
-function LightbulbIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
-    </svg>
-  )
-}
-
-function ArrowRightIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-    </svg>
-  )
-}
-
-function XIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  )
 }

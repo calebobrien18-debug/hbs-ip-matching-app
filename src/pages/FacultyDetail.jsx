@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials } from '../lib/utils'
+import { initials, isNavContent } from '../lib/utils'
+import { BookmarkIcon } from '../components/Icons'
 
 const PUB_TYPE_COLORS = {
   'Journal Article': 'bg-blue-50 text-blue-700 border-blue-200',
@@ -146,7 +147,7 @@ export default function FacultyDetail() {
                       onClick={() => toggleSave(id)}
                       className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer"
                     >
-                      <BookmarkIcon filled={savedIds.has(id)} />
+                      <BookmarkIcon filled={savedIds.has(id)} className={savedIds.has(id) ? 'w-5 h-5 text-crimson' : 'w-5 h-5'} />
                     </button>
                     <div className="absolute right-0 top-full mt-1 w-56 rounded-lg bg-gray-800 text-white text-xs
                                     px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
@@ -265,17 +266,6 @@ export default function FacultyDetail() {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function BookmarkIcon({ filled }) {
-  return filled ? (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-crimson">
-      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
-    </svg>
-  ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-    </svg>
-  )
-}
 
 function Section({ title, children }) {
   return (
@@ -383,20 +373,6 @@ function PublicationRow({ pub }) {
 }
 
 
-/**
- * Returns true when the stored bio text is actually HBS page navigation/chrome
- * that the scraper accidentally captured instead of a real biographical paragraph.
- * Two or more fingerprint phrases → suppress the bio entirely.
- */
-const NAV_PHRASES = [
-  'Faculty & Research', 'Baker Library', 'Harvard Business Review',
-  'Academic Programs', 'Map & Directions', 'Soldiers Field', 'Site Map',
-]
-function isNavContent(text) {
-  if (!text) return false
-  const hits = NAV_PHRASES.filter(p => text.includes(p)).length
-  return hits >= 2
-}
 
 /**
  * Strip the name/title header that HBS profile pages inject at the top of bio text.

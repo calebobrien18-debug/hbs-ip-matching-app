@@ -4,6 +4,9 @@ import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
 import { initials } from '../lib/utils'
+import { STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS, DAILY_LIMIT } from '../lib/constants'
+import { SparklesIcon, RefreshIcon, ChevronIcon, LightbulbIcon, BookmarkIcon, XIcon } from '../components/Icons'
+import { invokeEdgeFunction } from '../lib/edgeFunction'
 
 const LOADING_MESSAGES = [
   'Analyzing your background…',
@@ -12,31 +15,11 @@ const LOADING_MESSAGES = [
   'Selecting your best matches…',
 ]
 
-// Chip colors — three shades of green
-const STRENGTH_STYLES = {
-  strong:      'bg-green-700 text-white',
-  good:        'bg-green-100 text-green-800 border border-green-300',
-  exploratory: 'bg-green-50 text-green-600 border border-green-200',
-}
-
-// Left-border accent on cards
-const STRENGTH_ACCENT = {
-  strong:      'border-l-green-600',
-  good:        'border-l-green-400',
-  exploratory: 'border-l-green-200',
-}
-
 // Active filter pill colors mirror the chip colors
 const STRENGTH_FILTER_ACTIVE = {
   strong:      'bg-green-700 text-white border-green-700',
   good:        'bg-green-100 text-green-800 border-green-300',
   exploratory: 'bg-green-50 text-green-600 border-green-200',
-}
-
-const STRENGTH_LABELS = {
-  strong:      'Strong match',
-  good:        'Good match',
-  exploratory: 'Exploratory',
 }
 
 function formatDate(iso) {
@@ -128,29 +111,7 @@ export default function Matching() {
     setPageState('running')
 
     try {
-      // Explicitly sync the session token to the functions client before invoking.
-      // supabase.functions.setAuth() updates the Authorization header that
-      // functions.invoke() uses — this prevents stale-token / timing issues.
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('No active session — please sign in again.')
-      supabase.functions.setAuth(session.access_token)
-
-      const { data, error, response } = await supabase.functions.invoke('generate-matches')
-
-      if (error) {
-        // Extract the real error message from the response body
-        let message = error.message
-        try {
-          // supabase-js returns `response` (the raw Response) alongside the error
-          const rawResponse = response ?? error.context
-          if (rawResponse) {
-            const body = await rawResponse.json()
-            if (body?.error) message = body.error
-          }
-        } catch { /* fall back to generic message */ }
-        throw new Error(message)
-      }
-      if (data?.error) throw new Error(data.error)
+      const data = await invokeEdgeFunction('generate-matches')
 
       // Reload run list and show fresh results
       const { data: runData } = await supabase
@@ -291,22 +252,22 @@ export default function Matching() {
         <button
           type="button"
           onClick={handleMatch}
-          disabled={runsToday >= 3}
+          disabled={runsToday >= DAILY_LIMIT}
           className={`w-full py-3.5 rounded-xl font-semibold text-base transition-opacity flex items-center justify-center gap-2 ${
-            runsToday >= 3
+            runsToday >= DAILY_LIMIT
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : 'bg-crimson text-white cursor-pointer hover:opacity-90'
           }`}
         >
           <SparklesIcon className="w-5 h-5" />
-          {runsToday >= 3 ? 'Daily limit reached (3/3)' : 'Match Me'}
+          {runsToday >= DAILY_LIMIT ? `Daily limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : 'Match Me'}
         </button>
-        {runsToday < 3 && (
+        {runsToday < DAILY_LIMIT && (
           <p className="text-xs text-gray-400 text-center -mt-4">
-            {3 - runsToday} run{3 - runsToday !== 1 ? 's' : ''} remaining today
+            {DAILY_LIMIT - runsToday} run{DAILY_LIMIT - runsToday !== 1 ? 's' : ''} remaining today
           </p>
         )}
-        {runsToday >= 3 && (
+        {runsToday >= DAILY_LIMIT && (
           <p className="text-xs text-gray-400 text-center -mt-4">Resets at midnight UTC</p>
         )}
       </div>
@@ -346,10 +307,10 @@ export default function Matching() {
               <button
                 type="button"
                 onClick={handleMatch}
-                disabled={runsToday >= 3}
-                title={runsToday >= 3 ? 'Daily limit reached — resets at midnight UTC' : undefined}
+                disabled={runsToday >= DAILY_LIMIT}
+                title={runsToday >= DAILY_LIMIT ? 'Daily limit reached — resets at midnight UTC' : undefined}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-semibold transition-colors ${
-                  runsToday >= 3
+                  runsToday >= DAILY_LIMIT
                     ? 'border-gray-200 text-gray-300 cursor-not-allowed'
                     : 'border-crimson text-crimson hover:bg-crimson/6 cursor-pointer'
                 }`}
@@ -359,7 +320,7 @@ export default function Matching() {
               </button>
               {runsToday > 0 && (
                 <span className="text-[10px] text-gray-400">
-                  {runsToday >= 3 ? 'Limit reached (3/3)' : `${3 - runsToday} run${3 - runsToday !== 1 ? 's' : ''} left today`}
+                  {runsToday >= DAILY_LIMIT ? `Limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : `${DAILY_LIMIT - runsToday} run${DAILY_LIMIT - runsToday !== 1 ? 's' : ''} left today`}
                 </span>
               )}
             </div>
@@ -437,9 +398,9 @@ export default function Matching() {
             <button
               type="button"
               onClick={handleMatch}
-              disabled={runsToday >= 3}
+              disabled={runsToday >= DAILY_LIMIT}
               className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-opacity ${
-                runsToday >= 3
+                runsToday >= DAILY_LIMIT
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-crimson text-white cursor-pointer hover:opacity-90'
               }`}
@@ -689,54 +650,3 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
 
 // ── Icon components ────────────────────────────────────────────────────────────
 
-function SparklesIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path fillRule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5Z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
-function RefreshIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-    </svg>
-  )
-}
-
-function ChevronIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-    </svg>
-  )
-}
-
-function LightbulbIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2a7 7 0 0 1 5.468 11.37c-.592.772-1.468 1.7-1.468 2.63v1a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1c0-.93-.876-1.858-1.468-2.63A7 7 0 0 1 12 2Zm-2 15h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1Z" />
-    </svg>
-  )
-}
-
-function BookmarkIcon({ filled }) {
-  return filled ? (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
-    </svg>
-  ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-    </svg>
-  )
-}
-
-function XIcon({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  )
-}

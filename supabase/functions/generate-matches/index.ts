@@ -19,58 +19,14 @@
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { CORS, jsonResponse, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
 const DAILY_LIMIT = 3
-
-// ── CORS headers included on every response ───────────────────────────────────
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  })
-}
-
-// ── Call the Anthropic Messages API directly via fetch ────────────────────────
-async function callClaude(params: {
-  model: string
-  max_tokens: number
-  temperature: number
-  system: string
-  messages: Array<{ role: string; content: string }>
-}): Promise<string> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(params),
-  })
-
-  if (!res.ok) {
-    let errDetail = ''
-    try { errDetail = JSON.stringify(await res.json()) } catch { /* ignore */ }
-    throw new Error(`Anthropic API ${res.status}: ${errDetail}`)
-  }
-
-  const data = await res.json() as {
-    content: Array<{ type: string; text: string }>
-  }
-  return data.content[0].text.trim()
-}
 
 // ── Stopwords filtered out of keyword tokenization ────────────────────────────
 const STOPWORDS = new Set([
@@ -151,14 +107,11 @@ Deno.serve(async (req: Request) => {
     console.log('Step 1: Authenticated', user.id)
 
     // ── 1b. Rate limit check ──────────────────────────────────────────────────
-    const todayStart = new Date()
-    todayStart.setUTCHours(0, 0, 0, 0)
-
     const { count: runsToday } = await supabase
       .from('match_runs')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
-      .gte('created_at', todayStart.toISOString())
+      .gte('created_at', getTodayStart().toISOString())
 
     console.log('Step 1b: runs today:', runsToday)
     if ((runsToday ?? 0) >= DAILY_LIMIT) {
@@ -282,7 +235,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     console.log('Step 5: Claude responded, length:', rawText.length)
 
     // ── 6. Parse Claude response ──────────────────────────────────────────────
-    const cleanJson = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim()
+    const cleanJson = cleanJsonResponse(rawText)
 
     let matches: Array<{
       faculty_id: string; rank: number; match_strength: string
