@@ -36,7 +36,7 @@ export default function NavBar() {
     return (
       <Link
         to={to}
-        className={`text-sm font-medium transition-colors rounded-md px-3 py-1.5 ${
+        className={`text-sm font-medium transition-colors rounded-md px-2 py-1.5 sm:px-3 ${
           active
             ? 'text-crimson bg-crimson/8'
             : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
@@ -51,10 +51,15 @@ export default function NavBar() {
     <nav className="sticky top-0 z-30 w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
 
-        {/* Left: logo */}
-        <Link to="/dashboard" className="flex-shrink-0">
-          <ProFoundLogo size="sm" />
-        </Link>
+        {/* Left: logo + beta badge */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Link to="/dashboard">
+            <ProFoundLogo size="sm" />
+          </Link>
+          <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium tracking-widest text-gray-400 uppercase">
+            Beta
+          </span>
+        </div>
 
         {/* Center: nav links */}
         <div className="flex items-center gap-1">

@@ -133,11 +133,11 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <div className="px-4 py-12">
+      <div className="px-4 py-10">
       <div className="max-w-2xl mx-auto space-y-8">
 
         {/* Header */}
-        <div>
+        <div className="border-l-2 border-crimson pl-4">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
             Welcome back, {welcomeName}.
           </h1>
@@ -147,7 +147,7 @@ export default function Dashboard() {
         {/* Profile list + action button */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               Your profile{profiles.length !== 1 ? 's' : ''}
             </h2>
             {!hasProfile && (
@@ -208,7 +208,7 @@ export default function Dashboard() {
         {/* My Matches */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               My Matches
             </h2>
             <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
@@ -234,7 +234,7 @@ export default function Dashboard() {
                 if (!f) return null
                 return (
                   <li key={m.id}>
-                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-gray-300 hover:shadow-sm transition-all group">
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-gray-300 hover:shadow-sm transition-all group">
 
                       {/* Rank badge */}
                       <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0">
@@ -263,7 +263,7 @@ export default function Dashboard() {
                       </div>
 
                       {/* Action links */}
-                      <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <Link
                           to={`/case-ideas/${m.id}`}
                           title="Generate case study ideas"
@@ -299,7 +299,7 @@ export default function Dashboard() {
         {/* Saved Case Study Ideas */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               Saved Case Study Ideas
             </h2>
             {savedIdeas.length > 0
@@ -325,7 +325,7 @@ export default function Dashboard() {
                 const fac = idea.faculty
                 return (
                   <li key={idea.id}>
-                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-crimson/30 hover:shadow-sm transition-all group">
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/30 hover:shadow-sm transition-all group">
                       {/* Faculty avatar */}
                       {fac?.image_url ? (
                         <img src={fac.image_url} alt={fac.name}
@@ -349,7 +349,7 @@ export default function Dashboard() {
                         type="button"
                         onClick={() => handleDeleteSavedIdea(idea.id)}
                         title="Remove saved idea"
-                        className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-0 group-hover:opacity-100"
+                        className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                           <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
@@ -366,7 +366,7 @@ export default function Dashboard() {
         {/* Saved Faculty */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               My Saved Faculty
             </h2>
             <Link to="/faculty" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
@@ -389,7 +389,7 @@ export default function Dashboard() {
             <ul className="space-y-2">
               {savedFaculty.map(f => (
                 <li key={f.id}>
-                  <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-crimson hover:shadow-sm transition-all group">
+                  <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson hover:shadow-sm transition-all group">
                     {/* Avatar */}
                     {f.image_url ? (
                       <img src={f.image_url} alt={f.name}
@@ -413,7 +413,7 @@ export default function Dashboard() {
                       type="button"
                       onClick={() => handleUnsave(f.id)}
                       title="Remove from saved"
-                      className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-0 group-hover:opacity-100"
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                         <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
