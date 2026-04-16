@@ -64,7 +64,6 @@ export default function NavBar() {
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
           {navLink('/match', 'Matching')}
-          {navLink('/profile/new', 'My Profile')}
         </div>
 
         {/* Right: user + sign out */}
