@@ -299,9 +299,10 @@ export default function Dashboard() {
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
               Saved Case Study Ideas
             </h2>
-            <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
-              Explore matches →
-            </Link>
+            {savedIdeas.length > 0
+              ? <Link to="/saved-ideas" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">View library →</Link>
+              : <Link to="/match"       className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">Explore matches →</Link>
+            }
           </div>
 
           {savedIdeasLoading ? (
@@ -333,7 +334,7 @@ export default function Dashboard() {
                       )}
 
                       {/* Title + faculty name */}
-                      <Link to={`/case-ideas/${idea.match_id}`} className="flex-1 min-w-0">
+                      <Link to="/saved-ideas" className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 leading-snug truncate">{idea.title}</p>
                         {fac?.name && (
                           <p className="text-xs text-gray-400 mt-0.5">with {fac.name}</p>

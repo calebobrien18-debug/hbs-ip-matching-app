@@ -13,6 +13,7 @@ import Faculty from './pages/Faculty.jsx'
 import FacultyDetail from './pages/FacultyDetail.jsx'
 import Matching from './pages/Matching.jsx'
 import CaseStudyIdeas from './pages/CaseStudyIdeas.jsx'
+import SavedIdeas from './pages/SavedIdeas.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/faculty/:id"     element={<Layout><FacultyDetail /></Layout>} />
         <Route path="/match"           element={<Layout><Matching /></Layout>} />
         <Route path="/case-ideas/:matchId" element={<Layout><CaseStudyIdeas /></Layout>} />
+        <Route path="/saved-ideas"         element={<Layout><SavedIdeas /></Layout>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
