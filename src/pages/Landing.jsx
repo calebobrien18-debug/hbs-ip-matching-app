@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import ProFoundLogo from '../components/ProFoundLogo'
 import Footer from '../components/Footer'
 
 export default function Landing() {
@@ -36,9 +35,14 @@ export default function Landing() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
         <div className="max-w-xl w-full text-center space-y-7">
 
-          {/* Logo — large */}
+          {/* Logo — large (img tag so right-click → Save image as works) */}
           <div className="flex justify-center">
-            <ProFoundLogo size="lg" />
+            <img
+              src="/profound-logo.svg"
+              alt="ProFound"
+              style={{ height: '6.5rem', width: 'auto' }}
+              draggable="true"
+            />
           </div>
 
           {/* Tagline + description */}
