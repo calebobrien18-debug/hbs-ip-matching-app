@@ -40,7 +40,7 @@ export default function Landing() {
             <img
               src="/profound-logo.svg"
               alt="ProFound"
-              style={{ height: '6.5rem', width: 'auto' }}
+              style={{ height: '6rem', width: 'auto' }}
               draggable="true"
             />
           </div>

@@ -1,67 +1,26 @@
 <!--
-  ProFound wordmark — standalone SVG
-  Dimensions calibrated at font-size 80px / system-ui 700 on Windows (Segoe UI):
-    "Pr"    measured width: 80.96px  → 77.76px with -0.02em letter-spacing
-    icon    size:           52px     (= 0.65 × 80px, circle diameter ≈ x-height)
-    "Found" measured width: 236.8px → 228.8px with -0.02em letter-spacing
-  Baseline y=94  (top-padding 8 + ascender 86.4)
-  Handle bottom:  y≈107  →  viewBox height 116
+  ProfFound wordmark — standalone SVG (portable, saveable)
+  "Pro" in charcoal · "Found" in crimson
+  Font: system-ui bold 80px
 -->
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 380 116"
-  width="380"
-  height="116"
+  viewBox="0 0 390 100"
+  width="390"
+  height="100"
   role="img"
-  aria-label="ProFound"
+  aria-label="ProfFound"
 >
-  <title>ProFound</title>
+  <title>ProfFound</title>
 
-  <!-- "Pr" in charcoal -->
   <text
-    x="10" y="94"
+    y="82"
     font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
     font-weight="700"
     font-size="80"
     letter-spacing="-1.6"
-    fill="#1a1a1a"
-  >Pr</text>
-
-  <!-- Magnifying glass — translate to (88, 42), scale 20-unit viewBox → 52px -->
-  <!-- Circle bottom lands at y = 42 + 20×2.6 = 94 = text baseline -->
-  <g transform="translate(88,42) scale(2.6)">
-
-    <!-- Lens ring with subtle crimson tint -->
-    <circle cx="9" cy="12" r="8"
-      fill="rgba(165,28,48,0.06)" stroke="#1a1a1a" stroke-width="2.0"/>
-
-    <!-- Handle — angled lower-right, rounded cap -->
-    <line x1="15.4" y1="18.4" x2="22" y2="25"
-      stroke="#1a1a1a" stroke-width="3.2" stroke-linecap="round"/>
-
-    <!-- Network connections — equilateral triangle at radius 5 from center (9,12) -->
-    <line x1="9"   y1="7"    x2="4.7"  y2="14.5"
-      stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
-    <line x1="9"   y1="7"    x2="13.3" y2="14.5"
-      stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
-    <line x1="4.7" y1="14.5" x2="13.3" y2="14.5"
-      stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round"/>
-
-    <!-- Network nodes -->
-    <circle cx="9"    cy="7"    r="1.9" fill="#1a1a1a"/>
-    <circle cx="4.7"  cy="14.5" r="1.9" fill="#1a1a1a"/>
-    <circle cx="13.3" cy="14.5" r="1.9" fill="#1a1a1a"/>
-
-  </g>
-
-  <!-- "Found" in crimson -->
-  <text
-    x="140" y="94"
-    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
-    font-weight="700"
-    font-size="80"
-    letter-spacing="-1.6"
-    fill="#A51C30"
-  >Found</text>
+  >
+    <tspan x="8" fill="#1a1a1a">Pro</tspan><tspan fill="#A51C30">Found</tspan>
+  </text>
 
 </svg>
