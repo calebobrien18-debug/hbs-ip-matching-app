@@ -26,12 +26,20 @@ npm run lint         # lint
 
 ## Environment
 
-Credentials live in `.env` (gitignored). Required variables:
+**Client-side** credentials live in `.env` (gitignored):
 
 ```
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
+
+**Supabase Edge Function secrets** (set in Supabase Dashboard → Edge Functions → Secrets — NOT in `.env`):
+
+```
+ANTHROPIC_API_KEY=        # Required by both match-faculty and generate-case-ideas
+```
+
+Without `ANTHROPIC_API_KEY` set as an Edge Function secret, matching and case idea generation will fail with a 500 error.
 
 ---
 
@@ -43,6 +51,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 - `supabase/functions/match-faculty/index.ts` — matching Edge Function + Claude prompt
 - `supabase/functions/generate-case-ideas/index.ts` — case ideas Edge Function + Claude prompt
 - `public/profound-logo.svg` — standalone saveable logo (not the React component)
+- `public/favicon.svg` — site favicon
 - `index.html` — contains Google Fonts preconnect for Playfair Display (now unused — logo and landing tagline are both sans-serif; safe to remove)
 
 ---
@@ -53,7 +62,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 | Table | Purpose |
 |---|---|
-| `hbs_ip` | **Student profiles** (non-obvious name) — name, program, advisor, research interests, background, PDF text |
+| `hbs_ip` | **Student profiles** (non-obvious name) — `name`, `program`, `advisor`, `research_interests` (plain text), `background` (plain text), `pdf_text` (extracted from uploaded resume/CV PDF). The matching Edge Function sends `research_interests`, `background`, and `pdf_text` to Claude as the student's profile. |
 | `faculty` | ~303 HBS faculty — name, title, bio, image_url, tags[], publications[], courses[] |
 | `saved_faculty` | Student bookmarks of faculty |
 | `match_runs` | One row per matching run (user_id, created_at) — rate limiting anchor; 1 run per user per day |
@@ -73,9 +82,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 - Matching: 1 run per user per day (enforced client-side by checking `match_runs` for today's date)
 - Case ideas: 1 generation per `faculty_matches.id` per day (checked via `case_idea_runs`)
 
+**Storage:** One bucket — `student-files` — stores uploaded student resume/CV PDFs. The extracted text is saved to `hbs_ip.pdf_text` after upload.
+
 **Supabase Edge Functions** (in `supabase/functions/`):
 - `match-faculty` — calls Claude Sonnet to score/rank faculty against student profile; inserts into `match_runs` + `faculty_matches`; capped at 6 matches per run
 - `generate-case-ideas` — calls Claude Sonnet to generate 3 case study ideas for a student+faculty pair; rate-limited to 1 run per match per day via `case_idea_runs`
+
+**Faculty filtering (migration 011):** A Postgres function powers the research-topic multi-select filter on `/faculty`. It matches against `faculty.tags[]` and is called via RPC — do not bypass it when adding new filter logic.
 
 ---
 
@@ -105,8 +118,8 @@ All authenticated routes are wrapped in `<Layout>` in `main.jsx`, which appends 
 | `NavBar.jsx` | White bg (`bg-white border-b border-gray-200`), `ProFoundLogo size="sm"`, nav links (gray/crimson active), user greeting, sign out. No "Harvard Business School" text. |
 | `ProFoundLogo.jsx` | Inline-flex logo: "Pr" (charcoal bold system-ui) + SVG magnifying glass + "Found" (crimson). Three sizes: sm/md/lg. See logo notes below. |
 | `ProfFoundLogo.jsx` | Old fedora hat logo — unused, kept for reference only |
-| `Footer.jsx` | `showFeedback={false}` → copyright only. `showFeedback={true}` → adds "Share feedback" button that opens `FeedbackModal` (submits to `feedback` table, no email exposed) |
-| `Layout.jsx` | Simple React fragment: `<>{children}<Footer showFeedback={true} /></>` |
+| `Footer.jsx` | `showFeedback={false}` → copyright only (`© 2026 ProFound, LLC. All rights reserved.`). `showFeedback={true}` → adds "Share feedback" button that opens `FeedbackModal` (submits to `feedback` table, no email exposed) |
+| `Layout.jsx` | Simple React **fragment** (NOT a flex column): `<>{children}<Footer showFeedback={true} /></>`. Must stay a fragment — authenticated pages already have `min-h-screen` internally; wrapping in a flex column would push the footer below the fold. |
 
 ---
 
