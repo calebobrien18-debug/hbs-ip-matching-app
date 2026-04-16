@@ -114,7 +114,7 @@ export default function Matching() {
   const loadMatchesForRun = useCallback(async (runId) => {
     const { data } = await supabase
       .from('faculty_matches')
-      .select('*, faculty(id, name, unit, image_url, title, bio)')
+      .select('*, faculty(id, name, unit, image_url, title, bio, email)')
       .eq('run_id', runId)
       .order('rank')
     setMatches(data ?? [])
@@ -659,6 +659,14 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          {f.email && (
+            <a
+              href={`mailto:${f.email}`}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              {f.email}
+            </a>
+          )}
           <Link
             to={`/case-ideas/${match.id}`}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors"
