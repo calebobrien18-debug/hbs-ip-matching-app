@@ -27,7 +27,10 @@ export default function Landing() {
   if (loading) return null
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: 'linear-gradient(180deg, rgba(165,28,48,0.10) 0%, rgba(165,28,48,0.03) 30%, #ffffff 60%)' }}
+    >
 
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
@@ -40,7 +43,7 @@ export default function Landing() {
 
           {/* Tagline + description */}
           <div className="space-y-3">
-            <p className="text-xl font-semibold text-crimson tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <p className="text-xl font-semibold text-crimson tracking-wide">
               Find faculty who share your passions.
             </p>
             <p className="text-base leading-relaxed text-gray-500 max-w-md mx-auto">
