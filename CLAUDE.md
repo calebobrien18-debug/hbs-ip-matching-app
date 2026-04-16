@@ -35,25 +35,43 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 ---
 
+## Key Source Files
+
+- `src/lib/supabase.js` — Supabase client singleton (import from here everywhere)
+- `src/hooks/useAuth.js` — shared auth hook used across pages
+- `src/index.css` — Tailwind v4 theme (`@theme` block with brand colors)
+- `supabase/functions/match-faculty/index.ts` — matching Edge Function + Claude prompt
+- `supabase/functions/generate-case-ideas/index.ts` — case ideas Edge Function + Claude prompt
+- `public/profound-logo.svg` — standalone saveable logo (not the React component)
+- `index.html` — contains Google Fonts preconnect for Playfair Display (now unused — logo and landing tagline are both sans-serif; safe to remove)
+
+---
+
 ## Database Schema (17 migrations applied locally)
 
 > **Note:** Migrations are applied manually via Supabase SQL Editor (not via CLI), since the project is not linked to a remote Supabase project via CLI.
 
 | Table | Purpose |
 |---|---|
-| `hbs_ip` | Student profiles — name, program, advisor, research interests, background, PDF text |
+| `hbs_ip` | **Student profiles** (non-obvious name) — name, program, advisor, research interests, background, PDF text |
 | `faculty` | ~303 HBS faculty — name, title, bio, image_url, tags[], publications[], courses[] |
 | `saved_faculty` | Student bookmarks of faculty |
-| `match_runs` | Each time matching is triggered (user_id, created_at) — used for rate limiting |
-| `faculty_matches` | Results of a match run — match_id, run_id, faculty_id, score, rationale |
-| `case_idea_runs` | Rate-limit log for idea generation (user_id, match_id, created_at) |
-| `saved_case_ideas` | Persisted case study ideas — user_id, match_id, faculty_id, title, premise, protagonist, teaching_themes[], student_angle, faculty_angle |
-| `feedback` | User feedback submissions — user_id, message (no email stored) |
+| `match_runs` | One row per matching run (user_id, created_at) — rate limiting anchor; 1 run per user per day |
+| `faculty_matches` | Individual faculty results within a run — id, run_id, faculty_id, score, rationale. **The `id` here is what the app calls "matchId"** (used in `/case-ideas/:matchId` route and throughout) |
+| `case_idea_runs` | Rate-limit log for idea generation — 1 run per `faculty_matches.id` per day |
+| `saved_case_ideas` | Persisted case study ideas — user_id, match_id (→ faculty_matches.id **ON DELETE CASCADE**), faculty_id (denormalized), title, premise, protagonist, teaching_themes[], student_angle, faculty_angle |
+| `feedback` | User feedback — user_id, message (no email stored) |
+
+**Important cascade:** `saved_case_ideas.match_id` references `faculty_matches.id ON DELETE CASCADE` — unmatching a faculty member automatically deletes all their saved case study ideas server-side.
 
 **RLS is enabled on all tables.** Key policies:
-- `faculty_matches`: DELETE allowed for match owner (used for unmatch feature)
+- `faculty_matches`: DELETE allowed for match owner (powers the unmatch feature)
 - `saved_case_ideas`: SELECT/INSERT/DELETE by owner
-- `feedback`: INSERT only for authenticated users; no SELECT (service role reads only)
+- `feedback`: INSERT only for authenticated users; no SELECT for regular users (service role reads)
+
+**Rate limits:**
+- Matching: 1 run per user per day (enforced client-side by checking `match_runs` for today's date)
+- Case ideas: 1 generation per `faculty_matches.id` per day (checked via `case_idea_runs`)
 
 **Supabase Edge Functions** (in `supabase/functions/`):
 - `match-faculty` — calls Claude Sonnet to score/rank faculty against student profile; inserts into `match_runs` + `faculty_matches`; capped at 6 matches per run
