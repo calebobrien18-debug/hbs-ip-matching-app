@@ -131,14 +131,15 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <div className="px-4 py-10">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="px-4 py-12">
+      <div className="max-w-2xl mx-auto space-y-8">
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Welcome, {welcomeName}!
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Welcome back, {welcomeName}.
           </h1>
+          <p className="text-sm text-gray-400 mt-1">Here's your research activity.</p>
         </div>
 
         {/* Profile list + action button */}
@@ -322,13 +323,13 @@ export default function Dashboard() {
                 const fac = idea.faculty
                 return (
                   <li key={idea.id}>
-                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-indigo-200 hover:shadow-sm transition-all group">
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-crimson/30 hover:shadow-sm transition-all group">
                       {/* Faculty avatar */}
                       {fac?.image_url ? (
                         <img src={fac.image_url} alt={fac.name}
-                          className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-gray-100" />
+                          className="w-9 h-9 rounded-full object-cover flex-shrink-0 bg-gray-100" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-semibold bg-crimson">
+                        <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-semibold bg-crimson">
                           {initials(fac?.name ?? '?')}
                         </div>
                       )}
@@ -431,7 +432,7 @@ export default function Dashboard() {
 
 function Badge({ children }) {
   return (
-    <span className="inline-block text-xs font-medium bg-gray-100 text-gray-600 rounded-md px-2 py-0.5">
+    <span className="inline-block text-xs font-medium bg-gray-100 text-gray-500 rounded-full px-2.5 py-0.5">
       {children}
     </span>
   )

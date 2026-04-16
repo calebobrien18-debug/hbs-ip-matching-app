@@ -11,7 +11,6 @@ export default function NavBar() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return
-      // Prefer first_name from the student profile table
       const { data: profile } = await supabase
         .from('hbs_ip')
         .select('first_name')
@@ -20,7 +19,6 @@ export default function NavBar() {
       if (profile?.first_name) {
         setDisplayName(profile.first_name)
       } else {
-        // Fallback for users who haven't completed their profile yet
         const meta = session.user.user_metadata
         const raw = meta?.full_name || meta?.name || session.user.email || ''
         setDisplayName(raw.includes('@') ? raw.split('@')[0] : raw.split(' ')[0])
@@ -34,15 +32,14 @@ export default function NavBar() {
   }
 
   const navLink = (to, label) => {
-    const active = location.pathname === to ||
-      (to === '/profile/new' && ['/profile/new', '/profile/edit'].includes(location.pathname))
+    const active = location.pathname === to
     return (
       <Link
         to={to}
-        className={`text-sm font-medium transition-colors pb-0.5 ${
+        className={`text-sm font-medium transition-colors rounded-md px-3 py-1.5 ${
           active
-            ? 'text-crimson border-b-2 border-crimson'
-            : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            ? 'text-crimson bg-crimson/8'
+            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
         }`}
       >
         {label}
@@ -51,8 +48,8 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-30 w-full bg-white border-b border-gray-200">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
+    <nav className="sticky top-0 z-30 w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80">
+      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
 
         {/* Left: logo */}
         <Link to="/dashboard" className="flex-shrink-0">
@@ -60,7 +57,7 @@ export default function NavBar() {
         </Link>
 
         {/* Center: nav links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1">
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
           {navLink('/match', 'Matching')}
@@ -69,14 +66,14 @@ export default function NavBar() {
         {/* Right: user + sign out */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {displayName && (
-            <span className="text-gray-500 text-sm hidden sm:block truncate max-w-[160px]">
-              Hi, {displayName}
+            <span className="text-gray-400 text-sm hidden sm:block truncate max-w-[140px]">
+              {displayName}
             </span>
           )}
           <button
             type="button"
             onClick={handleSignOut}
-            className="text-sm text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-500 rounded-md px-3 py-1.5 transition-colors cursor-pointer"
+            className="text-sm font-medium text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
           >
             Sign out
           </button>

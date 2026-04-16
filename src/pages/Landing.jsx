@@ -26,34 +26,35 @@ export default function Landing() {
   if (loading) return null
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: 'linear-gradient(180deg, rgba(165,28,48,0.10) 0%, rgba(165,28,48,0.03) 30%, #ffffff 60%)' }}
-    >
+    <div className="min-h-screen flex flex-col bg-white">
 
-      {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
-        <div className="max-w-xl w-full text-center space-y-7">
+      {/* ── Hero ── */}
+      <div
+        className="flex-1 flex flex-col items-center justify-center px-6 py-24"
+        style={{
+          background: 'radial-gradient(ellipse 120% 55% at 50% 0%, rgba(165,28,48,0.09) 0%, rgba(165,28,48,0.03) 55%, transparent 75%)',
+        }}
+      >
+        <div className="w-full max-w-md text-center space-y-10">
 
-          {/* Logo — large (img tag so right-click → Save image as works) */}
+          {/* Logo */}
           <div className="flex justify-center">
             <img
               src="/profound-logo.svg"
               alt="ProFound"
-              style={{ height: '6rem', width: 'auto' }}
+              style={{ height: '4rem', width: 'auto' }}
               draggable="true"
             />
           </div>
 
-          {/* Tagline + description */}
-          <div className="space-y-3">
-            <p className="text-xl font-semibold text-crimson tracking-wide">
-              Find faculty who share your passions.
-            </p>
-            <p className="text-base leading-relaxed text-gray-500 max-w-md mx-auto">
-              Great research starts with the right team. Turn shared interests
-              into independent projects, case writing collaborations, and lifelong
-              relationships.
+          {/* Headline + description */}
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold text-gray-900 leading-tight tracking-tight">
+              Find faculty who<br className="hidden sm:block" /> share your passions.
+            </h1>
+            <p className="text-base text-gray-500 leading-relaxed max-w-sm mx-auto">
+              Turn shared interests into independent projects,
+              case writing partnerships, and lasting faculty relationships.
             </p>
           </div>
 
@@ -63,7 +64,7 @@ export default function Landing() {
               type="button"
               onClick={handleGitHubSignIn}
               disabled={signingIn}
-              className="inline-flex items-center gap-3 bg-crimson hover:bg-crimson-dark disabled:opacity-50 font-semibold px-7 py-3 rounded-lg shadow-md transition-colors cursor-pointer disabled:cursor-not-allowed text-white"
+              className="inline-flex items-center gap-3 bg-crimson hover:bg-crimson-dark disabled:opacity-50 text-white font-semibold px-8 py-3.5 rounded-xl shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-[15px]"
             >
               <GitHubIcon />
               {signingIn ? 'Redirecting…' : 'Sign in with GitHub'}
@@ -73,14 +74,39 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── Footer — copyright only ── */}
+      {/* ── Feature strip ── */}
+      <div className="border-t border-gray-100 bg-gray-50/80">
+        <div className="max-w-2xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 text-center">
+          <FeatureTile
+            label="Browse Faculty"
+            description="Explore HBS professors by research area, course, and publication history."
+          />
+          <FeatureTile
+            label="AI Matching"
+            description="Upload your resume and get ranked faculty matches tailored to your background."
+          />
+          <FeatureTile
+            label="Case Study Ideas"
+            description="Generate case writing pitches and draft outreach emails for each match."
+          />
+        </div>
+      </div>
+
+      {/* ── Footer ── */}
       <Footer showFeedback={false} />
 
     </div>
   )
 }
 
-// ── GitHub icon ────────────────────────────────────────────────────────────────
+function FeatureTile({ label, description }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-semibold text-crimson">{label}</p>
+      <p className="text-xs text-gray-400 leading-relaxed">{description}</p>
+    </div>
+  )
+}
 
 function GitHubIcon() {
   return (
