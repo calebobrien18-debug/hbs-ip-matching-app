@@ -33,6 +33,9 @@ export default function Dashboard() {
   const [savedIdeas, setSavedIdeas] = useState([])
   const [savedIdeasLoading, setSavedIdeasLoading] = useState(true)
 
+  const [courseMatches, setCourseMatches] = useState([])
+  const [courseMatchesLoading, setCourseMatchesLoading] = useState(true)
+
   useEffect(() => {
     if (!session) return
     supabase
@@ -65,6 +68,29 @@ export default function Dashboard() {
           .order('rank')
         setMatches(matchData ?? [])
         setMatchesLoading(false)
+      })
+  }, [session])
+
+  // Load latest course match run
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('course_match_runs')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(async ({ data: latestRun }) => {
+        if (!latestRun) { setCourseMatchesLoading(false); return }
+        const { data: matchData } = await supabase
+          .from('course_matches')
+          .select('id, rank, course_id, rationale, faculty_courses(id, course_title, faculty_name, faculty_id, term, credits)')
+          .eq('run_id', latestRun.id)
+          .order('rank')
+          .limit(3)
+        setCourseMatches(matchData ?? [])
+        setCourseMatchesLoading(false)
       })
   }, [session])
 
@@ -289,6 +315,73 @@ export default function Dashboard() {
                       </div>
 
                     </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* My Course Picks */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+              My Course Picks
+            </h2>
+            <Link to="/course-match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+              {courseMatches.length > 0 ? 'View & re-run →' : 'Find courses →'}
+            </Link>
+          </div>
+
+          {courseMatchesLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            </div>
+          ) : courseMatches.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+              <p className="text-sm text-gray-500">No course picks yet.</p>
+              <Link to="/course-match" className="mt-3 inline-block text-sm font-medium text-crimson">
+                Discover electives for your EC year →
+              </Link>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {courseMatches.map(m => {
+                const c = m.faculty_courses
+                if (!c) return null
+                return (
+                  <li key={m.id}>
+                    <Link
+                      to="/course-match"
+                      className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/40 hover:shadow-sm transition-all group"
+                    >
+                      {/* Rank badge */}
+                      <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {m.rank}
+                      </span>
+
+                      {/* Course info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{c.course_title}</p>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          {c.faculty_name && (
+                            <p className="text-xs text-gray-500 truncate">{c.faculty_name}</p>
+                          )}
+                          {c.credits && (
+                            <span className="text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                              {c.credits} cr
+                            </span>
+                          )}
+                          {c.term && (
+                            <span className="text-[10px] font-medium bg-blue-50 text-blue-600 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                              {c.term}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <ArrowRightIcon className="w-4 h-4 text-gray-300 group-hover:text-crimson transition-colors flex-shrink-0 mt-1" />
+                    </Link>
                   </li>
                 )
               })}

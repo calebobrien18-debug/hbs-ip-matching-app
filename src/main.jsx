@@ -15,6 +15,7 @@ import Matching from './pages/Matching.jsx'
 import CaseStudyIdeas from './pages/CaseStudyIdeas.jsx'
 import SavedIdeas from './pages/SavedIdeas.jsx'
 import AdminFeedback from './pages/AdminFeedback.jsx'
+import CourseMatch from './pages/CourseMatch.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -32,6 +33,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/faculty"         element={<Layout><Faculty /></Layout>} />
         <Route path="/faculty/:id"     element={<Layout><FacultyDetail /></Layout>} />
         <Route path="/match"           element={<Layout><Matching /></Layout>} />
+        <Route path="/course-match"    element={<Layout><CourseMatch /></Layout>} />
         <Route path="/case-ideas/:matchId" element={<Layout><CaseStudyIdeas /></Layout>} />
         <Route path="/saved-ideas"         element={<Layout><SavedIdeas /></Layout>} />
         <Route path="/admin/feedback"      element={<AdminFeedback />} />

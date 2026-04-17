@@ -98,3 +98,60 @@ export function useSavedFaculty(session) {
 
   return { savedIds, toggleSave }
 }
+
+/**
+ * Loads the current user's saved course IDs and provides a toggle function.
+ * Mirrors useSavedFaculty — uses optimistic updates.
+ *
+ * Usage:
+ *   const { savedCourseIds, toggleSaveCourse } = useSavedCourses(session)
+ *   savedCourseIds.has(courseId)   // boolean
+ *   toggleSaveCourse(courseId)     // async
+ */
+export function useSavedCourses(session) {
+  const [savedCourseIds, setSavedCourseIds] = useState(new Set())
+
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('saved_courses')
+      .select('course_id')
+      .eq('user_id', session.user.id)
+      .then(({ data, error }) => {
+        if (error) { console.error('[useSavedCourses] load error:', error); return }
+        setSavedCourseIds(new Set((data ?? []).map(r => r.course_id)))
+      })
+  }, [session])
+
+  async function toggleSaveCourse(courseId) {
+    if (!session) return
+    const isSaved = savedCourseIds.has(courseId)
+
+    // Optimistic update
+    setSavedCourseIds(prev => {
+      const next = new Set(prev)
+      isSaved ? next.delete(courseId) : next.add(courseId)
+      return next
+    })
+
+    if (isSaved) {
+      const { error } = await supabase
+        .from('saved_courses')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('course_id', courseId)
+      if (error) console.error('[useSavedCourses] delete error:', error)
+    } else {
+      const { error } = await supabase
+        .from('saved_courses')
+        .insert({ user_id: session.user.id, course_id: courseId })
+      if (error) {
+        console.error('[useSavedCourses] insert error:', error)
+        // Roll back optimistic update
+        setSavedCourseIds(prev => { const next = new Set(prev); next.delete(courseId); return next })
+      }
+    }
+  }
+
+  return { savedCourseIds, toggleSaveCourse }
+}
