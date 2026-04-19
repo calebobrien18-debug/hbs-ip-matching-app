@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedCourses } from '../lib/hooks'
-import { DAILY_LIMIT, STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS } from '../lib/constants'
+import { COURSE_DAILY_LIMIT as DAILY_LIMIT, STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS } from '../lib/constants'
 import {
   SparklesIcon, RefreshIcon, ChevronIcon, BookmarkIcon,
 } from '../components/Icons'

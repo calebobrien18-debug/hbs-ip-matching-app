@@ -23,7 +23,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-const DAILY_LIMIT = 3
+const DAILY_LIMIT = 5
 
 // ── Stopwords (same set as generate-matches) ──────────────────────────────────
 const STOPWORDS = new Set([

@@ -23,8 +23,11 @@ export const STRENGTH_LABELS = {
 
 // ── Rate limits ────────────────────────────────────────────────────────────────
 
-/** Maximum match runs per user per UTC calendar day. */
+/** Maximum faculty match runs per user per UTC calendar day. */
 export const DAILY_LIMIT = 3
+
+/** Maximum course match runs per user per UTC calendar day. */
+export const COURSE_DAILY_LIMIT = 5
 
 /** Maximum email drafts per user per UTC calendar day. */
 export const EMAIL_DAILY_LIMIT = 10
