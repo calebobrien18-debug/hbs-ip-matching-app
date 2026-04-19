@@ -36,10 +36,10 @@ export default function NavBar() {
     return (
       <Link
         to={to}
-        className={`text-sm font-medium transition-colors rounded-md px-2 py-1.5 sm:px-3 ${
+        className={`text-sm font-medium transition-colors px-2.5 sm:px-3 flex items-center border-b-2 ${
           active
-            ? 'text-crimson bg-crimson/8'
-            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+            ? 'text-crimson border-crimson'
+            : 'text-gray-500 border-transparent hover:text-gray-900'
         }`}
       >
         {label}
@@ -61,8 +61,8 @@ export default function NavBar() {
           </span>
         </div>
 
-        {/* Center: nav links */}
-        <div className="flex items-center gap-1">
+        {/* Center: nav links — stretch to full nav height so border-b sits at the bar bottom */}
+        <div className="flex items-stretch self-stretch gap-0.5">
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
           {navLink('/match', 'Matching')}

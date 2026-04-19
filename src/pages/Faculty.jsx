@@ -118,8 +118,29 @@ export default function Faculty() {
   if (loading) return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <div className="flex items-center justify-center py-32">
-        <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        {/* Header skeleton */}
+        <div className="mb-8 space-y-2">
+          <div className="h-7 w-40 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-72 bg-gray-100 rounded-lg animate-pulse" />
+        </div>
+        {/* Filter bar skeleton */}
+        <div className="mb-6 space-y-3">
+          <div className="flex gap-3">
+            <div className="h-9 flex-1 max-w-md bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-9 w-40 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse ml-auto" />
+          </div>
+          <div className="flex gap-2">
+            {Array.from({ length: 11 }).map((_, i) => (
+              <div key={i} className="h-7 w-14 bg-gray-200 rounded-full animate-pulse" />
+            ))}
+          </div>
+        </div>
+        {/* Card grid skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
       </div>
     </div>
   )
@@ -128,18 +149,9 @@ export default function Faculty() {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
 
-      <div className="max-w-6xl mx-auto px-4 py-10">
-
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Browse Faculty</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {faculty.length} HBS faculty members · search by name, research area, or unit
-          </p>
-        </div>
-
-        {/* Search + filters */}
-        <div className="mb-6 space-y-3">
+      {/* ── Sticky filter bar ── */}
+      <div className="sticky top-14 z-20 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200/60">
+        <div className="max-w-6xl mx-auto px-4 py-3 space-y-2.5">
 
           {/* Row 1: search · research topics dropdown · sort */}
           <div className="flex flex-wrap items-center gap-3">
@@ -225,6 +237,18 @@ export default function Faculty() {
               </button>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Main content ── */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">Browse Faculty</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {faculty.length} HBS faculty members · search by name, research area, or unit
+          </p>
         </div>
 
         {/* Results count */}
@@ -499,6 +523,42 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
         </span>
       </div>
     </Link>
+  )
+}
+
+// ── Skeleton card ─────────────────────────────────────────────────────────────
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3 animate-pulse">
+      {/* Unit badge */}
+      <div className="h-5 w-14 rounded-full bg-gray-200" />
+      {/* Photo + name */}
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 rounded-full bg-gray-200 flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3.5 bg-gray-200 rounded w-3/4" />
+          <div className="h-3 bg-gray-100 rounded w-1/2" />
+        </div>
+      </div>
+      {/* Bio */}
+      <div className="space-y-2 flex-1">
+        <div className="h-3 bg-gray-100 rounded w-full" />
+        <div className="h-3 bg-gray-100 rounded w-full" />
+        <div className="h-3 bg-gray-100 rounded w-2/3" />
+      </div>
+      {/* Tags */}
+      <div className="flex gap-1.5 pt-0.5">
+        <div className="h-4 w-16 rounded-full bg-gray-100" />
+        <div className="h-4 w-20 rounded-full bg-gray-100" />
+        <div className="h-4 w-14 rounded-full bg-gray-100" />
+      </div>
+      {/* Footer */}
+      <div className="pt-1 border-t border-gray-100 flex justify-between items-center">
+        <div className="h-3 w-32 bg-gray-100 rounded" />
+        <div className="h-3 w-16 bg-gray-100 rounded" />
+      </div>
+    </div>
   )
 }
 
