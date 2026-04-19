@@ -304,7 +304,9 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     return jsonResponse({ run_id: runId, matches: enrichedMatches })
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
+    const msg = err instanceof Error
+      ? err.message
+      : (typeof err === 'object' ? JSON.stringify(err) : String(err))
     console.error('generate-course-matches error:', msg)
     return jsonResponse({ error: msg }, 500)
   }

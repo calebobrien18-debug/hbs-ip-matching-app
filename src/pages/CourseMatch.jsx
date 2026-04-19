@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -38,6 +38,7 @@ export default function CourseMatch() {
   const [runsToday, setRunsToday] = useState(0)
   const [electiveInterests, setElectiveInterests] = useState('')
   const [strengthFilter, setStrengthFilter] = useState(null)
+  const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // Set of faculty_ids the user has matched (for badge display)
   const [matchedFacultyIds, setMatchedFacultyIds] = useState(new Set())
@@ -118,11 +119,14 @@ export default function CourseMatch() {
   async function handleRun() {
     setRunError(null)
     setMsgIndex(0)
+    abortControllerRef.current = new AbortController()
     setPageState('running')
 
     try {
-      const data = await invokeEdgeFunction('generate-course-matches',
-        electiveInterests ? { elective_interests: electiveInterests } : undefined
+      const data = await invokeEdgeFunction(
+        'generate-course-matches',
+        electiveInterests ? { elective_interests: electiveInterests } : undefined,
+        abortControllerRef.current.signal
       )
 
       const { data: runData } = await supabase
@@ -138,10 +142,21 @@ export default function CourseMatch() {
       setStrengthFilter(null)
       setPageState('results')
     } catch (err) {
+      if (err.name === 'AbortError') {
+        // User cancelled — silently restore previous state, no error shown
+        setPageState(runs.length > 0 ? 'results' : 'ready')
+        return
+      }
       console.error('Course match error:', err)
       setRunError(err.message || 'Something went wrong. Please try again.')
       setPageState(runs.length > 0 ? 'results' : 'ready')
+    } finally {
+      abortControllerRef.current = null
     }
+  }
+
+  function handleCancelRun() {
+    abortControllerRef.current?.abort()
   }
 
   async function handleSelectRun(runId) {
@@ -210,6 +225,13 @@ export default function CourseMatch() {
           <p className="text-sm text-gray-500 mt-2 h-5 transition-all">{LOADING_MESSAGES[msgIndex]}</p>
         </div>
         <p className="text-xs text-gray-400">This typically takes 15–30 seconds</p>
+        <button
+          type="button"
+          onClick={handleCancelRun}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer underline underline-offset-2"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   )

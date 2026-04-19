@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -44,6 +44,7 @@ export default function Matching() {
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [filterStrength, setFilterStrength] = useState(null)  // null = all
   const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
+  const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // Load profile + run history on mount
   useEffect(() => {
@@ -108,10 +109,11 @@ export default function Matching() {
   async function handleMatch() {
     setRunError(null)
     setMsgIndex(0)
+    abortControllerRef.current = new AbortController()
     setPageState('running')
 
     try {
-      const data = await invokeEdgeFunction('generate-matches')
+      const data = await invokeEdgeFunction('generate-matches', undefined, abortControllerRef.current.signal)
 
       // Reload run list and show fresh results
       const { data: runData } = await supabase
@@ -126,10 +128,21 @@ export default function Matching() {
       setRunsToday(prev => prev + 1)
       setPageState('results')
     } catch (err) {
+      if (err.name === 'AbortError') {
+        // User cancelled — silently restore previous state, no error shown
+        setPageState(runs.length > 0 ? 'results' : 'ready')
+        return
+      }
       console.error('Matching error:', err)
       setRunError(err.message || 'Something went wrong. Please try again.')
       setPageState(runs.length > 0 ? 'results' : 'ready')
+    } finally {
+      abortControllerRef.current = null
     }
+  }
+
+  function handleCancelMatch() {
+    abortControllerRef.current?.abort()
   }
 
   async function handleSelectRun(runId) {
@@ -189,6 +202,13 @@ export default function Matching() {
           <p className="text-sm text-gray-500 mt-2 h-5 transition-all">{LOADING_MESSAGES[msgIndex]}</p>
         </div>
         <p className="text-xs text-gray-400">This typically takes 15–30 seconds</p>
+        <button
+          type="button"
+          onClick={handleCancelMatch}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer underline underline-offset-2"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   )
