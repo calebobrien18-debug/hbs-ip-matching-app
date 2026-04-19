@@ -224,6 +224,10 @@ Your task: given a second-year MBA student's profile and a list of HBS elective 
 For each selected course return a JSON object with these exact keys:
 - "course_id": the exact UUID string provided in the candidate's ID field
 - "rank": integer starting at 1 (1 = strongest fit)
+- "match_strength": one of "strong", "good", or "exploratory"
+  - "strong": directly relevant to the student's stated interests and background — a clear, compelling fit
+  - "good": meaningfully related with clear transferable value, though not a perfect overlap
+  - "exploratory": an interesting stretch with a less direct connection; worth considering but less certain
 - "rationale": array of exactly 2 strings — each one a concrete, specific bullet explaining WHY this course fits this student's particular background, goals, or experiences. Reference specific details from the student's profile.
 
 Return ONLY a valid JSON array. No markdown code fences, no preamble, no explanation.`
@@ -243,7 +247,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     // ── 7. Parse Claude response ──────────────────────────────────────────────
     const cleanJson = cleanJsonResponse(rawText)
 
-    let aiMatches: Array<{ course_id: string; rank: number; rationale: string[] }>
+    let aiMatches: Array<{ course_id: string; rank: number; match_strength: string; rationale: string[] }>
 
     try {
       aiMatches = JSON.parse(cleanJson)
@@ -252,9 +256,14 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
       return jsonResponse({ error: 'Course matching returned an unexpected response. Please try again.' }, 500)
     }
 
+    const validStrengths = new Set(['strong', 'good', 'exploratory'])
     aiMatches = aiMatches
       .filter(m => m.course_id && m.rank && Array.isArray(m.rationale))
-      .map(m => ({ ...m, rationale: m.rationale.slice(0, 2) }))
+      .map(m => ({
+        ...m,
+        match_strength: validStrengths.has(m.match_strength) ? m.match_strength : 'good',
+        rationale: m.rationale.slice(0, 2),
+      }))
       .slice(0, 5)
 
     if (aiMatches.length < 2) {
@@ -274,10 +283,11 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
 
     const { error: insertError } = await supabase.from('course_matches').insert(
       aiMatches.map(m => ({
-        run_id:    runId,
-        course_id: m.course_id,
-        rank:      m.rank,
-        rationale: m.rationale,
+        run_id:         runId,
+        course_id:      m.course_id,
+        rank:           m.rank,
+        match_strength: m.match_strength,
+        rationale:      m.rationale,
       }))
     )
     if (insertError) throw insertError

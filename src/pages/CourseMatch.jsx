@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedCourses } from '../lib/hooks'
-import { DAILY_LIMIT } from '../lib/constants'
+import { DAILY_LIMIT, STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS } from '../lib/constants'
 import {
   SparklesIcon, RefreshIcon, ChevronIcon, BookmarkIcon,
 } from '../components/Icons'
@@ -37,6 +37,7 @@ export default function CourseMatch() {
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [runsToday, setRunsToday] = useState(0)
   const [electiveInterests, setElectiveInterests] = useState('')
+  const [strengthFilter, setStrengthFilter] = useState(null)
 
   // Set of faculty_ids the user has matched (for badge display)
   const [matchedFacultyIds, setMatchedFacultyIds] = useState(new Set())
@@ -134,6 +135,7 @@ export default function CourseMatch() {
       setMatches(data.matches ?? [])
       setSelectedRunId(data.run_id)
       setRunsToday(prev => prev + 1)
+      setStrengthFilter(null)
       setPageState('results')
     } catch (err) {
       console.error('Course match error:', err)
@@ -143,14 +145,28 @@ export default function CourseMatch() {
   }
 
   async function handleSelectRun(runId) {
+    setStrengthFilter(null)
     await loadMatchesForRun(runId)
     setArchiveOpen(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  async function handleRemoveCourse(matchId) {
+    setMatches(prev => prev.filter(m => m.id !== matchId))
+    const { error } = await supabase.from('course_matches').delete().eq('id', matchId)
+    if (error) {
+      console.error('Remove course error:', error)
+      await loadMatchesForRun(selectedRunId)
+    }
+  }
+
   const latestRunId = runs[0]?.id ?? null
   const isViewingLatest = selectedRunId === latestRunId
   const archivedRuns = runs.slice(1)
+  const strongCount = matches.filter(m => m.match_strength === 'strong').length
+  const visibleMatches = strengthFilter
+    ? matches.filter(m => m.match_strength === strengthFilter)
+    : matches
 
   // ── Render states ──────────────────────────────────────────────────────────
 
@@ -348,6 +364,7 @@ export default function CourseMatch() {
             </div>
           )}
 
+
           {!isViewingLatest && (
             <button
               type="button"
@@ -363,25 +380,94 @@ export default function CourseMatch() {
           <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{runError}</div>
         )}
 
+        {/* Elective interests — persisted and visible for re-run */}
+        {isViewingLatest && (
+          <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-700">
+                Steer your next run <span className="font-normal text-gray-400">(optional)</span>
+              </span>
+              <p className="text-xs text-gray-400 mt-0.5 mb-2">
+                Adjust these interests and hit Re-run to get fresh results.
+              </p>
+              <textarea
+                rows={2}
+                value={electiveInterests}
+                onChange={e => setElectiveInterests(e.target.value.slice(0, 1000))}
+                placeholder='e.g. "sustainable finance, impact investing" or "entrepreneurship in emerging markets"'
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson placeholder:text-gray-300"
+              />
+              {electiveInterests.length > 900 && (
+                <p className="text-xs text-gray-400 mt-1 text-right">{electiveInterests.length}/1000</p>
+              )}
+            </label>
+          </div>
+        )}
+
         {/* Summary banner */}
         {isViewingLatest && matches.length > 0 && (
-          <div className="rounded-xl bg-blue-50 border border-blue-200 px-5 py-4 flex items-start gap-3">
-            <SparklesIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-blue-900">
-                {matches.length} course{matches.length !== 1 ? 's' : ''} matched to your background
-              </p>
-              <p className="text-sm text-blue-700 mt-0.5">
-                These are ranked by fit with your professional interests and career goals. Save the ones you want to revisit.
-              </p>
+          <div className="space-y-3">
+            {/* Strong match callout */}
+            {strongCount > 0 && (
+              <div className="rounded-xl bg-green-50 border border-green-200 px-5 py-4 flex items-start gap-3">
+                <SparklesIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-green-900">
+                    You have {strongCount} strong course {strongCount === 1 ? 'match' : 'matches'}.
+                  </p>
+                  <p className="text-sm text-green-700 mt-0.5">
+                    These align most directly with your background — consider prioritizing them in your EC year planning.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Next-step guidance */}
+            <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 text-sm text-indigo-800">
+              <strong>Next step:</strong> If a course's professor also appears in your{' '}
+              <a href="/match" className="underline hover:text-indigo-600 font-medium">faculty matches</a>,
+              that's a strong signal to reach out — they share your research interests <em>and</em> teach in your area.
             </div>
           </div>
         )}
 
-        {/* Course cards */}
+        {/* Strength filter pills */}
         {matches.length > 0 && (
+          <div className="flex gap-2 flex-wrap">
+            {['strong', 'good', 'exploratory'].map(s => {
+              const count = matches.filter(m => m.match_strength === s).length
+              if (!count) return null
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setStrengthFilter(strengthFilter === s ? null : s)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
+                    strengthFilter === s
+                      ? STRENGTH_STYLES[s]
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  {STRENGTH_LABELS[s]} ({count})
+                </button>
+              )
+            })}
+            {strengthFilter && (
+              <button
+                type="button"
+                onClick={() => setStrengthFilter(null)}
+                className="px-3 py-1.5 rounded-full text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                Clear filter ×
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Course cards */}
+        {visibleMatches.length > 0 && (
           <div className="space-y-4">
-            {matches.map(match => (
+            {visibleMatches.map(match => (
               <CourseCard
                 key={match.id}
                 match={match}
@@ -392,8 +478,19 @@ export default function CourseMatch() {
                     ? matchedFacultyIds.has(match.faculty_courses.faculty_id)
                     : false
                 }
+                isLatestRun={isViewingLatest}
+                onRemove={handleRemoveCourse}
               />
             ))}
+          </div>
+        )}
+
+        {visibleMatches.length === 0 && matches.length > 0 && strengthFilter && (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-8 text-center">
+            <p className="text-sm text-gray-500">No {STRENGTH_LABELS[strengthFilter].toLowerCase()} courses in this run.</p>
+            <button type="button" onClick={() => setStrengthFilter(null)} className="mt-2 text-sm text-crimson hover:opacity-70 cursor-pointer">
+              Show all results
+            </button>
           </div>
         )}
 
@@ -455,21 +552,29 @@ export default function CourseMatch() {
 
 // ── Course card ────────────────────────────────────────────────────────────────
 
-function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty }) {
+function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRun, onRemove }) {
   const c = match.faculty_courses
   if (!c) return null
 
   const [expanded, setExpanded] = useState(false)
   const desc = c.description ?? ''
   const isLongDesc = desc.length > 300
+  const strengthBorder = STRENGTH_ACCENT[match.match_strength] ?? 'border-l-crimson/40'
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-crimson/40 p-6 space-y-4">
+    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${strengthBorder} p-6 space-y-4`}>
 
       {/* Header: title + badges */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex-1 min-w-0 space-y-1">
-          <h3 className="text-base font-semibold text-gray-900 leading-snug">{c.course_title}</h3>
+          <div className="flex items-start gap-2 flex-wrap">
+            <h3 className="text-base font-semibold text-gray-900 leading-snug">{c.course_title}</h3>
+            {match.match_strength && (
+              <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold flex-shrink-0 mt-0.5 ${STRENGTH_STYLES[match.match_strength]}`}>
+                {STRENGTH_LABELS[match.match_strength]}
+              </span>
+            )}
+          </div>
 
           {/* Professor line */}
           {c.faculty_name && (
@@ -558,18 +663,30 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty }) {
 
       {/* Footer actions */}
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100 flex-wrap">
-        <button
-          type="button"
-          onClick={onSaveToggle}
-          className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
-            isSaved
-              ? 'text-crimson bg-crimson/6'
-              : 'text-gray-400 hover:text-crimson hover:bg-crimson/6'
-          }`}
-        >
-          <BookmarkIcon filled={isSaved} />
-          {isSaved ? 'Saved' : 'Save'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onSaveToggle}
+            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              isSaved
+                ? 'text-crimson bg-crimson/6'
+                : 'text-gray-400 hover:text-crimson hover:bg-crimson/6'
+            }`}
+          >
+            <BookmarkIcon filled={isSaved} />
+            {isSaved ? 'Saved' : 'Save'}
+          </button>
+
+          {isLatestRun && (
+            <button
+              type="button"
+              onClick={() => onRemove(match.id)}
+              className="text-xs text-gray-300 hover:text-red-400 transition-colors cursor-pointer px-2 py-1.5"
+            >
+              Remove
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           {c.course_number && (
