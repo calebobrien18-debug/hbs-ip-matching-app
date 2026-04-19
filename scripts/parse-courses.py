@@ -194,30 +194,71 @@ FACULTY_TITLE_RE = re.compile(
 # Lines that are scheduling info, not description
 def clean_description(text):
     """
-    Sanitize a raw course description extracted from the HBS PDF:
-      1. Remove 'Course Content Keywords:' section (and everything after it)
-      2. Strip structural section headings ('O verview:', 'Career Focus:', etc.)
-      3. Remove Unicode replacement characters and fix common smart-quote artifacts
-      4. Normalize whitespace
-      5. Trim to 1500 chars (word boundary) to keep signal tight
+    Sanitize and trim a raw course description:
+      1. Strip leading grading/format noise that slips past line filters
+      2. Truncate at the first structural section heading (keep only overview prose)
+         Fallback: if no overview precedes the first heading, strip the heading label
+         and use the first section's content instead.
+      3. Strip remaining inline section labels (Career Focus:, Overview:, etc.)
+         Only matched when clearly a heading (followed by colon/dash, or at line start).
+      4. Remove Unicode replacement characters and fix smart-quote artifacts
+      5. Normalize whitespace
+      6. Trim to 800 chars (word boundary)
     """
     if not text:
         return text
 
-    # 1. Drop everything from "Course Content Keywords:" onward
-    text = re.sub(r'Course Content Keywords?\s*:.*$', '', text, flags=re.I | re.S)
+    # 1. Strip leading grading/evaluation format noise
+    #    e.g. "Exam or Project " or "Paper " appearing before prose
+    text = re.sub(
+        r'^\s*(Exam|Paper|Project|Participation|Assignment)'
+        r'(\s+(or|and)\s+(Exam|Paper|Project|Participation|Assignment))*\s+',
+        '', text, flags=re.I
+    )
 
-    # 2. Strip structural headings (keep the prose that follows)
-    HEADING_RE = re.compile(
-        r'\b(O\s*verview|Career Focus|Educational\s*O?\s*bjectives?'
+    # 2. Cut at the first major structural section heading.
+    #    If there's meaningful overview prose before it (> 60 chars), keep only that.
+    #    If not (the description begins directly with a section heading), strip that
+    #    heading label and keep the first section's content, cutting at the next one.
+    SECTION_CUT_RE = re.compile(
+        r'\b(Educational\s*O?\s*bjectives?'
         r'|Course Content(?:\s+and\s+O?\s*rganization)?'
         r'|Grading\s*/\s*Course Administration'
-        r'|Course Format|Note\s*[:—]?|Course Description)\s*[:—]\s*',
+        r'|Course Content Keywords?'
+        r'|Course Format'
+        r'|Evaluation\s*:'
+        r')\s*[:\s]',
         re.I
     )
-    text = HEADING_RE.sub(' ', text)
+    cut = SECTION_CUT_RE.search(text)
+    if cut:
+        before = text[:cut.start()].strip()
+        if len(before) > 60:
+            # Good overview exists — keep it, discard sections
+            text = before
+        else:
+            # No real overview before the first heading — strip the heading label,
+            # keep its prose content, and cut at the next section boundary
+            text = text[cut.end():].strip()
+            cut2 = SECTION_CUT_RE.search(text)
+            if cut2:
+                text = text[:cut2.start()].strip()
 
-    # 3. Remove encoding artifacts
+    # 3. Strip inline section labels that are clearly headings.
+    #    Require a colon or em/en-dash after the label to avoid matching the same
+    #    words mid-sentence (e.g. "purpose" inside "The purpose of this course").
+    #    "Purpose" sub-headings like "Purpose — Who Should Take this Course?" are
+    #    handled by matching the full pattern including the question mark.
+    LABEL_RE = re.compile(
+        r'\bCareer Focus\s*[:—]?\s*'               # always a heading, colon optional
+        r'|\b(O\s*verview|Course Description|DESCRIPTIO\s*N)\s*[:—]\s*'  # require colon
+        r'|^Purpose\s*[-–—:]\s*(?:[^?]*\?\s*)?'   # Purpose [— Who Should Take…?] at line start
+        r'|\bNote\s*[:—]\s*',
+        re.I | re.M
+    )
+    text = LABEL_RE.sub('', text)
+
+    # 4. Remove encoding artifacts
     text = (text
         .replace('\ufffd', '')      # Unicode replacement character
         .replace('\u2019', "'")     # right single quotation mark
@@ -227,18 +268,25 @@ def clean_description(text):
         .replace('\u2014', '—')     # em dash
     )
 
-    # 4. Normalize whitespace
+    # 5. Normalize whitespace
     text = re.sub(r'\s{2,}', ' ', text).strip()
 
-    # 5. Trim to 1500 chars at a word boundary
-    if len(text) > 1500:
-        text = text[:1500].rsplit(' ', 1)[0] + '…'
+    # 6. Trim to 800 chars at a word boundary
+    if len(text) > 800:
+        text = text[:800].rsplit(' ', 1)[0] + '…'
 
     return text
 
 SCHEDULING_RE = re.compile(
-    r'^(Fall|Spring|Winter|January);|^\d+\s+[Ss]ession|^Overview$|^O verview$'
-    r'|^Paper$|^Exam$|^Project$',
+    r'^(Fall|Spring|Winter|January);'
+    r'|^\d+\s+[Ss]ession'
+    r'|^O?\s*verview$'
+    r'|^(Paper|Exam|Project|Participation|Assignment)$'
+    r'|^(Paper|Exam|Project|Participation)(\s+(or|and)\s+(Paper|Exam|Project|Participation))+$'
+    r'|^Written\s+(Assignment|Work|Case)$'
+    r'|^Take.?Home(\s+Exam)?$'
+    r'|^Group\s+Project$'
+    r'|^In.?Class\s+Exercises?$',
     re.I
 )
 
@@ -271,6 +319,7 @@ for i, m in enumerate(desc_blocks):
             r'|^\d+[A-Za-z]'                 # "27Paper", "12sessions" run-together
             r'|^(Paper|Exam|Project|Optional|Participation)[\s/\|]'  # grading types
             r'|^(Paper|Exam|Project)$'        # standalone grading keywords
+            r'|^(Paper|Exam|Project|Participation)(\s+(or|and)\s+(Paper|Exam|Project|Participation))+$'  # combined grading
             r'|^(O verview|Overview|Career Focus|Educational Objectives?'
             r'|Course Content|Grading|Evaluation|Faculty Assistant'
             r'|Course Description|Note:|Note —)\b'
