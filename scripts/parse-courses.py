@@ -192,6 +192,50 @@ FACULTY_TITLE_RE = re.compile(
     re.I
 )
 # Lines that are scheduling info, not description
+def clean_description(text):
+    """
+    Sanitize a raw course description extracted from the HBS PDF:
+      1. Remove 'Course Content Keywords:' section (and everything after it)
+      2. Strip structural section headings ('O verview:', 'Career Focus:', etc.)
+      3. Remove Unicode replacement characters and fix common smart-quote artifacts
+      4. Normalize whitespace
+      5. Trim to 1500 chars (word boundary) to keep signal tight
+    """
+    if not text:
+        return text
+
+    # 1. Drop everything from "Course Content Keywords:" onward
+    text = re.sub(r'Course Content Keywords?\s*:.*$', '', text, flags=re.I | re.S)
+
+    # 2. Strip structural headings (keep the prose that follows)
+    HEADING_RE = re.compile(
+        r'\b(O\s*verview|Career Focus|Educational\s*O?\s*bjectives?'
+        r'|Course Content(?:\s+and\s+O?\s*rganization)?'
+        r'|Grading\s*/\s*Course Administration'
+        r'|Course Format|Note\s*[:—]?|Course Description)\s*[:—]\s*',
+        re.I
+    )
+    text = HEADING_RE.sub(' ', text)
+
+    # 3. Remove encoding artifacts
+    text = (text
+        .replace('\ufffd', '')      # Unicode replacement character
+        .replace('\u2019', "'")     # right single quotation mark
+        .replace('\u201c', '"')     # left double quotation mark
+        .replace('\u201d', '"')     # right double quotation mark
+        .replace('\u2013', '–')     # en dash (keep as readable char)
+        .replace('\u2014', '—')     # em dash
+    )
+
+    # 4. Normalize whitespace
+    text = re.sub(r'\s{2,}', ' ', text).strip()
+
+    # 5. Trim to 1500 chars at a word boundary
+    if len(text) > 1500:
+        text = text[:1500].rsplit(' ', 1)[0] + '…'
+
+    return text
+
 SCHEDULING_RE = re.compile(
     r'^(Fall|Spring|Winter|January);|^\d+\s+[Ss]ession|^Overview$|^O verview$'
     r'|^Paper$|^Exam$|^Project$',
@@ -288,6 +332,7 @@ for i, m in enumerate(desc_blocks):
 
     description = ' '.join(l for l in desc_lines if l).strip()
     description = re.sub(r'\s+', ' ', description).strip()
+    description = clean_description(description)
 
     if desc_title or description:
         descriptions[course_number] = {
