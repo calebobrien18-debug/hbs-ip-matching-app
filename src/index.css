@@ -3,6 +3,7 @@
 @theme {
   --color-crimson:      #A51C30;
   --color-crimson-dark: #8a1626;
+  --font-serif: 'Instrument Serif', Georgia, serif;
 }
 
 *, *::before, *::after {

@@ -1,7 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import Footer from '../components/Footer'
+import { SearchIcon, SparklesIcon, LightbulbIcon } from '../components/Icons'
+
+const FEATURES = [
+  {
+    Icon: SearchIcon,
+    label: 'Browse Faculty',
+    description: 'Explore all HBS professors by research area, course, and publication history.',
+  },
+  {
+    Icon: SparklesIcon,
+    label: 'AI Matching',
+    description: 'Get ranked faculty matches tailored to your background and interests.',
+  },
+  {
+    Icon: LightbulbIcon,
+    label: 'Case Study Ideas',
+    description: 'Generate case writing pitches and draft outreach emails for each match.',
+  },
+]
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -38,18 +56,12 @@ export default function Landing() {
 
     if (mode === 'signup') {
       const { error } = await supabase.auth.signUp({ email, password })
-      if (error) {
-        setAuthError(error.message)
-      } else {
-        setSignupSuccess(true)
-      }
+      if (error) setAuthError(error.message)
+      else setSignupSuccess(true)
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
-        setAuthError(error.message)
-      } else {
-        navigate('/dashboard', { replace: true })
-      }
+      if (error) setAuthError(error.message)
+      else navigate('/dashboard', { replace: true })
     }
 
     setSubmitting(false)
@@ -64,46 +76,110 @@ export default function Landing() {
   if (loading) return null
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col lg:flex-row">
 
-      {/* ── Hero ── */}
-      <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-20"
-        style={{
-          background: 'radial-gradient(ellipse 140% 60% at 50% 0%, rgba(165,28,48,0.08) 0%, rgba(165,28,48,0.02) 55%, transparent 75%)',
-        }}
-      >
-        <div className="w-full max-w-sm space-y-8 text-center">
+      {/* ── Left panel: brand ── */}
+      <div className="hidden lg:flex lg:w-[58%] bg-crimson relative overflow-hidden flex-col p-14 text-white">
 
-          {/* Logo */}
-          <img
-            src="/profound-logo.svg"
-            alt="ProFound"
-            className="block mx-auto"
-            style={{ height: '5.5rem', width: 'auto' }}
-          />
+        {/* Subtle dot-grid texture */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
 
-          {/* Headline + description */}
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight">
-              Find faculty who share your passions.
+        {/* Soft vignette to ground the content */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 80% 70% at 30% 60%, rgba(0,0,0,0.18) 0%, transparent 70%)',
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col h-full">
+
+          {/* Logo wordmark */}
+          <div className="flex-shrink-0">
+            <span className="text-xl font-bold tracking-tight text-white/90 select-none">
+              Pro<span className="text-white">Found</span>
+            </span>
+          </div>
+
+          {/* Main copy — vertically centred */}
+          <div className="flex-1 flex flex-col justify-center space-y-8 py-12">
+            <h1
+              className="text-[2.75rem] leading-[1.15] text-white"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              Find faculty who<br />share your passions.
             </h1>
-            <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+
+            <p className="text-base text-white/70 leading-relaxed max-w-sm">
               Turn shared interests into independent projects, case writing partnerships, and lasting faculty relationships.
             </p>
+
+            {/* Feature list */}
+            <div className="space-y-5 pt-2">
+              {FEATURES.map(({ Icon, label, description }) => (
+                <div key={label} className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-4 h-4 text-white/80" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{label}</p>
+                    <p className="text-xs text-white/55 mt-0.5 leading-relaxed">{description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Beta badge */}
+          <div className="flex-shrink-0">
+            <span className="inline-flex items-center text-[11px] font-medium text-white/40 bg-white/8 rounded-full px-3 py-1 tracking-wide uppercase">
+              Beta
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Right panel: auth ── */}
+      <div className="w-full lg:w-[42%] flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6 py-16">
+
+        {/* Mobile-only: logo + headline */}
+        <div className="lg:hidden w-full max-w-sm mb-8 text-center space-y-3">
+          <img src="/profound-logo.svg" alt="ProFound" className="h-12 mx-auto" />
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Find faculty who share your passions.
+          </h1>
+          <p className="text-sm text-gray-500">
+            Turn shared interests into independent projects, case writing partnerships, and lasting faculty relationships.
+          </p>
+        </div>
+
+        <div className="w-full max-w-sm space-y-3">
+
+          {/* Heading (desktop only) */}
+          <div className="hidden lg:block mb-2">
+            <h2 className="text-xl font-semibold text-gray-900">Welcome back</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Sign in to your account to continue.</p>
           </div>
 
           {/* Auth card */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4 text-left">
-            {/* Google sign-in */}
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4">
+
+            {/* Google — primary CTA */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={signingIn}
-              className="w-full inline-flex items-center justify-center gap-2.5 bg-crimson hover:bg-crimson-dark disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-sm"
+              className="w-full inline-flex items-center justify-center gap-2.5 bg-crimson hover:bg-crimson-dark disabled:opacity-50 text-white font-semibold px-5 py-3 rounded-xl shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-sm"
             >
               <GoogleIcon />
-              {signingIn ? 'Redirecting…' : 'Sign in with Google'}
+              {signingIn ? 'Redirecting…' : 'Continue with Google'}
             </button>
 
             {/* Divider */}
@@ -113,11 +189,13 @@ export default function Landing() {
               <div className="flex-1 h-px bg-gray-100" />
             </div>
 
-            {/* Email/password form */}
+            {/* Email/password — secondary */}
             {signupSuccess ? (
               <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800">
                 <p className="font-semibold mb-1">Check your inbox</p>
-                <p className="text-green-700">We sent a confirmation link to <span className="font-medium">{email}</span>. Click it to activate your account, then sign in.</p>
+                <p className="text-green-700">
+                  We sent a confirmation link to <span className="font-medium">{email}</span>. Click it to activate your account, then sign in.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleEmailAuth} className="space-y-2.5">
@@ -145,7 +223,7 @@ export default function Landing() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-xl shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-sm"
+                  className="w-full bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-sm"
                 >
                   {submitting
                     ? (mode === 'signup' ? 'Creating account…' : 'Signing in…')
@@ -155,13 +233,13 @@ export default function Landing() {
                 <p className="text-center text-xs text-gray-400 pt-0.5">
                   {mode === 'signin' ? (
                     <>No account?{' '}
-                      <button type="button" onClick={() => switchMode('signup')} className="text-crimson font-medium hover:underline">
+                      <button type="button" onClick={() => switchMode('signup')} className="text-crimson font-medium hover:underline cursor-pointer">
                         Create one
                       </button>
                     </>
                   ) : (
                     <>Already have an account?{' '}
-                      <button type="button" onClick={() => switchMode('signin')} className="text-crimson font-medium hover:underline">
+                      <button type="button" onClick={() => switchMode('signin')} className="text-crimson font-medium hover:underline cursor-pointer">
                         Sign in
                       </button>
                     </>
@@ -171,48 +249,28 @@ export default function Landing() {
             )}
           </div>
 
+          {/* Mobile feature strip */}
+          <div className="lg:hidden pt-6 space-y-3">
+            {FEATURES.map(({ Icon, label, description }) => (
+              <div key={label} className="flex items-start gap-3 px-1">
+                <div className="w-7 h-7 rounded-lg bg-crimson/8 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon className="w-3.5 h-3.5 text-crimson" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{label}</p>
+                  <p className="text-xs text-gray-400 leading-relaxed">{description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-[11px] text-gray-300 pt-2">
+            © {new Date().getFullYear()} ProFound, LLC. All rights reserved.
+          </p>
+
         </div>
       </div>
 
-      {/* ── Feature strip ── */}
-      <div className="border-t border-gray-100 bg-gray-50/60">
-        <div className="max-w-2xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <FeatureTile
-            icon="🔍"
-            label="Browse Faculty"
-            description="Explore HBS professors by research area, course, and publication history."
-          />
-          <FeatureTile
-            icon="✨"
-            label="AI Matching"
-            description="Upload your resume and get ranked faculty matches tailored to your background."
-          />
-          <FeatureTile
-            icon="💡"
-            label="Case Study Ideas"
-            description="Generate case writing pitches and draft outreach emails for each match."
-          />
-        </div>
-      </div>
-
-      {/* ── Beta disclaimer ── */}
-      <div className="text-center py-3 px-6">
-        <p className="text-xs text-gray-400">ProFound is currently in beta. Features may change.</p>
-      </div>
-
-      {/* ── Footer ── */}
-      <Footer showFeedback={false} />
-
-    </div>
-  )
-}
-
-function FeatureTile({ icon, label, description }) {
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 px-5 py-5 space-y-2 text-center shadow-sm">
-      <div className="text-2xl">{icon}</div>
-      <p className="text-sm font-semibold text-gray-800">{label}</p>
-      <p className="text-xs text-gray-400 leading-relaxed">{description}</p>
     </div>
   )
 }
