@@ -100,25 +100,24 @@ export default function Landing() {
 
         <div className="relative z-10 flex flex-col h-full">
 
-          {/* Logo wordmark */}
-          <div className="flex-shrink-0">
-            <span className="text-xl font-bold tracking-tight text-white/90 select-none">
-              Pro<span className="text-white">Found</span>
-            </span>
-          </div>
-
           {/* Main copy — vertically centred */}
           <div className="flex-1 flex flex-col justify-center space-y-8 py-12">
-            <h1
-              className="text-[2.75rem] leading-[1.15] text-white"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Find faculty who<br />share your passions.
-            </h1>
 
-            <p className="text-base text-white/70 leading-relaxed max-w-sm">
-              Turn shared interests into independent projects, case writing partnerships, and lasting faculty relationships.
-            </p>
+            {/* Wordmark — the focal point */}
+            <div>
+              <span className="text-6xl font-bold tracking-tight text-white leading-none select-none">
+                Pro<span className="text-white/60">Found</span>
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <h1 className="text-2xl font-semibold text-white leading-snug">
+                Find faculty who share your passions.
+              </h1>
+              <p className="text-sm text-white/65 leading-relaxed max-w-sm">
+                Turn shared interests into independent projects, case writing partnerships, and lasting faculty relationships.
+              </p>
+            </div>
 
             {/* Feature list */}
             <div className="space-y-5 pt-2">
@@ -151,8 +150,8 @@ export default function Landing() {
 
         {/* Mobile-only: logo + headline */}
         <div className="lg:hidden w-full max-w-sm mb-8 text-center space-y-3">
-          <img src="/profound-logo.svg" alt="ProFound" className="h-12 mx-auto" />
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          <img src="/profound-logo.svg" alt="ProFound" className="h-14 mx-auto" />
+          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
             Find faculty who share your passions.
           </h1>
           <p className="text-sm text-gray-500">
