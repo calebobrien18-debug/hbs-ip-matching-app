@@ -38,6 +38,7 @@ export default function CourseMatch() {
   const [runsToday, setRunsToday] = useState(0)
   const [electiveInterests, setElectiveInterests] = useState('')
   const [strengthFilter, setStrengthFilter] = useState(null)
+  const [listVisible, setListVisible] = useState(true)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // "How it works" — open by default on first visit, collapsed thereafter
@@ -110,6 +111,12 @@ export default function CourseMatch() {
     }, 2200)
     return () => clearInterval(interval)
   }, [pageState])
+
+  useEffect(() => {
+    setListVisible(false)
+    const t = setTimeout(() => setListVisible(true), 150)
+    return () => clearTimeout(t)
+  }, [strengthFilter])
 
   const loadMatchesForRun = useCallback(async (runId) => {
     const { data } = await supabase
@@ -502,7 +509,7 @@ export default function CourseMatch() {
 
         {/* Course cards */}
         {visibleMatches.length > 0 && (
-          <div className="space-y-4">
+          <div className={`space-y-4 transition-opacity duration-150 ${listVisible ? 'opacity-100' : 'opacity-0'}`}>
             {visibleMatches.map(match => (
               <CourseCard
                 key={match.id}
@@ -527,7 +534,7 @@ export default function CourseMatch() {
               <BookOpenIcon className="w-5 h-5 text-gray-300" />
             </div>
             <p className="text-sm font-medium text-gray-600">No {STRENGTH_LABELS[strengthFilter].toLowerCase()} courses in this run</p>
-            <button type="button" onClick={() => setStrengthFilter(null)} className="mt-3 text-sm font-medium text-crimson cursor-pointer">
+            <button type="button" onClick={() => setStrengthFilter(null)} className="mt-3 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer">
               Show all results
             </button>
           </div>
@@ -738,7 +745,7 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRu
           {c.faculty_id && (
             <Link
               to={`/faculty/${c.faculty_id}`}
-              className="text-sm font-semibold text-crimson hover:opacity-70 transition-opacity"
+              className="text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
             >
               View professor profile →
             </Link>

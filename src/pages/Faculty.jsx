@@ -291,7 +291,7 @@ export default function Faculty() {
             <button
               type="button"
               onClick={() => { setQuery(''); setSelectedUnit(null); clearTags() }}
-              className="mt-4 text-sm font-medium cursor-pointer text-crimson"
+              className="mt-4 text-sm font-medium cursor-pointer text-gray-500 hover:text-gray-700"
             >
               Clear filters
             </button>
@@ -522,7 +522,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
             {f.email}
           </a>
         )}
-        <span className="text-xs font-medium flex-shrink-0 ml-auto text-crimson">
+        <span className="text-xs font-medium flex-shrink-0 ml-auto text-gray-500">
           View profile →
         </span>
       </div>

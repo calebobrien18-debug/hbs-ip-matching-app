@@ -44,6 +44,7 @@ export default function Matching() {
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [filterStrength, setFilterStrength] = useState(null)  // null = all
   const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
+  const [listVisible, setListVisible] = useState(true)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // "How it works" — open by default on first visit, collapsed thereafter
@@ -99,6 +100,12 @@ export default function Matching() {
     }, 2200)
     return () => clearInterval(interval)
   }, [pageState])
+
+  useEffect(() => {
+    setListVisible(false)
+    const t = setTimeout(() => setListVisible(true), 150)
+    return () => clearTimeout(t)
+  }, [filterStrength])
 
   const loadMatchesForRun = useCallback(async (runId) => {
     const { data } = await supabase
@@ -486,7 +493,7 @@ export default function Matching() {
 
         {/* Match cards */}
         {matches.length > 0 && (
-          <div className="space-y-4">
+          <div className={`space-y-4 transition-opacity duration-150 ${listVisible ? 'opacity-100' : 'opacity-0'}`}>
             {filteredMatches.map(match => (
               <MatchCard
                 key={match.id}
@@ -676,7 +683,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
 
           <Link
             to={`/faculty/${f.id}`}
-            className="text-sm font-semibold text-crimson hover:opacity-70 transition-opacity"
+            className="text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
           >
             View full profile →
           </Link>

@@ -349,7 +349,7 @@ export default function Dashboard() {
                         <Link
                           to={`/faculty/${f.id}`}
                           title="View full profile"
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                         >
                           <ArrowRightIcon className="w-4 h-4" />
                         </Link>
@@ -443,7 +443,7 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      <ArrowRightIcon className="w-4 h-4 text-gray-300 group-hover:text-crimson transition-colors flex-shrink-0 mt-1" />
+                      <ArrowRightIcon className="w-4 h-4 text-gray-300 group-hover:text-gray-600 transition-colors flex-shrink-0 mt-1" />
                     </Link>
                   </li>
                 )
