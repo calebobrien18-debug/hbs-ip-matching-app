@@ -47,10 +47,18 @@ export default function FacultyDetail() {
 
       if (!facultyData) { setNotFound(true); setLoading(false); return }
 
+      const seen = new Set()
+      const uniqueCourses = (coursesData ?? []).filter(c => {
+        const key = c.course_number ?? c.course_title
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+
       setFaculty(facultyData)
       setTags((tagsData ?? []).map(r => r.tag))
       setPublications(pubsData ?? [])
-      setCourses(coursesData ?? [])
+      setCourses(uniqueCourses)
       setLoading(false)
     }
     load()
@@ -84,7 +92,7 @@ export default function FacultyDetail() {
           <div className="text-center space-y-3">
             <p className="text-gray-500">Faculty profile not found.</p>
             <button type="button" onClick={() => navigate('/faculty')}
-              className="text-sm font-medium cursor-pointer text-crimson">
+              className="text-sm font-medium cursor-pointer text-gray-500 hover:text-gray-700">
               ← Back to faculty
             </button>
           </div>
@@ -145,7 +153,7 @@ export default function FacultyDetail() {
                     <button
                       type="button"
                       onClick={() => toggleSave(id)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                       <BookmarkIcon filled={savedIds.has(id)} className={savedIds.has(id) ? 'w-5 h-5 text-crimson' : 'w-5 h-5'} />
                     </button>
@@ -170,7 +178,7 @@ export default function FacultyDetail() {
                 )}
                 {faculty.profile_url && (
                   <a href={faculty.profile_url} target="_blank" rel="noreferrer"
-                    className="font-medium hover:opacity-70 transition-opacity text-crimson">
+                    className="font-medium text-gray-700 hover:text-gray-900 transition-colors">
                     HBS Profile →
                   </a>
                 )}
@@ -227,7 +235,6 @@ export default function FacultyDetail() {
                   <PubTypePill
                     label="All"
                     active={selectedPubType === null}
-                    typeStyle={null}
                     onClick={() => setSelectedPubType(null)}
                   />
                   {pubTypes.map(type => (
@@ -235,7 +242,6 @@ export default function FacultyDetail() {
                       key={type}
                       label={type}
                       active={selectedPubType === type}
-                      typeStyle={PUB_TYPE_COLORS[type]}
                       onClick={() => setSelectedPubType(selectedPubType === type ? null : type)}
                     />
                   ))}
@@ -276,24 +282,19 @@ function Section({ title, children }) {
   )
 }
 
-function PubTypePill({ label, active, typeStyle, onClick }) {
-  // When active and a typeStyle exists, use the type's own colour scheme (inline lookup)
-  // When active with no typeStyle (the "All" pill), use crimson token
-  // When inactive, use a neutral Tailwind style
-  let pillClass = 'rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border '
-  let style
-
-  if (!active) {
-    pillClass += 'bg-white text-gray-700 border-gray-300'
-  } else if (typeStyle) {
-    style = ACTIVE_TYPE_STYLES[label]
-    if (!style) pillClass += 'bg-crimson text-white border-crimson'
-  } else {
-    pillClass += 'bg-crimson text-white border-crimson'
-  }
+function PubTypePill({ label, active, onClick }) {
+  const base = 'rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer border '
+  const inactiveClass = base + 'bg-white text-gray-700 border-gray-300'
+  const allActiveClass = base + 'bg-crimson text-white border-crimson'
+  const typeStyle = active ? ACTIVE_TYPE_STYLES[label] : undefined
 
   return (
-    <button type="button" onClick={onClick} className={pillClass} style={style}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={active && label !== 'All' ? base : active ? allActiveClass : inactiveClass}
+      style={typeStyle}
+    >
       {label}
     </button>
   )

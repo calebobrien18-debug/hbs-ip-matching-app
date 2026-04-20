@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
 import { initials } from '../lib/utils'
-import { STRENGTH_STYLES } from '../lib/constants'
+import { STRENGTH_STYLES, STRENGTH_LABELS } from '../lib/constants'
 import { LightbulbIcon, ArrowRightIcon, XIcon, SparklesIcon, BookmarkIcon, BookOpenIcon } from '../components/Icons'
 
 const GUEST_GREETINGS = [
@@ -622,8 +622,3 @@ function Badge({ children }) {
   )
 }
 
-const STRENGTH_LABELS = {
-  strong:      'Strong',
-  good:        'Good',
-  exploratory: 'Exploratory',
-}
