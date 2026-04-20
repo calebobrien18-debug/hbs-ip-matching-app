@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { SearchIcon, SparklesIcon, LightbulbIcon } from '../components/Icons'
+import ProFoundLogo from '../components/ProFoundLogo'
 
 const FEATURES = [
   {
@@ -105,9 +106,7 @@ export default function Landing() {
 
             {/* Wordmark — the focal point */}
             <div>
-              <span className="text-6xl font-bold tracking-tight text-white leading-none select-none">
-                Pro<span className="text-white/60">Found</span>
-              </span>
+              <ProFoundLogo size="lg" light />
             </div>
 
             <div className="space-y-3">
