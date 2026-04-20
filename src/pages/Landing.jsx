@@ -76,7 +76,7 @@ export default function Landing() {
   if (loading) return null
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row animate-fade-in">
 
       {/* ── Left panel: brand ── */}
       <div className="hidden lg:flex lg:w-[58%] bg-crimson relative overflow-hidden flex-col p-14 text-white">

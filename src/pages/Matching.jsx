@@ -46,6 +46,11 @@ export default function Matching() {
   const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
+  // "How it works" — open by default on first visit, collapsed thereafter
+  const LS_KEY_HOWTO = 'profound_howto_matching'
+  const [howToOpen, setHowToOpen] = useState(() => !localStorage.getItem(LS_KEY_HOWTO))
+  useEffect(() => { localStorage.setItem(LS_KEY_HOWTO, '1') }, [])
+
   // Load profile + run history on mount
   useEffect(() => {
     if (!session) return
@@ -163,7 +168,7 @@ export default function Matching() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   if (pageState === 'loading') return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
@@ -172,7 +177,7 @@ export default function Matching() {
   )
 
   if (pageState === 'no-profile') return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-4">
         <div className="w-14 h-14 rounded-full bg-crimson/8 flex items-center justify-center mx-auto">
@@ -191,7 +196,7 @@ export default function Matching() {
   )
 
   if (pageState === 'running') return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-6">
         <div className="w-16 h-16 rounded-full bg-crimson/8 flex items-center justify-center mx-auto">
@@ -215,7 +220,7 @@ export default function Matching() {
 
   // ── State: ready (no runs yet) ─────────────────────────────────────────────
   if (pageState === 'ready') return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-2xl mx-auto px-4 py-12 space-y-8">
 
@@ -231,24 +236,33 @@ export default function Matching() {
           </p>
         </div>
 
-        {/* How it works */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">How it works</h2>
-          <div className="space-y-4">
-            {[
-              { n: '1', title: 'We analyze your profile', body: 'Your stated interests, additional background, and uploaded resume and LinkedIn PDF are all used as inputs.' },
-              { n: '2', title: 'We scan faculty research', body: "Every HBS faculty member's research areas, publications, case studies, and courses are compared against your background." },
-              { n: '3', title: 'We surface your best matches', body: 'You receive up to 6 ranked faculty matches with specific reasoning and concrete suggestions for how to work together.' },
-            ].map(({ n, title, body }) => (
-              <div key={n} className="flex gap-4">
-                <div className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{n}</div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">{title}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">{body}</p>
+        {/* How it works — collapsible, closed after first visit */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setHowToOpen(o => !o)}
+            className="w-full flex items-center justify-between px-6 py-4 text-left cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">How it works</h2>
+            <ChevronIcon className={`w-4 h-4 text-gray-400 transition-transform ${howToOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {howToOpen && (
+            <div className="px-6 pb-5 space-y-4 border-t border-gray-100">
+              {[
+                { n: '1', title: 'We analyze your profile', body: 'Your stated interests, additional background, and uploaded resume and LinkedIn PDF are all used as inputs.' },
+                { n: '2', title: 'We scan faculty research', body: "Every HBS faculty member's research areas, publications, case studies, and courses are compared against your background." },
+                { n: '3', title: 'We surface your best matches', body: 'You receive up to 6 ranked faculty matches with specific reasoning and concrete suggestions for how to work together.' },
+              ].map(({ n, title, body }) => (
+                <div key={n} className="flex gap-4 pt-4 first:pt-4">
+                  <div className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{n}</div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">{title}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{body}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Profile completeness nudge */}
@@ -306,7 +320,7 @@ export default function Matching() {
     : matches
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
 

@@ -5,7 +5,7 @@ import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
 import { initials } from '../lib/utils'
 import { STRENGTH_STYLES } from '../lib/constants'
-import { LightbulbIcon, ArrowRightIcon, XIcon } from '../components/Icons'
+import { LightbulbIcon, ArrowRightIcon, XIcon, SparklesIcon, BookmarkIcon, BookOpenIcon } from '../components/Icons'
 
 const GUEST_GREETINGS = [
   'Adventurer', 'Trailblazer', 'Visionary', 'Pioneer', 'Changemaker',
@@ -151,13 +151,47 @@ export default function Dashboard() {
     await supabase.from('saved_case_ideas').delete().eq('id', ideaId)
   }
 
-  if (loading) return null
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
+      <NavBar />
+      <div className="px-4 py-10">
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Header skeleton */}
+          <div className="border-l-2 border-gray-200 pl-4 space-y-2">
+            <div className="h-7 w-60 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-44 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+          {/* Section skeletons */}
+          {[0, 1, 2].map(i => (
+            <div key={i} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="h-3.5 w-32 bg-gray-200 rounded animate-pulse" />
+                <div className="h-3.5 w-20 bg-gray-100 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                {[0, 1].map(j => (
+                  <div key={j} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+                      <div className="h-3 bg-gray-100 rounded w-1/3" />
+                    </div>
+                    <div className="h-5 w-16 bg-gray-100 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 
   const hasProfile = profiles.length > 0
   const welcomeName = hasProfile ? profiles[0].first_name : guestGreeting
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="px-4 py-10">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -234,7 +268,8 @@ export default function Dashboard() {
         {/* My Matches */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <SparklesIcon className="w-3.5 h-3.5 text-crimson flex-shrink-0" />
               My Matches
             </h2>
             <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
@@ -243,8 +278,18 @@ export default function Dashboard() {
           </div>
 
           {matchesLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            <div className="space-y-2">
+              {[0, 1].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                  <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0" />
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-100 rounded w-1/3" />
+                  </div>
+                  <div className="h-5 w-16 bg-gray-100 rounded-full" />
+                </div>
+              ))}
             </div>
           ) : matches.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
@@ -325,7 +370,8 @@ export default function Dashboard() {
         {/* My Course Picks */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <BookOpenIcon className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
               My Course Picks
             </h2>
             <Link to="/course-match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
@@ -334,8 +380,17 @@ export default function Dashboard() {
           </div>
 
           {courseMatchesLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            <div className="space-y-2">
+              {[0, 1].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                  <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-3/5" />
+                    <div className="h-3 bg-gray-100 rounded w-2/5" />
+                  </div>
+                  <div className="h-4 w-10 bg-gray-100 rounded-full" />
+                </div>
+              ))}
             </div>
           ) : courseMatches.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
@@ -392,7 +447,8 @@ export default function Dashboard() {
         {/* Saved Case Study Ideas */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <LightbulbIcon className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
               Saved Case Study Ideas
             </h2>
             {savedIdeas.length > 0
@@ -402,8 +458,16 @@ export default function Dashboard() {
           </div>
 
           {savedIdeasLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            <div className="space-y-2">
+              {[0, 1].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                  <div className="w-9 h-9 rounded-full bg-gray-200 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : savedIdeas.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
@@ -459,7 +523,8 @@ export default function Dashboard() {
         {/* Saved Faculty */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <BookmarkIcon filled={false} className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
               My Saved Faculty
             </h2>
             <Link to="/faculty" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
@@ -468,8 +533,16 @@ export default function Dashboard() {
           </div>
 
           {savedLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
+            <div className="space-y-2">
+              {[0, 1].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-100 rounded w-2/5" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : savedFaculty.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">

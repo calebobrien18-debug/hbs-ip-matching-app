@@ -116,7 +116,7 @@ export default function Faculty() {
   const hasFilters = query || selectedUnit || selectedTags.size > 0
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-6xl mx-auto px-4 py-10">
         {/* Header skeleton */}
@@ -146,7 +146,7 @@ export default function Faculty() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
 
       {/* ── Sticky filter bar ── */}
