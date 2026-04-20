@@ -1,7 +1,13 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './index.css'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
 import Layout from './components/Layout.jsx'
 import Landing from './pages/Landing.jsx'
 import AuthCallback from './pages/AuthCallback.jsx'
@@ -20,6 +26,7 @@ import CourseMatch from './pages/CourseMatch.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Public — Landing handles its own layout + footer */}
         <Route path="/" element={<Landing />} />
