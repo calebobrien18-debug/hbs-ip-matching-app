@@ -427,8 +427,12 @@ export default function Matching() {
 
         {/* Empty state when all matches removed */}
         {matches.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center space-y-3">
-            <p className="text-sm text-gray-500">All matches removed from this run.</p>
+          <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
+            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+              <SparklesIcon className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-600">All matches removed</p>
+            <p className="text-xs text-gray-400 mt-1 mb-4">Run a fresh match to get a new set of results.</p>
             <button
               type="button"
               onClick={handleMatch}
@@ -549,7 +553,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
   const strengthLabel = STRENGTH_LABELS[match.match_strength] ?? 'Match'
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${STRENGTH_ACCENT[match.match_strength] ?? STRENGTH_ACCENT.good} p-6 space-y-5`}>
+    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${STRENGTH_ACCENT[match.match_strength] ?? STRENGTH_ACCENT.good} p-6 space-y-5 hover:-translate-y-0.5 hover:shadow-md transition-all`}>
 
       {/* Header row */}
       <div className="flex items-start gap-4">

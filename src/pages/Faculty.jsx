@@ -283,11 +283,15 @@ export default function Faculty() {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <p className="text-gray-400 text-sm">No faculty matched your search.</p>
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+              <SearchIcon className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-600">No faculty matched your filters</p>
+            <p className="text-xs text-gray-400 mt-1">Try a different search term or clear the active filters.</p>
             <button
               type="button"
               onClick={() => { setQuery(''); setSelectedUnit(null); clearTags() }}
-              className="mt-3 text-sm font-medium cursor-pointer text-crimson"
+              className="mt-4 text-sm font-medium cursor-pointer text-crimson"
             >
               Clear filters
             </button>
@@ -413,7 +417,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
     <Link
       to={`/faculty/${f.id}`}
       className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3
-                 hover:shadow-md hover:border-gray-300 transition-all block relative group"
+                 hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 transition-all block relative group"
     >
       {/* Save button with tooltip */}
       <div className="absolute top-4 right-4 group/save-tip">

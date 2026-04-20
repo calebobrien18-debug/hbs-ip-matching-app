@@ -292,10 +292,14 @@ export default function Dashboard() {
               ))}
             </div>
           ) : matches.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-gray-500">No matches yet.</p>
-              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-crimson">
-                Find your faculty matches →
+            <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-10 text-center">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <SparklesIcon className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">No faculty matches yet</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Run the AI matching tool to find professors whose research aligns with your goals.</p>
+              <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
+                Find your matches →
               </Link>
             </div>
           ) : (
@@ -305,7 +309,7 @@ export default function Dashboard() {
                 if (!f) return null
                 return (
                   <li key={m.id}>
-                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-gray-300 hover:shadow-sm transition-all group">
+                    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-gray-300 hover:shadow-sm hover:-translate-y-px transition-all group">
 
                       {/* Rank badge */}
                       <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0">
@@ -393,10 +397,14 @@ export default function Dashboard() {
               ))}
             </div>
           ) : courseMatches.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-gray-500">No course picks yet.</p>
-              <Link to="/course-match" className="mt-3 inline-block text-sm font-medium text-crimson">
-                Discover electives for your EC year →
+            <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-10 text-center">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <BookOpenIcon className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">No course picks yet</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Discover electives tailored to your interests and career path.</p>
+              <Link to="/course-match" className="mt-4 inline-block text-sm font-medium text-crimson">
+                Explore electives →
               </Link>
             </div>
           ) : (
@@ -408,7 +416,7 @@ export default function Dashboard() {
                   <li key={m.id}>
                     <Link
                       to="/course-match"
-                      className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/40 hover:shadow-sm transition-all group"
+                      className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/40 hover:shadow-sm hover:-translate-y-px transition-all group"
                     >
                       {/* Rank badge */}
                       <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -470,10 +478,14 @@ export default function Dashboard() {
               ))}
             </div>
           ) : savedIdeas.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-gray-500">No saved ideas yet.</p>
-              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-crimson">
-                Explore your matches to generate ideas →
+            <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-10 text-center">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <LightbulbIcon className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">No saved ideas yet</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Generate case writing pitches from your faculty matches and save the ones worth pursuing.</p>
+              <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
+                Explore your matches →
               </Link>
             </div>
           ) : (
@@ -545,9 +557,13 @@ export default function Dashboard() {
               ))}
             </div>
           ) : savedFaculty.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-gray-500">No saved faculty yet.</p>
-              <Link to="/faculty" className="mt-3 inline-block text-sm font-medium text-crimson">
+            <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-10 text-center">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <BookmarkIcon filled={false} className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">No saved faculty yet</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Bookmark professors you'd like to revisit from the faculty browse page.</p>
+              <Link to="/faculty" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Browse faculty →
               </Link>
             </div>

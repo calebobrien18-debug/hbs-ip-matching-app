@@ -5,7 +5,7 @@ import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedCourses } from '../lib/hooks'
 import { COURSE_DAILY_LIMIT as DAILY_LIMIT, STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS } from '../lib/constants'
 import {
-  SparklesIcon, RefreshIcon, ChevronIcon, BookmarkIcon,
+  SparklesIcon, RefreshIcon, ChevronIcon, BookmarkIcon, BookOpenIcon,
 } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
 
@@ -522,17 +522,24 @@ export default function CourseMatch() {
         )}
 
         {visibleMatches.length === 0 && matches.length > 0 && strengthFilter && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-8 text-center">
-            <p className="text-sm text-gray-500">No {STRENGTH_LABELS[strengthFilter].toLowerCase()} courses in this run.</p>
-            <button type="button" onClick={() => setStrengthFilter(null)} className="mt-2 text-sm text-crimson hover:opacity-70 cursor-pointer">
+          <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-8 text-center">
+            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+              <BookOpenIcon className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-600">No {STRENGTH_LABELS[strengthFilter].toLowerCase()} courses in this run</p>
+            <button type="button" onClick={() => setStrengthFilter(null)} className="mt-3 text-sm font-medium text-crimson cursor-pointer">
               Show all results
             </button>
           </div>
         )}
 
         {matches.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center space-y-3">
-            <p className="text-sm text-gray-500">No courses found for this run.</p>
+          <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
+            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+              <BookOpenIcon className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-600">No courses found for this run</p>
+            <p className="text-xs text-gray-400 mt-1 mb-4">Try steering your next run with specific interests to get more tailored results.</p>
             <button
               type="button"
               onClick={handleRun}
@@ -598,7 +605,7 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRu
   const strengthBorder = STRENGTH_ACCENT[match.match_strength] ?? 'border-l-crimson/40'
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${strengthBorder} p-6 space-y-4`}>
+    <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${strengthBorder} p-6 space-y-4 hover:-translate-y-0.5 hover:shadow-md transition-all`}>
 
       {/* Header: title + badges */}
       <div className="flex items-start justify-between gap-3 flex-wrap">

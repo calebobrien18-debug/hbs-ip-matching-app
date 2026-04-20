@@ -464,7 +464,11 @@ export default function CaseStudyIdeas() {
                 <button
                   type="button"
                   onClick={handleCopyDraft}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer bg-gray-900 text-white hover:bg-gray-700"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer ${
+                    copied
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-gray-900 text-white border-gray-900 hover:bg-gray-700'
+                  }`}
                 >
                   {copied ? (
                     <>
