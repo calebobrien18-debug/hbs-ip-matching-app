@@ -310,17 +310,16 @@ function ResearchTopicsDropdown({ tags, selectedTags, onToggle, onClear }) {
   const ref = useRef(null)
 
   useEffect(() => {
-    function handle(e) {
+    function handleMousedown(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [])
-
-  useEffect(() => {
-    function handle(e) { if (e.key === 'Escape') setOpen(false) }
-    document.addEventListener('keydown', handle)
-    return () => document.removeEventListener('keydown', handle)
+    function handleKeydown(e) { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', handleMousedown)
+    document.addEventListener('keydown', handleKeydown)
+    return () => {
+      document.removeEventListener('mousedown', handleMousedown)
+      document.removeEventListener('keydown', handleKeydown)
+    }
   }, [])
 
   const filtered = search.trim()

@@ -16,8 +16,8 @@ export const STRENGTH_ACCENT = {
 
 /** Human-readable labels for match strength values. */
 export const STRENGTH_LABELS = {
-  strong:      'Strong match',
-  good:        'Good match',
+  strong:      'Strong',
+  good:        'Good',
   exploratory: 'Exploratory',
 }
 

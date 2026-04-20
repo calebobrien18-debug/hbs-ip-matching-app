@@ -137,7 +137,7 @@ export default function SavedIdeas() {
   if (!session) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="px-4 py-10">
         <div className="max-w-2xl mx-auto space-y-8">
@@ -155,7 +155,7 @@ export default function SavedIdeas() {
             </div>
             <Link
               to="/match"
-              className="text-sm font-medium text-crimson hover:opacity-70 transition-opacity"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
               Generate more →
             </Link>
@@ -169,7 +169,7 @@ export default function SavedIdeas() {
           ) : ideas.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
               <p className="text-sm text-gray-500">No saved ideas yet.</p>
-              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-crimson">
+              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
                 Explore your matches to generate ideas →
               </Link>
             </div>
@@ -254,7 +254,7 @@ export default function SavedIdeas() {
                                   patchDraftState(fid, { selectedIds: new Set(groupIdeas.map(i => i.id)) })
                                 }
                               }}
-                              className="text-xs text-crimson hover:underline cursor-pointer"
+                              className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
                             >
                               {selectedIds.size === groupIdeas.length ? 'Deselect all' : 'Select all'}
                             </button>
@@ -388,7 +388,7 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
       <div className="flex items-center justify-between gap-3">
         <Link
           to={`/case-ideas/${idea.match_id}`}
-          className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity"
+          className="text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
         >
           Generate more ideas →
         </Link>
@@ -398,7 +398,7 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
           onClick={onDelete}
           disabled={deleting}
           title="Remove saved idea"
-          className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 disabled:opacity-40"
+          className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer flex-shrink-0 disabled:opacity-40"
         >
           {deleting ? (
             <div className="w-4 h-4 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
@@ -459,5 +459,4 @@ function SavedIdeaCard({ idea, deleting, onDelete }) {
   )
 }
 
-// ── Icons ──────────────────────────────────────────────────────────────────────
 

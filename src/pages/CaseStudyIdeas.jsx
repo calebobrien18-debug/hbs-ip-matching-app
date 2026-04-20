@@ -236,7 +236,7 @@ export default function CaseStudyIdeas() {
 
   // ── Loading / not-found states ────────────────────────────────────────────────
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
@@ -245,11 +245,11 @@ export default function CaseStudyIdeas() {
   )
 
   if (notFound) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-4">
         <p className="text-gray-500">Match not found. It may have been deleted or doesn't belong to your account.</p>
-        <Link to="/match" className="text-sm font-semibold text-crimson hover:opacity-70 transition-opacity">
+        <Link to="/match" className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
           ← Back to matches
         </Link>
       </div>
@@ -259,7 +259,7 @@ export default function CaseStudyIdeas() {
   const f = matchData?.faculty
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
 
@@ -382,7 +382,7 @@ export default function CaseStudyIdeas() {
                         setDraftSelectedIds(new Set(savedIdeasForFaculty.map(i => i.id)))
                       }
                     }}
-                    className="text-xs text-crimson hover:underline cursor-pointer"
+                    className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
                   >
                     {draftSelectedIds.size === savedIdeasForFaculty.length ? 'Deselect all' : 'Select all'}
                   </button>
@@ -691,5 +691,4 @@ function IdeaCard({ idea, index, isSaved, isSaving, onSave, onUnsave }) {
   )
 }
 
-// ── Icons ──────────────────────────────────────────────────────────────────────
 

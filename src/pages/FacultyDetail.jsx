@@ -78,7 +78,7 @@ export default function FacultyDetail() {
   , [publications, selectedPubType])
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-crimson animate-spin" />
@@ -88,7 +88,7 @@ export default function FacultyDetail() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 animate-fade-in">
         <NavBar />
         <div className="flex items-center justify-center py-32 px-4">
           <div className="text-center space-y-3">
@@ -104,7 +104,7 @@ export default function FacultyDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 animate-fade-in">
       <NavBar />
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
 
