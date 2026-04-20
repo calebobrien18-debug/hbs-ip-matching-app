@@ -1,0 +1,313 @@
+================================================================================
+PROFOUND — CRITIQUE BRIEF
+For an external LLM reviewer
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+-------------------------
+This file gives you everything you need to perform a critical review of ProFound:
+what it is, what was built, what design decisions were made, how the codebase is
+organized, and where to look for problems. A guide to accessing the files follows
+the project summary.
+
+
+--------------------------------------------------------------------------------
+1. WHAT IS PROFOUND?
+--------------------------------------------------------------------------------
+
+ProFound is an HBS MBA student tool (currently in private beta) for matching
+students with Harvard Business School faculty based on shared research interests.
+The core use cases are:
+
+  1. Faculty matching — an AI run (Claude Sonnet) reads the student's profile
+     (interests, resume, LinkedIn) and the HBS faculty database, then returns a
+     ranked list of faculty with match strength ratings (Strong / Good /
+     Exploratory) and written rationale.
+
+  2. Course matching — same AI pipeline but matches against the 2026–27 HBS
+     elective course catalog instead of faculty directly.
+
+  3. Case Study Idea Generator — given a specific student–faculty match, Claude
+     generates HBS teaching case concepts the student and professor could
+     co-develop, tailored to both parties' backgrounds.
+
+  4. Email draft tool — Claude drafts a cold outreach email to a professor
+     incorporating the student's saved case study ideas.
+
+The target user is an HBS MBA student (MBA 2027 cohort). The builder/sole
+developer is Caleb O'Brien (cobrien@mba2027.hbs.edu), who is also a user.
+
+
+--------------------------------------------------------------------------------
+2. TECH STACK
+--------------------------------------------------------------------------------
+
+Frontend:   React 19 + Vite, React Router v6, Tailwind CSS v4
+Backend:    Supabase (PostgreSQL + Row-Level Security + Auth + Edge Functions)
+AI:         Anthropic Claude claude-sonnet-4-5 via native fetch inside Supabase
+            Edge Functions (Deno runtime)
+Auth:       Google OAuth + email/password via Supabase Auth
+Hosting:    Vite dev server locally; Supabase cloud for DB + functions
+
+Key design constraints:
+  - Edge functions must be deployed with --no-verify-jwt (Supabase Auth issues
+    ES256 JWTs but the default gateway verifies HS256)
+  - Rate limiting is enforced via event-log tables + UTC day count queries
+    (not middleware), e.g. max 3 faculty match runs/day, 5 course match runs/day,
+    10 email drafts/day
+  - Google OAuth app is in "External" mode — test users must be manually added
+    in Google Cloud Console
+
+Brand token: --color-crimson: #A51C30 (HBS crimson), defined in src/index.css
+
+
+--------------------------------------------------------------------------------
+3. REPOSITORY STRUCTURE
+--------------------------------------------------------------------------------
+
+Root: C:\Users\caleb\repos\hbs-ip-matching-app\
+
+src/
+  index.css               — @theme tokens (crimson, animate-fade-in), global styles
+  main.jsx                — Router setup, ScrollToTop component
+  pages/
+    Landing.jsx           — Two-column auth page (crimson left + form right)
+    Dashboard.jsx         — User home: profile status, matches, courses, saved ideas
+    Faculty.jsx           — Browse + filter 276+ HBS faculty (sticky bar, skeleton load)
+    FacultyDetail.jsx     — Individual faculty profile: bio, tags, courses, publications
+    Matching.jsx          — Run + view AI faculty match results
+    CourseMatch.jsx       — Run + view AI course match results
+    CaseStudyIdeas.jsx    — Generate + save case study ideas for a given match
+    SavedIdeas.jsx        — Library of saved ideas + email draft panel
+    ProfileNew.jsx        — Onboarding: create student profile
+    ProfileEdit.jsx       — Edit existing profile
+    ProfileDetail.jsx     — Read-only profile view
+    AdminFeedback.jsx     — Admin-only feedback log
+    AuthCallback.jsx      — OAuth callback handler
+  components/
+    NavBar.jsx            — Sticky top nav, active underline state
+    ProFoundLogo.jsx      — SVG wordmark ("Pro" charcoal + "Found" crimson/white)
+    Icons.jsx             — All SVG icon components
+    Layout.jsx            — Wraps authenticated pages, appends Footer
+    Footer.jsx            — Feedback form + copyright
+  lib/
+    supabase.js           — Supabase client init
+    hooks.js              — useRequireAuth, useSavedFaculty, useSavedCourses
+    constants.js          — STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS,
+                            DAILY_LIMIT, COURSE_DAILY_LIMIT, EMAIL_DAILY_LIMIT
+    edgeFunction.js       — invokeEdgeFunction() helper (auth + error handling)
+    utils.js              — initials(), lastName(), isNavContent()
+    pdf.js                — Client-side PDF text extraction
+
+supabase/
+  functions/
+    generate-matches/     — Faculty matching edge function (Claude)
+    generate-course-matches/ — Course matching edge function (Claude)
+    generate-case-ideas/  — Case study idea generation edge function (Claude)
+    generate-email-draft/ — Email draft generation edge function (Claude)
+    _shared/mod.ts        — Shared Supabase admin client
+  migrations/             — 023 migrations total (001–023); schema history
+
+scripts/                  — Python scraper + raw data for course catalog ingestion
+
+
+--------------------------------------------------------------------------------
+4. DATABASE SCHEMA (key tables)
+--------------------------------------------------------------------------------
+
+hbs_ip              — Student profiles (user_id FK, name, email, program, interests,
+                      resume_text, linkedin_text, etc.)
+faculty             — 276+ HBS faculty (name, unit, bio, email, image_url, etc.)
+faculty_tags        — Many-to-many: faculty ↔ research topic strings
+faculty_publications — Publications per faculty (title, year, pub_type, url, journal)
+faculty_courses     — Course offerings per faculty (title, number, term, credits, desc)
+match_runs          — Each AI faculty match run (user_id, created_at)
+faculty_matches     — Individual match results (run_id, faculty_id, rank, strength,
+                      match_reasons[], collaboration_ideas[])
+course_match_runs   — Each AI course match run
+course_matches      — Individual course match results
+saved_faculty       — User bookmarks on faculty
+saved_courses       — User bookmarks on courses
+saved_case_ideas    — Saved case study idea cards
+case_idea_runs      — Rate-limit log for idea generation
+email_draft_runs    — Rate-limit log for email drafts
+feedback            — In-app feedback submissions
+admins              — Admin user whitelist
+
+
+--------------------------------------------------------------------------------
+5. DESIGN SYSTEM
+--------------------------------------------------------------------------------
+
+Typography: Inter only throughout (400/500/600/700). Instrument Serif is loaded
+but not used in the UI (was trialed and removed).
+
+Color rule (enforced): Crimson (#A51C30) is reserved for:
+  - Primary action buttons
+  - Active/selected states (nav underline, filter pills, bookmark filled)
+  - Unit badge chips and left-border accents on match cards
+  Secondary interactive elements (utility links, view-profile arrows, back links,
+  select-all toggles) use gray (text-gray-500/700).
+
+Component patterns:
+  - Skeleton loading (animate-pulse) on Faculty browse + Dashboard sections
+  - animate-fade-in (220ms ease-out, 6px Y drift) on every page root div
+  - hover:-translate-y-0.5 + hover:shadow-md lift on all cards and list rows
+  - Sticky filter bar at top-14 (below NavBar h-14) on Faculty page
+  - AbortController cancel pattern on all AI generation flows
+  - Optimistic UI updates on all save/unsave/delete operations
+
+Strength tiers: Strong (green-700/white) / Good (green-100/green-800) /
+Exploratory (green-50/green-600). Defined in src/lib/constants.js.
+
+
+--------------------------------------------------------------------------------
+6. WORK DONE IN THIS SESSION (chronological)
+--------------------------------------------------------------------------------
+
+The following changes were made in the Claude Code session being reviewed.
+Each maps to a git commit in the repository.
+
+COMMIT fb25324 — design: filter pill fade transition + crimson overuse audit
+  - Added 150ms opacity fade when strength filter pills are clicked in Matching
+    and CourseMatch (listVisible state + useEffect pattern)
+  - Crimson audit pass 1: Faculty "View profile →", "Clear filters"; Dashboard
+    arrow icons; Matching "View full profile →"; CourseMatch "Show all results",
+    "View professor profile →" all changed from crimson to gray
+
+COMMIT 7335c1f — fix: deduplicate courses, consolidate STRENGTH_LABELS, clean up FacultyDetail
+  - FacultyDetail: deduplicate faculty_courses by course_number ?? course_title
+    (initial attempt — had a bug, see next commit)
+  - Dashboard: removed local STRENGTH_LABELS copy, now imports from constants.js
+  - FacultyDetail: simplified PubTypePill component (dropped redundant typeStyle prop)
+  - FacultyDetail crimson audit: back link, HBS Profile link, bookmark hover → gray
+  - Deleted dead file ProfFoundLogo.jsx (unreferenced magnifying glass SVG)
+
+COMMIT 3e02fa2 — fix: deduplicate courses by title, keeping shorter description
+  - Bug found: the course_number key caused the previous dedup to fail for Ryan
+    Buell (one row had course_number=null, another had course_number="2120" for
+    the same course). Root cause: the key was course_number ?? course_title, so
+    two rows with different numbers produced different keys.
+  - Fix: sort by description length ascending, deduplicate by trimmed course_title
+    only (shortest description wins).
+
+COMMIT c1371eb — fix: scroll to top on every route change
+  - Added ScrollToTop component in main.jsx (useLocation + useEffect calling
+    window.scrollTo(0,0) on pathname change). Placed inside BrowserRouter.
+
+COMMIT 4fbc3c3 — polish: strength labels, fade-ins, crimson cleanup, useEffect merge
+  - STRENGTH_LABELS in constants.js: "Strong match"/"Good match" → "Strong"/"Good"
+    (was too verbose for compact badge chips)
+  - animate-fade-in added to FacultyDetail, CaseStudyIdeas, SavedIdeas root divs
+  - Crimson audit pass 2: SavedIdeas + CaseStudyIdeas secondary links → gray;
+    trash/delete button hover → red (hover:text-red-500) to match Dashboard pattern
+  - Dead // ── Icons ── comment artifacts removed from CaseStudyIdeas + SavedIdeas
+  - ResearchTopicsDropdown (Faculty.jsx): merged two separate useEffect dismiss
+    handlers (mousedown + keydown) into one
+
+
+--------------------------------------------------------------------------------
+7. KNOWN LIMITATIONS / THINGS NOT ADDRESSED
+--------------------------------------------------------------------------------
+
+  - No automated tests of any kind (unit, integration, e2e)
+  - No error boundary components — unhandled React errors will show a blank page
+  - The faculty database is populated via a Python/Playwright scraper (not in
+    active use during this session); data freshness is manual
+  - Supabase free tier row limit (100 rows per query) affects any table fetch
+    that doesn't paginate — faculty_tags and faculty_publications are fetched in
+    full without pagination
+  - The bio stripping heuristic (stripBioHeader in FacultyDetail.jsx) uses last-
+    name pattern matching and can misfire on unusual name formats
+  - Google OAuth is still in "External" mode (not published) — only manually
+    added test users can sign in via Google
+  - No mobile-specific testing was done; layout is responsive but untested on
+    real devices
+  - The course deduplication fix is client-side; the database still contains
+    duplicate rows for some faculty courses
+
+
+--------------------------------------------------------------------------------
+8. HOW TO ACCESS THE CODEBASE
+--------------------------------------------------------------------------------
+
+The repository lives at:
+  C:\Users\caleb\repos\hbs-ip-matching-app\
+
+To read the source, open any file in that directory tree. Key starting points:
+
+  Full source file list (all .jsx and .js files):
+    src/main.jsx
+    src/index.css
+    src/pages/Landing.jsx, Dashboard.jsx, Faculty.jsx, FacultyDetail.jsx,
+               Matching.jsx, CourseMatch.jsx, CaseStudyIdeas.jsx, SavedIdeas.jsx,
+               ProfileNew.jsx, ProfileEdit.jsx, ProfileDetail.jsx,
+               AdminFeedback.jsx, AuthCallback.jsx
+    src/components/NavBar.jsx, ProFoundLogo.jsx, Icons.jsx, Layout.jsx, Footer.jsx
+    src/lib/supabase.js, hooks.js, constants.js, edgeFunction.js, utils.js, pdf.js
+    supabase/functions/generate-matches/index.ts
+    supabase/functions/generate-course-matches/index.ts
+    supabase/functions/generate-case-ideas/index.ts
+    supabase/functions/generate-email-draft/index.ts
+    supabase/functions/_shared/mod.ts
+    supabase/migrations/001_create_hbs_ip.sql through 023_course_match_strength.sql
+
+  Git history (most recent commits first):
+    Run: git -C "C:\Users\caleb\repos\hbs-ip-matching-app" log --oneline
+    The 5 commits from this session are the top 5 entries.
+
+  To diff this session's work against the baseline:
+    git -C "C:\Users\caleb\repos\hbs-ip-matching-app" diff 47ee7ed HEAD
+    (47ee7ed is the commit immediately before this session's work began)
+
+  To read a specific file, open it directly at its absolute path above.
+
+  Environment/credentials:
+    .env at the repo root contains VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY,
+    SUPABASE_SERVICE_ROLE_KEY, and ANTHROPIC_API_KEY. Do not share these publicly.
+
+  To run the app locally:
+    cd C:\Users\caleb\repos\hbs-ip-matching-app
+    npm run dev
+    Then open http://localhost:5173
+
+
+--------------------------------------------------------------------------------
+9. SUGGESTED CRITIQUE ANGLES
+--------------------------------------------------------------------------------
+
+The reviewer may find it useful to consider:
+
+  CODE QUALITY
+    - Are there remaining inconsistencies in the crimson color rule?
+    - Is the listVisible fade pattern (useState + setTimeout) the right approach,
+      or would a CSS-only solution or a library be cleaner?
+    - Is the course deduplication logic (client-side, by title) robust enough, or
+      should it be enforced at the database level with a unique constraint?
+    - Are the two saved-state hooks (useSavedFaculty, useSavedCourses) too similar
+      to not be abstracted into a single generic hook?
+
+  ARCHITECTURE
+    - Should the AI calls live in Supabase Edge Functions (Deno) or move to a
+      Node.js backend? What are the tradeoffs given the current rate-limiting model?
+    - Is Supabase the right long-term choice, or would a more traditional backend
+      serve this use case better?
+    - The app has no React context or global state store — all state is local or
+      prop-drilled. Is this sustainable as the app grows?
+
+  UX / PRODUCT
+    - Is the three-step flow (profile → match → case ideas → email) clear to a
+      new user, or does it require too much discovery?
+    - Are the rate limits (3 faculty matches/day, 5 course matches/day) well-
+      calibrated for the use case?
+    - Does the "How it works" collapsible add value or create friction?
+
+  SECURITY
+    - Are there any obvious RLS (Row Level Security) gaps in the Supabase schema?
+    - The service role key is used in scripts — is this handled safely?
+    - Are the edge functions adequately validating user input before passing it
+      to Claude?
+
+================================================================================
+END OF BRIEF
+================================================================================
