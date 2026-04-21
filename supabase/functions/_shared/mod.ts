@@ -52,6 +52,43 @@ export async function callClaude(params: {
   return data.content[0].text.trim()
 }
 
+// ── Auth / API key helpers ────────────────────────────────────────────────────
+
+/**
+ * Returns a 500 error Response if ANTHROPIC_API_KEY is not set, otherwise null.
+ * Call at the top of each edge function handler before doing any work.
+ */
+export function checkAnthropicKey(): Response | null {
+  if (!Deno.env.get('ANTHROPIC_API_KEY')) {
+    console.error('ANTHROPIC_API_KEY is not set')
+    return jsonResponse({ error: 'Server configuration error: Anthropic API key missing.' }, 500)
+  }
+  return null
+}
+
+/**
+ * Extracts the Bearer token from the Authorization header, calls getUser, and
+ * returns either the authenticated user or a ready-to-return 401 Response.
+ *
+ * Usage:
+ *   const { user, errorResponse } = await requireAuth(req, supabase)
+ *   if (errorResponse) return errorResponse
+ */
+export async function requireAuth(
+  req: Request,
+  // deno-lint-ignore no-explicit-any
+  supabaseClient: any
+): Promise<{ user: { id: string; [key: string]: unknown } | null; errorResponse: Response | null }> {
+  const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
+  if (!token) return { user: null, errorResponse: jsonResponse({ error: 'Unauthorized' }, 401) }
+  const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+  if (authError || !user) {
+    if (authError) console.error('Auth error:', authError.message)
+    return { user: null, errorResponse: jsonResponse({ error: 'Unauthorized' }, 401) }
+  }
+  return { user, errorResponse: null }
+}
+
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 /** Returns a Date set to the start of the current UTC day (00:00:00.000). */

@@ -27,20 +27,105 @@ export function useIsAdmin() {
 /**
  * Redirects unauthenticated users to the landing page.
  * Returns the Supabase session once resolved, or null while the check is in flight.
+ * Subscribes to auth state changes so sign-outs propagate without a page reload.
  */
 export function useRequireAuth() {
   const navigate = useNavigate()
   const [session, setSession] = useState(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/', { replace: true })
-      else setSession(session)
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (!s) navigate('/', { replace: true })
+      else setSession(s)
     })
+
+    // Subscribe to future auth changes (e.g. sign-out in another tab)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      if (!s) navigate('/', { replace: true })
+      else setSession(s)
+    })
+
+    return () => subscription.unsubscribe()
   }, [navigate])
 
   return session
 }
+
+// ── Generic saved-items hook ──────────────────────────────────────────────────
+
+/**
+ * Internal generic hook for saved-item sets backed by a Supabase table.
+ * Handles load, optimistic toggle, and rollback for both insert and delete failures.
+ *
+ * @param {string} tableName  - e.g. 'saved_faculty'
+ * @param {string} fieldKey   - the ID column name, e.g. 'faculty_id'
+ * @param {object|null} session - Supabase session from useRequireAuth
+ */
+function useSavedItems(tableName, fieldKey, session) {
+  const [ids, setIds] = useState(new Set())
+
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from(tableName)
+      .select(fieldKey)
+      .eq('user_id', session.user.id)
+      .then(({ data, error }) => {
+        if (error) { console.error(`[${tableName}] load error:`, error); return }
+        setIds(new Set((data ?? []).map(r => r[fieldKey])))
+      })
+  }, [session, tableName, fieldKey])
+
+  async function toggle(itemId) {
+    if (!session) return
+
+    // Determine current state from the latest set to avoid stale-closure bugs
+    setIds(prev => {
+      const next = new Set(prev)
+      if (prev.has(itemId)) next.delete(itemId)
+      else next.add(itemId)
+      return next
+    })
+
+    // Re-read the current saved state to decide which DB op to run
+    // We use a local snapshot before the optimistic update for the decision
+    const { data: existing } = await supabase
+      .from(tableName)
+      .select(fieldKey)
+      .eq('user_id', session.user.id)
+      .eq(fieldKey, itemId)
+      .maybeSingle()
+
+    const wasSaved = !!existing
+
+    if (wasSaved) {
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq(fieldKey, itemId)
+      if (error) {
+        console.error(`[${tableName}] delete error:`, error)
+        // Rollback: restore the item
+        setIds(prev => { const next = new Set(prev); next.add(itemId); return next })
+      }
+    } else {
+      const { error } = await supabase
+        .from(tableName)
+        .insert({ user_id: session.user.id, [fieldKey]: itemId })
+      if (error) {
+        console.error(`[${tableName}] insert error:`, error)
+        // Rollback: remove the item
+        setIds(prev => { const next = new Set(prev); next.delete(itemId); return next })
+      }
+    }
+  }
+
+  return { ids, toggle }
+}
+
+// ── Public wrappers ───────────────────────────────────────────────────────────
 
 /**
  * Loads the current user's saved faculty IDs and provides a toggle function.
@@ -52,50 +137,7 @@ export function useRequireAuth() {
  *   toggleSave(facultyId)     // async, no return value needed
  */
 export function useSavedFaculty(session) {
-  const [savedIds, setSavedIds] = useState(new Set())
-
-  useEffect(() => {
-    if (!session) return
-    supabase
-      .from('saved_faculty')
-      .select('faculty_id')
-      .eq('user_id', session.user.id)
-      .then(({ data, error }) => {
-        if (error) { console.error('[useSavedFaculty] load error:', error); return }
-        setSavedIds(new Set((data ?? []).map(r => r.faculty_id)))
-      })
-  }, [session])
-
-  async function toggleSave(facultyId) {
-    if (!session) return
-    const isSaved = savedIds.has(facultyId)
-
-    // Optimistic update
-    setSavedIds(prev => {
-      const next = new Set(prev)
-      isSaved ? next.delete(facultyId) : next.add(facultyId)
-      return next
-    })
-
-    if (isSaved) {
-      const { error } = await supabase
-        .from('saved_faculty')
-        .delete()
-        .eq('user_id', session.user.id)
-        .eq('faculty_id', facultyId)
-      if (error) console.error('[useSavedFaculty] delete error:', error)
-    } else {
-      const { error } = await supabase
-        .from('saved_faculty')
-        .insert({ user_id: session.user.id, faculty_id: facultyId })
-      if (error) {
-        console.error('[useSavedFaculty] insert error:', error)
-        // Roll back the optimistic update if the insert failed
-        setSavedIds(prev => { const next = new Set(prev); next.delete(facultyId); return next })
-      }
-    }
-  }
-
+  const { ids: savedIds, toggle: toggleSave } = useSavedItems('saved_faculty', 'faculty_id', session)
   return { savedIds, toggleSave }
 }
 
@@ -109,49 +151,6 @@ export function useSavedFaculty(session) {
  *   toggleSaveCourse(courseId)     // async
  */
 export function useSavedCourses(session) {
-  const [savedCourseIds, setSavedCourseIds] = useState(new Set())
-
-  useEffect(() => {
-    if (!session) return
-    supabase
-      .from('saved_courses')
-      .select('course_id')
-      .eq('user_id', session.user.id)
-      .then(({ data, error }) => {
-        if (error) { console.error('[useSavedCourses] load error:', error); return }
-        setSavedCourseIds(new Set((data ?? []).map(r => r.course_id)))
-      })
-  }, [session])
-
-  async function toggleSaveCourse(courseId) {
-    if (!session) return
-    const isSaved = savedCourseIds.has(courseId)
-
-    // Optimistic update
-    setSavedCourseIds(prev => {
-      const next = new Set(prev)
-      isSaved ? next.delete(courseId) : next.add(courseId)
-      return next
-    })
-
-    if (isSaved) {
-      const { error } = await supabase
-        .from('saved_courses')
-        .delete()
-        .eq('user_id', session.user.id)
-        .eq('course_id', courseId)
-      if (error) console.error('[useSavedCourses] delete error:', error)
-    } else {
-      const { error } = await supabase
-        .from('saved_courses')
-        .insert({ user_id: session.user.id, course_id: courseId })
-      if (error) {
-        console.error('[useSavedCourses] insert error:', error)
-        // Roll back optimistic update
-        setSavedCourseIds(prev => { const next = new Set(prev); next.delete(courseId); return next })
-      }
-    }
-  }
-
+  const { ids: savedCourseIds, toggle: toggleSaveCourse } = useSavedItems('saved_courses', 'course_id', session)
   return { savedCourseIds, toggleSaveCourse }
 }

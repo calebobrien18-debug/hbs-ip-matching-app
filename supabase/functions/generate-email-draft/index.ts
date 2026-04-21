@@ -18,7 +18,7 @@
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { CORS, jsonResponse, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
+import { CORS, jsonResponse, checkAnthropicKey, requireAuth, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -49,22 +49,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     // ── 0. Guard: API key ─────────────────────────────────────────────────────
-    if (!ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY is not set')
-      return jsonResponse({ error: 'Server configuration error: Anthropic API key missing.' }, 500)
-    }
+    const keyErr = checkAnthropicKey()
+    if (keyErr) return keyErr
     console.log('Step 0: API key present')
 
     // ── 1. Authenticate ───────────────────────────────────────────────────────
-    const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
-    if (!token) return jsonResponse({ error: 'Unauthorized' }, 401)
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      console.error('Auth error:', authError?.message)
-      return jsonResponse({ error: 'Unauthorized' }, 401)
-    }
-    console.log('Step 1: Authenticated', user.id)
+    const { user, errorResponse: authErr } = await requireAuth(req, supabase)
+    if (authErr) return authErr
+    console.log('Step 1: Authenticated', user!.id)
 
     // ── 2. Parse request body ─────────────────────────────────────────────────
     let faculty_id: string
@@ -84,7 +76,7 @@ Deno.serve(async (req: Request) => {
     const { count: todayCount } = await supabase
       .from('email_draft_runs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
     console.log('Step 3: email drafts today:', todayCount)
@@ -107,12 +99,12 @@ Deno.serve(async (req: Request) => {
         .maybeSingle(),
       supabase.from('hbs_ip')
         .select('first_name, last_name, program, graduation_year, professional_interests, additional_background, resume_text')
-        .eq('user_id', user.id)
+        .eq('user_id', user!.id)
         .maybeSingle(),
       supabase.from('saved_case_ideas')
-        .select('id, title, premise, student_angle')
+        .select('id, title, premise, student_angle, faculty_id')
         .in('id', idea_ids)
-        .eq('user_id', user.id),   // ownership check
+        .eq('user_id', user!.id),   // ownership check
     ])
 
     if (fe)  throw fe
@@ -125,12 +117,18 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'No matching ideas found.' }, 404)
     }
 
+    // Verify all selected ideas belong to the requested faculty — reject cross-faculty selections
+    const crossFacultyIdeas = ideaRows.filter((r: { faculty_id: string }) => r.faculty_id !== faculty_id)
+    if (crossFacultyIdeas.length > 0) {
+      return jsonResponse({ error: 'All selected ideas must belong to the same faculty member.' }, 400)
+    }
+
     console.log('Step 4: data loaded — faculty:', facultyRow.name, 'ideas:', ideaRows.length)
 
     // ── 5. Insert email_draft_runs row ────────────────────────────────────────
     const { error: runInsertErr } = await supabase
       .from('email_draft_runs')
-      .insert({ user_id: user.id, faculty_id })
+      .insert({ user_id: user!.id, faculty_id })
 
     if (runInsertErr) throw runInsertErr
     console.log('Step 5: email_draft_runs row inserted')
@@ -209,12 +207,18 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'Email generation returned an unexpected response. Please try again.' }, 500)
     }
 
-    if (!result.subject || !result.body) {
+    const subject = result.subject?.trim() ?? ''
+    const body = result.body?.trim() ?? ''
+    if (!subject || !body) {
       return jsonResponse({ error: 'Email generation returned an incomplete response. Please try again.' }, 500)
     }
 
-    console.log('Step 7: returning draft, subject:', result.subject.slice(0, 60))
-    return jsonResponse({ subject: result.subject, body: result.body, draftsToday: (todayCount ?? 0) + 1 })
+    console.log('Step 7: returning draft, subject:', subject.slice(0, 60))
+    return jsonResponse({
+      subject: subject.slice(0, 200),
+      body: body.slice(0, 5000),
+      draftsToday: (todayCount ?? 0) + 1,
+    })
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

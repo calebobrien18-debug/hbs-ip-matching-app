@@ -19,7 +19,7 @@
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { CORS, jsonResponse, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
+import { CORS, jsonResponse, checkAnthropicKey, requireAuth, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -37,22 +37,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     // ── 0. Guard: API key ─────────────────────────────────────────────────────
-    if (!ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY is not set')
-      return jsonResponse({ error: 'Server configuration error: Anthropic API key missing.' }, 500)
-    }
+    const keyErr = checkAnthropicKey()
+    if (keyErr) return keyErr
     console.log('Step 0: API key present')
 
     // ── 1. Authenticate ───────────────────────────────────────────────────────
-    const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
-    if (!token) return jsonResponse({ error: 'Unauthorized' }, 401)
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      console.error('Auth error:', authError?.message)
-      return jsonResponse({ error: 'Unauthorized' }, 401)
-    }
-    console.log('Step 1: Authenticated', user.id)
+    const { user, errorResponse: authErr } = await requireAuth(req, supabase)
+    if (authErr) return authErr
+    console.log('Step 1: Authenticated', user!.id)
 
     // ── 2. Parse request body ─────────────────────────────────────────────────
     let match_id: string
@@ -71,7 +63,7 @@ Deno.serve(async (req: Request) => {
     const { count: todayCount } = await supabase
       .from('case_idea_runs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
     console.log('Step 3: runs today:', todayCount)
@@ -115,7 +107,7 @@ Deno.serve(async (req: Request) => {
       supabase.from('faculty_courses').select('course_title').eq('faculty_id', facultyId),
       supabase.from('hbs_ip').select(
         'professional_interests, additional_background, program, graduation_year, resume_text, linkedin_text'
-      ).eq('user_id', user.id).maybeSingle(),
+      ).eq('user_id', user!.id).maybeSingle(),
     ])
 
     if (fe) throw fe; if (te) throw te; if (pe) throw pe; if (coe) throw coe; if (pre) throw pre
@@ -128,7 +120,7 @@ Deno.serve(async (req: Request) => {
     // ── 6. Insert case_idea_runs row (counts attempt before calling Claude) ───
     const { error: runInsertErr } = await supabase
       .from('case_idea_runs')
-      .insert({ user_id: user.id, match_id })
+      .insert({ user_id: user!.id, match_id })
 
     if (runInsertErr) throw runInsertErr
     console.log('Step 6: case_idea_runs row inserted')
@@ -221,13 +213,32 @@ Each item in the array must have exactly these keys:
     }
 
     ideas = (Array.isArray(ideas) ? ideas : [])
-      .filter(i =>
-        i.title && i.premise && i.protagonist &&
-        Array.isArray(i.teaching_themes) && i.student_angle && i.faculty_angle
-      )
+      .filter(i => {
+        if (!i.title?.trim() || !i.premise?.trim() || !i.protagonist?.trim()) return false
+        if (!i.student_angle?.trim() || !i.faculty_angle?.trim()) return false
+        if (!Array.isArray(i.teaching_themes)) return false
+        if (!i.teaching_themes.some((t: unknown) => typeof t === 'string' && (t as string).trim())) return false
+        return true
+      })
       .slice(0, 4)
+      .map(i => ({
+        ...i,
+        title: i.title.trim(),
+        premise: i.premise.trim(),
+        protagonist: i.protagonist.trim(),
+        student_angle: i.student_angle.trim(),
+        faculty_angle: i.faculty_angle.trim(),
+        teaching_themes: (i.teaching_themes as string[])
+          .filter(t => typeof t === 'string' && t.trim())
+          .map(t => t.trim())
+          .slice(0, 3),
+      }))
 
-    console.log('Step 8: parsed', ideas.length, 'ideas, returning')
+    if (ideas.length === 0) {
+      return jsonResponse({ error: 'Could not generate valid case study ideas. Please try again.' }, 500)
+    }
+
+    console.log('Step 8: validated', ideas.length, 'ideas, returning')
     return jsonResponse({ ideas, runsToday: (todayCount ?? 0) + 1 })
 
   } catch (err) {

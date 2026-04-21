@@ -35,9 +35,10 @@ export default function CaseStudyIdeas() {
   const [ideasToday, setIdeasToday]   = useState(0)
   const limitReached = ideasToday >= DAILY_LIMIT
 
-  // Saved ideas — Map<idea.title, saved_case_ideas.id | 'optimistic'>
+  // Saved ideas — Map<idea._key, saved_case_ideas.id | 'optimistic'>
+  // _key is derived from title+premise+protagonist for stable identity across duplicate titles
   const [savedIdeaMap, setSavedIdeaMap]   = useState(new Map())
-  const [savingIdeaTitle, setSavingIdeaTitle] = useState(null)  // title of in-flight save
+  const [savingIdeaKey, setSavingIdeaKey] = useState(null)  // _key of in-flight save
 
   // Email draft state
   const [draftPanelOpen, setDraftPanelOpen]             = useState(false)
@@ -72,7 +73,7 @@ export default function CaseStudyIdeas() {
           .gte('created_at', todayStart.toISOString()),
         supabase
           .from('saved_case_ideas')
-          .select('id, title')
+          .select('id, title, premise, protagonist')
           .eq('match_id', matchId)
           .eq('user_id', session.user.id),
         supabase
@@ -86,7 +87,10 @@ export default function CaseStudyIdeas() {
       setMatchData(match)
       setIdeasToday(count ?? 0)
       setEmailsToday(emailCount ?? 0)
-      setSavedIdeaMap(new Map((savedRows ?? []).map(r => [r.title, r.id])))
+      setSavedIdeaMap(new Map((savedRows ?? []).map(r => [
+        [r.title, r.premise, r.protagonist].join('|'),
+        r.id,
+      ])))
       setLoading(false)
     }
     load()
@@ -112,16 +116,20 @@ export default function CaseStudyIdeas() {
         match_id: matchId, user_context: userContext.trim().slice(0, 1000),
       })
 
-      const newIdeas = data.ideas ?? []
+      // Assign stable composite key to each idea for save/unsave identity
+      const newIdeas = (data.ideas ?? []).map(idea => ({
+        ...idea,
+        _key: [idea.title, idea.premise, idea.protagonist].join('|'),
+      }))
       setIdeas(newIdeas)
       setHasGenerated(true)
       // Optimistic increment so button disables immediately after 3rd run
       setIdeasToday(prev => Math.max(prev, data.runsToday ?? prev + 1))
-      // Preserve saved state for ideas that still exist; clear orphaned titles
+      // Preserve saved state for ideas that still exist; clear orphaned keys
       setSavedIdeaMap(prev => {
         const next = new Map()
         for (const idea of newIdeas) {
-          if (prev.has(idea.title)) next.set(idea.title, prev.get(idea.title))
+          if (prev.has(idea._key)) next.set(idea._key, prev.get(idea._key))
         }
         return next
       })
@@ -136,9 +144,9 @@ export default function CaseStudyIdeas() {
   // ── Save / unsave handlers ────────────────────────────────────────────────────
   const handleSaveIdea = useCallback(async (idea) => {
     if (!matchData?.faculty) return
-    setSavingIdeaTitle(idea.title)
+    setSavingIdeaKey(idea._key)
     // Optimistic
-    setSavedIdeaMap(prev => new Map(prev).set(idea.title, 'optimistic'))
+    setSavedIdeaMap(prev => new Map(prev).set(idea._key, 'optimistic'))
 
     const { data, error } = await supabase
       .from('saved_case_ideas')
@@ -158,22 +166,22 @@ export default function CaseStudyIdeas() {
 
     if (error) {
       console.error('Save idea error:', error)
-      setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea.title); return n })
+      setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea._key); return n })
     } else {
-      setSavedIdeaMap(prev => new Map(prev).set(idea.title, data.id))
+      setSavedIdeaMap(prev => new Map(prev).set(idea._key, data.id))
     }
-    setSavingIdeaTitle(null)
+    setSavingIdeaKey(null)
   }, [session, matchId, matchData])
 
   const handleUnsaveIdea = useCallback(async (idea) => {
-    const rowId = savedIdeaMap.get(idea.title)
+    const rowId = savedIdeaMap.get(idea._key)
     if (!rowId || rowId === 'optimistic') return
     // Optimistic
-    setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea.title); return n })
+    setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea._key); return n })
     const { error } = await supabase.from('saved_case_ideas').delete().eq('id', rowId)
     if (error) {
       console.error('Unsave idea error:', error)
-      setSavedIdeaMap(prev => new Map(prev).set(idea.title, rowId))
+      setSavedIdeaMap(prev => new Map(prev).set(idea._key, rowId))
     }
   }, [savedIdeaMap])
 
@@ -592,11 +600,11 @@ export default function CaseStudyIdeas() {
             </h2>
             {ideas.map((idea, i) => (
               <IdeaCard
-                key={i}
+                key={idea._key}
                 idea={idea}
                 index={i}
-                isSaved={savedIdeaMap.has(idea.title)}
-                isSaving={savingIdeaTitle === idea.title}
+                isSaved={savedIdeaMap.has(idea._key)}
+                isSaving={savingIdeaKey === idea._key}
                 onSave={() => handleSaveIdea(idea)}
                 onUnsave={() => handleUnsaveIdea(idea)}
               />

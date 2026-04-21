@@ -16,7 +16,7 @@
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { CORS, jsonResponse, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
+import { CORS, jsonResponse, checkAnthropicKey, requireAuth, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -112,23 +112,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     // ── 0. Guard: API key ─────────────────────────────────────────────────────
-    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
-    if (!ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY is not set')
-      return jsonResponse({ error: 'Server configuration error: Anthropic API key missing.' }, 500)
-    }
+    const keyErr = checkAnthropicKey()
+    if (keyErr) return keyErr
     console.log('Step 0: API key present')
 
     // ── 1. Authenticate ───────────────────────────────────────────────────────
-    const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
-    if (!token) return jsonResponse({ error: 'Unauthorized' }, 401)
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      console.error('Auth error:', authError?.message)
-      return jsonResponse({ error: 'Unauthorized' }, 401)
-    }
-    console.log('Step 1: Authenticated', user.id)
+    const { user, errorResponse: authErr } = await requireAuth(req, supabase)
+    if (authErr) return authErr
+    console.log('Step 1: Authenticated', user!.id)
 
     // ── 1b. Parse optional body ───────────────────────────────────────────────
     let electiveInterests = ''
@@ -141,7 +132,7 @@ Deno.serve(async (req: Request) => {
     const { count: runsToday } = await supabase
       .from('course_match_runs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
     console.log('Step 2: runs today:', runsToday)
@@ -156,7 +147,7 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: profileError } = await supabase
       .from('hbs_ip')
       .select('professional_interests, additional_background, resume_text, linkedin_text, program, graduation_year')
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .maybeSingle()
 
     if (profileError) throw profileError
@@ -207,6 +198,9 @@ Deno.serve(async (req: Request) => {
     }
     console.log(`Step 5: top candidates: ${scored.length}`)
 
+    // Build set of allowed course IDs (only candidates actually sent to Claude)
+    const allowedCourseIds = new Set(scored.map(c => c.id))
+
     // ── 6. Build prompt and call Claude ──────────────────────────────────────
     const userSummary = [
       `Program: ${profile.program ?? 'MBA'}, Class of ${profile.graduation_year ?? 'N/A'}`,
@@ -244,37 +238,46 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     })
     console.log('Step 6: Claude responded, length:', rawText.length)
 
-    // ── 7. Parse Claude response ──────────────────────────────────────────────
+    // ── 7. Parse and validate Claude response ────────────────────────────────
     const cleanJson = cleanJsonResponse(rawText)
 
-    let aiMatches: Array<{ course_id: string; rank: number; match_strength: string; rationale: string[] }>
+    let rawAiMatches: Array<{ course_id: string; rank: number; match_strength: string; rationale: string[] }>
 
     try {
-      aiMatches = JSON.parse(cleanJson)
+      rawAiMatches = JSON.parse(cleanJson)
     } catch {
       console.error('Claude JSON parse failed. Raw:', rawText.slice(0, 300))
       return jsonResponse({ error: 'Course matching returned an unexpected response. Please try again.' }, 500)
     }
 
     const validStrengths = new Set(['strong', 'good', 'exploratory'])
-    aiMatches = aiMatches
-      .filter(m => m.course_id && m.rank && Array.isArray(m.rationale))
-      .map(m => ({
-        ...m,
-        match_strength: validStrengths.has(m.match_strength) ? m.match_strength : 'good',
-        rationale: m.rationale.slice(0, 2),
-      }))
+    const seenCourses = new Set<string>()
+
+    const aiMatches = (Array.isArray(rawAiMatches) ? rawAiMatches : [])
+      .filter(m => {
+        if (!m.course_id || !allowedCourseIds.has(m.course_id)) return false
+        if (seenCourses.has(m.course_id)) return false
+        seenCourses.add(m.course_id)
+        return Array.isArray(m.rationale) && m.rationale.some(r => typeof r === 'string' && r.trim())
+      })
+      .sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999))
       .slice(0, 5)
+      .map((m, i) => ({
+        course_id: m.course_id,
+        rank: i + 1,
+        match_strength: validStrengths.has(m.match_strength) ? m.match_strength : 'good',
+        rationale: m.rationale.filter(r => typeof r === 'string' && r.trim()).map(r => r.trim()).slice(0, 2),
+      }))
 
     if (aiMatches.length < 2) {
       return jsonResponse({ error: 'Could not generate enough course matches. Try enriching your profile.' }, 500)
     }
-    console.log('Step 7: parsed', aiMatches.length, 'course matches')
+    console.log('Step 7: validated', aiMatches.length, 'course matches')
 
     // ── 8. Write to DB ────────────────────────────────────────────────────────
     const { data: runData, error: runError } = await supabase
       .from('course_match_runs')
-      .insert({ user_id: user.id })
+      .insert({ user_id: user!.id })
       .select('id')
       .single()
 

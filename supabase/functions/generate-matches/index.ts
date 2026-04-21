@@ -19,7 +19,7 @@
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { CORS, jsonResponse, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
+import { CORS, jsonResponse, checkAnthropicKey, requireAuth, callClaude, getTodayStart, cleanJsonResponse } from '../_shared/mod.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -89,28 +89,22 @@ Deno.serve(async (req: Request) => {
 
   try {
     // ── 0. Guard: API key must be configured ──────────────────────────────────
-    if (!ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY is not set')
-      return jsonResponse({ error: 'Server configuration error: Anthropic API key missing.' }, 500)
-    }
+    const keyErr = checkAnthropicKey()
+    if (keyErr) return keyErr
     console.log('Step 0: API key present')
 
     // ── 1. Authenticate ───────────────────────────────────────────────────────
-    const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
-    if (!token) return jsonResponse({ error: 'Unauthorized' }, 401)
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      console.error('Auth error:', authError?.message)
-      return jsonResponse({ error: 'Unauthorized' }, 401)
-    }
-    console.log('Step 1: Authenticated', user.id)
+    const { user, errorResponse: authErr } = await requireAuth(req, supabase)
+    if (authErr) return authErr
+    console.log('Step 1: Authenticated', user!.id)
 
     // ── 1b. Rate limit check ──────────────────────────────────────────────────
+    // TODO: Rate limiting is count-then-insert and not atomic under concurrency.
+    // Future improvement: DB-side RPC with transactional check-and-insert.
     const { count: runsToday } = await supabase
       .from('match_runs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
     console.log('Step 1b: runs today:', runsToday)
@@ -125,7 +119,7 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: profileError } = await supabase
       .from('hbs_ip')
       .select('professional_interests, additional_background, faculty_in_mind, resume_text, linkedin_text, program, graduation_year')
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .maybeSingle()
 
     if (profileError) throw profileError
@@ -201,6 +195,9 @@ Deno.serve(async (req: Request) => {
     if (scored.length === 0) return jsonResponse({ error: 'No faculty data available.' }, 500)
     console.log('Step 4: top candidates:', scored.length)
 
+    // Build set of allowed faculty IDs (only candidates actually sent to Claude)
+    const allowedIds = new Set(scored.map(f => f.id))
+
     // ── 5. Build prompt and call Claude ──────────────────────────────────────
     const userSummary = [
       `Program: ${profile.program ?? 'Not specified'}, Class of ${profile.graduation_year ?? 'N/A'}`,
@@ -234,34 +231,53 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     })
     console.log('Step 5: Claude responded, length:', rawText.length)
 
-    // ── 6. Parse Claude response ──────────────────────────────────────────────
+    // ── 6. Parse and validate Claude response ────────────────────────────────
     const cleanJson = cleanJsonResponse(rawText)
 
-    let matches: Array<{
+    let rawMatches: Array<{
       faculty_id: string; rank: number; match_strength: string
       match_reasons: string[]; collaboration_ideas: string[]
     }>
 
     try {
-      matches = JSON.parse(cleanJson)
+      rawMatches = JSON.parse(cleanJson)
     } catch {
       console.error('Claude JSON parse failed. Raw:', rawText.slice(0, 300))
       return jsonResponse({ error: 'Matching service returned an unexpected response. Please try again.' }, 500)
     }
 
-    matches = matches
-      .filter(m => m.faculty_id && m.rank && Array.isArray(m.match_reasons) && Array.isArray(m.collaboration_ideas))
+    const validStrengths = new Set(['strong', 'good', 'exploratory'])
+    const seenFaculty = new Set<string>()
+
+    const matches = (Array.isArray(rawMatches) ? rawMatches : [])
+      .filter(m => {
+        if (!m.faculty_id || !allowedIds.has(m.faculty_id)) return false
+        if (seenFaculty.has(m.faculty_id)) return false
+        seenFaculty.add(m.faculty_id)
+        if (!Array.isArray(m.match_reasons) || !Array.isArray(m.collaboration_ideas)) return false
+        if (!m.match_reasons.some(r => typeof r === 'string' && r.trim())) return false
+        if (!m.collaboration_ideas.some(c => typeof c === 'string' && c.trim())) return false
+        return true
+      })
+      .sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999))
       .slice(0, 6)
+      .map((m, i) => ({
+        faculty_id: m.faculty_id,
+        rank: i + 1,
+        match_strength: validStrengths.has(m.match_strength) ? m.match_strength : 'good',
+        match_reasons: m.match_reasons.filter(r => typeof r === 'string' && r.trim()).map(r => r.trim()).slice(0, 3),
+        collaboration_ideas: m.collaboration_ideas.filter(c => typeof c === 'string' && c.trim()).map(c => c.trim()).slice(0, 2),
+      }))
 
     if (matches.length < 2) {
-      return jsonResponse({ error: 'Could not generate enough matches. Try enriching your profile.' }, 500)
+      return jsonResponse({ error: 'Could not generate enough valid matches. Try enriching your profile.' }, 500)
     }
-    console.log('Step 6: parsed', matches.length, 'matches')
+    console.log('Step 6: validated', matches.length, 'matches')
 
     // ── 7. Write to DB ────────────────────────────────────────────────────────
     const { data: runData, error: runError } = await supabase
       .from('match_runs')
-      .insert({ user_id: user.id })
+      .insert({ user_id: user!.id })
       .select('id')
       .single()
 
@@ -273,9 +289,9 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
         run_id: runId,
         faculty_id: m.faculty_id,
         rank: m.rank,
-        match_strength: ['strong', 'good', 'exploratory'].includes(m.match_strength) ? m.match_strength : 'good',
-        match_reasons: m.match_reasons.slice(0, 3),
-        collaboration_ideas: m.collaboration_ideas.slice(0, 2),
+        match_strength: m.match_strength,
+        match_reasons: m.match_reasons,
+        collaboration_ideas: m.collaboration_ideas,
       }))
     )
     if (insertError) throw insertError
