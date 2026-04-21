@@ -280,21 +280,37 @@ All authenticated routes are wrapped in `<Layout>` in `main.jsx`, which appends 
 
 ## Updating Course Catalog Data
 
-To refresh `faculty_courses` from a new HBS catalog:
+**Canonical pipeline:** `parse-courses.py` → `seed-courses.js`
 
-1. **Parse the new catalog** — update `scripts/courses_raw.json` with the raw catalog source, then run:
+The legacy paths (`parse_course_catalog.py` + `import-courses.mjs`) are deprecated — do not use them.
+
+### Full refresh steps
+
+1. **Update the raw text** — place the new catalog text in `scripts/courses_raw.txt`.
+
+2. **Parse** — run from repo root:
    ```bash
-   python scripts/parse_courses.py
+   python scripts/parse-courses.py
    ```
-   This overwrites `scripts/courses_data.json`.
+   Outputs:
+   - `scripts/courses_data.json` — all parsed courses
+   - `scripts/course_parse_review.json` — suspicious rows flagged by the QA pass
 
-2. **Re-seed the DB** — run:
+3. **Review the QA output** — open `scripts/course_parse_review.json` and check any flagged rows (titles that are too long, descriptions that start with metadata, etc.) before seeding.
+
+4. **Apply migration 024** (first time only, or after a schema change) — paste `supabase/migrations/024_course_dedupe_term_aware.sql` into the Supabase SQL Editor and run it. This replaces the old `UNIQUE (faculty_id, course_title)` constraint with a term+quarter-aware one so the same course can appear in multiple terms.
+
+5. **Re-seed the DB** — run:
    ```bash
    node scripts/seed-courses.js
    ```
-   The script deletes all existing `hbs_catalog_2026` rows, deduplicates the new data (keeping the shortest description per faculty+course pair), and re-inserts. The `UNIQUE (faculty_id, course_title)` constraint (migration 023) is respected automatically.
+   The script deletes all existing `hbs_catalog_2026` rows, deduplicates by `(faculty_id, normalized_title, term, quarter)` keeping the longest description, logs unmatched faculty names, and re-inserts.
 
-3. **No migration needed** unless the `faculty_courses` schema changes.
+### Known limitations
+
+- Parser reads pre-extracted plain text from `scripts/courses_raw.txt`. If you regenerate this from the PDF (using `parse_courses.py` or another tool), review the QA output carefully for new artifact patterns.
+- Faculty name matching is fuzzy (exact normalized name → last-name fallback). Unmatched names are logged to the console. The QA review file does not cover matching failures.
+- `course_parse_review.json` is a best-effort heuristic scan — it may miss subtle bleed issues. Always spot-check a few faculty detail pages after re-seeding.
 
 ---
 

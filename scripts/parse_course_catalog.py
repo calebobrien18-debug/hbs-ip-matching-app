@@ -1,14 +1,16 @@
 """
-HBS Course Catalog Parser
-==========================
-Parses the HBS course catalog PDF and extracts structured course data.
+DEPRECATED — parse_course_catalog.py
+======================================
+This script is no longer part of the active pipeline.
 
-Usage:
-    cd scripts
-    python parse_course_catalog.py [path/to/catalog.pdf]
+Use the canonical pipeline instead:
+  1. python scripts/parse-courses.py   (reads courses_raw.txt)
+  2. node scripts/seed-courses.js
 
-Default PDF path: ~/OneDrive/Desktop/Print View - Course Catalog - Harvard Business School.pdf
-Output: scripts/courses.json
+This file is kept for historical reference only.
+It reads directly from a PDF using pdfplumber and outputs scripts/courses.json
+(a different file from the canonical courses_data.json).
+The companion importer is scripts/import-courses.mjs (also deprecated).
 """
 
 import json

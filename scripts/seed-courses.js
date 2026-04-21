@@ -1,18 +1,23 @@
 /**
  * seed-courses.js
  * ================
- * Reads scripts/courses_data.json (output of parse-courses.py) and seeds
- * all courses into the faculty_courses table with source = 'hbs_catalog_2026'.
+ * CANONICAL seed script. Reads scripts/courses_data.json (output of
+ * parse-courses.py) and seeds all courses into the faculty_courses table
+ * with source = 'hbs_catalog_2026'.
  *
  * - Attempts to match each faculty name against the faculty table by name
  * - Sets faculty_id when a match is found; leaves it NULL otherwise
  * - faculty_name is always stored (raw string from catalog)
  * - Safe to re-run: deletes all existing hbs_catalog_2026 rows first
+ * - Deduplicate key: (faculty_id, normalized_title, term, quarter)
+ *   Requires migration 024 to be applied (drops old (faculty_id, course_title)
+ *   unique constraint and replaces with (faculty_id, course_title, term, quarter)).
  *
  * Prerequisites:
- *   1. Run migration 022 in Supabase SQL editor
- *   2. Run: python scripts/parse-courses.py
- *   3. Ensure .env has VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE_KEY
+ *   1. Apply migration 022 in Supabase SQL editor (if not done)
+ *   2. Apply migration 024 in Supabase SQL editor (term-aware unique constraint)
+ *   3. Run: python scripts/parse-courses.py
+ *   4. Ensure .env has VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE_KEY
  *
  * Usage (from repo root):
  *   node scripts/seed-courses.js
@@ -146,18 +151,40 @@ async function main() {
 
   console.log(`\nPrepared ${rows.length} rows (${matchedFacultyCount} with resolved faculty_id)`)
 
-  // Deduplicate: for each (faculty_id, course_title) pair, keep the shortest description
+  // Deduplicate: key is (faculty_id, normalized_title, term, quarter).
+  // This preserves distinct offerings of the same course across different terms/quarters.
+  // Requires migration 024 (unique constraint updated to include term+quarter).
+  // When two rows share the same key, keep the one with the longest description.
   const deduped = new Map()
   for (const row of rows) {
-    const key = `${row.faculty_id}||${row.course_title}`
+    const normTitle = (row.course_title ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
+    const key = `${row.faculty_id ?? 'null'}||${normTitle}||${row.term ?? ''}||${row.quarter ?? ''}`
     const existing = deduped.get(key)
-    if (!existing || (row.description?.length ?? 0) < (existing.description?.length ?? 0)) {
+    if (!existing || (row.description?.length ?? 0) > (existing.description?.length ?? 0)) {
       deduped.set(key, row)
     }
   }
   const dedupedRows = [...deduped.values()]
   if (dedupedRows.length < rows.length) {
-    console.log(`  Deduplicated ${rows.length - dedupedRows.length} duplicate (faculty_id, course_title) rows`)
+    console.log(`  Deduplicated ${rows.length - dedupedRows.length} exact-duplicate rows (same faculty+title+term+quarter)`)
+  }
+
+  // Log suspicious course records for review
+  const suspiciousRecords = dedupedRows.filter(r =>
+    !r.term || r.course_title.length > 100 || !r.description
+  )
+  if (suspiciousRecords.length > 0) {
+    console.log(`\n⚠  ${suspiciousRecords.length} course records may need review (run parse-courses.py QA output for details):`)
+    for (const r of suspiciousRecords.slice(0, 8)) {
+      const flags = []
+      if (!r.term) flags.push('no term')
+      if (r.course_title.length > 100) flags.push(`title ${r.course_title.length} chars`)
+      if (!r.description) flags.push('no description')
+      console.log(`  [${flags.join(', ')}] ${r.course_title.slice(0, 70)}`)
+    }
+    if (suspiciousRecords.length > 8) {
+      console.log(`  … and ${suspiciousRecords.length - 8} more`)
+    }
   }
 
   if (unmatchedNames.size > 0) {

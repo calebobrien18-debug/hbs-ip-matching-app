@@ -1,19 +1,15 @@
 /**
- * import-courses.mjs
- * ===================
- * Reads scripts/courses.json (output from parse_course_catalog.py) and
- * upserts course records into Supabase, linking each to matching faculty
- * by name.
+ * DEPRECATED — import-courses.mjs
+ * =================================
+ * This script is no longer part of the active pipeline.
  *
- * Matching strategy:
- *   1. Normalize both names (lowercase, strip periods/commas)
- *   2. Exact normalized match
- *   3. Last-name-only match as fallback (logged as a warning)
+ * Use the canonical pipeline instead:
+ *   1. python scripts/parse-courses.py
+ *   2. node scripts/seed-courses.js
  *
- * Usage:
- *   node scripts/import-courses.mjs
- *
- * Reads VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from .env
+ * This file is kept for historical reference only.
+ * It reads scripts/courses.json (output of the deprecated parse_course_catalog.py)
+ * and uses source = 'hbs_catalog' (not 'hbs_catalog_2026').
  */
 
 import { createClient } from '@supabase/supabase-js'
