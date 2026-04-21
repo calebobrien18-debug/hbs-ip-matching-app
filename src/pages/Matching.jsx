@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
-import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
+import { useRequireAuth, useSavedFaculty, useFilterFade } from '../lib/hooks'
 import { initials } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS, DAILY_LIMIT } from '../lib/constants'
 import { SparklesIcon, RefreshIcon, ChevronIcon, LightbulbIcon, BookmarkIcon, XIcon } from '../components/Icons'
@@ -44,7 +44,7 @@ export default function Matching() {
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [filterStrength, setFilterStrength] = useState(null)  // null = all
   const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
-  const [listVisible, setListVisible] = useState(true)
+  const listVisible = useFilterFade(filterStrength)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // "How it works" — open by default on first visit, collapsed thereafter
@@ -100,12 +100,6 @@ export default function Matching() {
     }, 2200)
     return () => clearInterval(interval)
   }, [pageState])
-
-  useEffect(() => {
-    setListVisible(false)
-    const t = setTimeout(() => setListVisible(true), 150)
-    return () => clearTimeout(t)
-  }, [filterStrength])
 
   const loadMatchesForRun = useCallback(async (runId) => {
     const { data } = await supabase
@@ -165,7 +159,12 @@ export default function Matching() {
 
   async function handleUnmatch(matchId) {
     setMatches(prev => prev.filter(m => m.id !== matchId))  // optimistic
-    await supabase.from('faculty_matches').delete().eq('id', matchId)
+    try {
+      const { error } = await supabase.from('faculty_matches').delete().eq('id', matchId)
+      if (error) throw error
+    } catch {
+      await loadMatchesForRun(selectedRunId)
+    }
   }
 
   const latestRunId = runs[0]?.id ?? null

@@ -154,3 +154,13 @@ export function useSavedCourses(session) {
   const { ids: savedCourseIds, toggle: toggleSaveCourse } = useSavedItems('saved_courses', 'course_id', session)
   return { savedCourseIds, toggleSaveCourse }
 }
+
+export function useFilterFade(dep) {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    setVisible(false)
+    const t = setTimeout(() => setVisible(true), 150)
+    return () => clearTimeout(t)
+  }, [dep])
+  return visible
+}

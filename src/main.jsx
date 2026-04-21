@@ -1,7 +1,30 @@
-import { StrictMode, useEffect } from 'react'
+import { StrictMode, useEffect, Component } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './index.css'
+
+class AppErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false } }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error, info) { console.error('AppErrorBoundary caught:', error, info) }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 text-gray-900">
+          <p className="text-lg font-medium">Something went wrong. Please try reloading.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="border border-crimson text-crimson px-4 py-2 rounded hover:bg-crimson hover:text-white transition-colors"
+          >
+            Reload page
+          </button>
+          <a href="/dashboard" className="text-sm text-gray-500 underline">Back to dashboard</a>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -25,6 +48,7 @@ import CourseMatch from './pages/CourseMatch.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <AppErrorBoundary>
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
@@ -46,5 +70,6 @@ createRoot(document.getElementById('root')).render(
         <Route path="/admin/feedback"      element={<AdminFeedback />} />
       </Routes>
     </BrowserRouter>
+    </AppErrorBoundary>
   </StrictMode>,
 )

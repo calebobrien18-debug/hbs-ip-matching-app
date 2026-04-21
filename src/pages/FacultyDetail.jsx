@@ -47,20 +47,10 @@ export default function FacultyDetail() {
 
       if (!facultyData) { setNotFound(true); setLoading(false); return }
 
-      const seen = new Set()
-      const uniqueCourses = (coursesData ?? [])
-        .sort((a, b) => (a.description?.length ?? 0) - (b.description?.length ?? 0))
-        .filter(c => {
-          const key = (c.course_title ?? '').trim()
-          if (!key || seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
-
       setFaculty(facultyData)
       setTags((tagsData ?? []).map(r => r.tag))
       setPublications(pubsData ?? [])
-      setCourses(uniqueCourses)
+      setCourses(coursesData ?? [])
       setLoading(false)
     }
     load()

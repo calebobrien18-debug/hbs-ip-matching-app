@@ -132,7 +132,7 @@ async function main() {
       rows.push({
         faculty_id:    facultyId,
         faculty_name:  rawName ?? null,
-        course_title:  course.title,
+        course_title:  (course.title ?? '').trim(),
         course_number: course.course_number ?? null,
         description:   course.description ?? null,
         unit:          course.area ?? null,
@@ -146,6 +146,20 @@ async function main() {
 
   console.log(`\nPrepared ${rows.length} rows (${matchedFacultyCount} with resolved faculty_id)`)
 
+  // Deduplicate: for each (faculty_id, course_title) pair, keep the shortest description
+  const deduped = new Map()
+  for (const row of rows) {
+    const key = `${row.faculty_id}||${row.course_title}`
+    const existing = deduped.get(key)
+    if (!existing || (row.description?.length ?? 0) < (existing.description?.length ?? 0)) {
+      deduped.set(key, row)
+    }
+  }
+  const dedupedRows = [...deduped.values()]
+  if (dedupedRows.length < rows.length) {
+    console.log(`  Deduplicated ${rows.length - dedupedRows.length} duplicate (faculty_id, course_title) rows`)
+  }
+
   if (unmatchedNames.size > 0) {
     console.log(`\nFaculty names NOT matched to DB (${unmatchedNames.size}):`)
     for (const name of [...unmatchedNames].sort()) {
@@ -158,8 +172,8 @@ async function main() {
   const BATCH = 200
   let inserted = 0
 
-  for (let i = 0; i < rows.length; i += BATCH) {
-    const batch = rows.slice(i, i + BATCH)
+  for (let i = 0; i < dedupedRows.length; i += BATCH) {
+    const batch = dedupedRows.slice(i, i + BATCH)
     const { error: insertErr } = await supabase
       .from('faculty_courses')
       .insert(batch)
@@ -168,10 +182,10 @@ async function main() {
       process.exit(1)
     }
     inserted += batch.length
-    process.stdout.write(`\r  Inserted ${inserted}/${rows.length}…`)
+    process.stdout.write(`\r  Inserted ${inserted}/${dedupedRows.length}…`)
   }
 
-  console.log(`\n\n✓ Seeding complete — ${rows.length} rows inserted into faculty_courses`)
+  console.log(`\n\n✓ Seeding complete — ${dedupedRows.length} rows inserted into faculty_courses`)
   console.log(`  Courses with linked faculty_id: ${matchedFacultyCount}`)
   console.log(`  Courses without faculty match: ${unmatchedNames.size} unique names`)
 }

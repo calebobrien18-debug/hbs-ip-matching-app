@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
-import { useRequireAuth, useSavedCourses } from '../lib/hooks'
+import { useRequireAuth, useSavedCourses, useFilterFade } from '../lib/hooks'
 import { COURSE_DAILY_LIMIT as DAILY_LIMIT, STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS } from '../lib/constants'
 import {
   SparklesIcon, RefreshIcon, ChevronIcon, BookmarkIcon, BookOpenIcon,
@@ -38,7 +38,7 @@ export default function CourseMatch() {
   const [runsToday, setRunsToday] = useState(0)
   const [electiveInterests, setElectiveInterests] = useState('')
   const [strengthFilter, setStrengthFilter] = useState(null)
-  const [listVisible, setListVisible] = useState(true)
+  const listVisible = useFilterFade(strengthFilter)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
   // "How it works" — open by default on first visit, collapsed thereafter
@@ -111,12 +111,6 @@ export default function CourseMatch() {
     }, 2200)
     return () => clearInterval(interval)
   }, [pageState])
-
-  useEffect(() => {
-    setListVisible(false)
-    const t = setTimeout(() => setListVisible(true), 150)
-    return () => clearTimeout(t)
-  }, [strengthFilter])
 
   const loadMatchesForRun = useCallback(async (runId) => {
     const { data } = await supabase

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 **ProFound** — A React + Supabase web app that matches Harvard Business School doctoral students with faculty based on shared research interests. Students create a profile (with resume/LinkedIn PDF upload), browse faculty, run an AI-powered matching tool, generate case study ideas with matched faculty, and save ideas for later.
 
-**Stack:** Vite + React, Tailwind v4 (with `@theme` in `src/index.css`, no `tailwind.config.js`), Supabase (auth, DB, storage, Edge Functions), Claude `claude-sonnet-4-5` via Anthropic API (Edge Functions), GitHub OAuth.
+**Stack:** Vite + React, react-router-dom v7, Tailwind v4 (with `@theme` in `src/index.css`, no `tailwind.config.js`), Supabase (auth, DB, storage, Edge Functions), Claude `claude-sonnet-4-5` via Anthropic API (Edge Functions), Google OAuth.
 
 **Dev server:** `npm run dev` → `localhost:5173`  
 **Branch:** `main` (all commits local only — never pushed to remote)
@@ -50,7 +50,7 @@ Without `ANTHROPIC_API_KEY` set as an Edge Function secret, matching and case id
 | File | Description |
 |---|---|
 | `src/lib/supabase.js` | Supabase client singleton — import from here everywhere |
-| `src/lib/hooks.js` | Two shared hooks: `useRequireAuth()` (redirects unauthenticated users, returns session) and `useSavedFaculty(session)` (loads/toggles saved faculty with optimistic updates) |
+| `src/lib/hooks.js` | Shared hooks: `useRequireAuth()` (auth redirect, returns session), `useSavedFaculty(session)`, `useSavedCourses(session)` (optimistic save toggles), `useIsAdmin()` (admin role check), `useFilterFade(dep)` (150ms opacity fade on filter change) |
 | `src/lib/utils.js` | `initials(name)` (1-2 uppercase initials) and `lastName(name)` (for alphabetical sort) |
 | `src/lib/pdf.js` | `extractPdfText(file)` — client-side PDF text extraction via `pdfjs-dist`, capped at 15,000 chars (~5-6 pages). Called during profile create/edit when a PDF is uploaded. |
 | `src/index.css` | Tailwind v4 theme (`@theme` block with brand colors) |
@@ -59,7 +59,7 @@ Without `ANTHROPIC_API_KEY` set as an Edge Function secret, matching and case id
 | `public/profound-logo.svg` | Standalone saveable logo — `<img>` tag on landing page enables right-click → "Save image as" |
 | `public/favicon.svg` | Site favicon |
 | `public/icons.svg` | SVG icon sprite (if used) |
-| `index.html` | Contains Google Fonts preconnect for Playfair Display — now unused (logo and landing are both sans-serif); safe to remove |
+| `index.html` | Google Fonts `<link>` loads Inter only — Instrument Serif has been removed |
 
 > **Note:** There is no `src/hooks/useAuth.js`. The hooks file is `src/lib/hooks.js`.
 
@@ -191,6 +191,27 @@ Both functions use native `fetch` to call the Anthropic API (no SDK import) and 
 7. Call Claude `claude-sonnet-4-5` → returns JSON array of 2–4 case study ideas with `title`, `premise`, `protagonist`, `teaching_themes[]`, `student_angle`, `faculty_angle`
 8. Return `{ ideas, runsToday }`
 
+### `generate-course-matches` (`supabase/functions/generate-course-matches/index.ts`)
+
+1. Verify JWT → resolve user_id
+2. Check rate limit: 5 runs per UTC day via `course_match_runs`
+3. Load student profile from `hbs_ip`
+4. Load all catalog courses from `faculty_courses`
+5. **Keyword scoring** → top 35 candidates
+6. Call Claude `claude-sonnet-4-5` → returns JSON array of 2–5 courses with `course_id`, `rank`, `match_strength`, `match_reasons[]`
+7. Insert into `course_match_runs` + `course_matches`
+8. Return `{ run_id, matches }` (enriched with course data)
+
+### `generate-email-draft` (`supabase/functions/generate-email-draft/index.ts`)
+
+1. Verify JWT → resolve user_id
+2. Parse body: `{ faculty_id, idea_ids: string[] }`
+3. Check rate limit: 10 drafts per UTC day via `email_draft_runs`
+4. Load faculty + student profile + selected `saved_case_ideas` in parallel; rejects cross-faculty idea selections
+5. Insert `email_draft_runs` row (counts attempt before calling Claude)
+6. Call Claude `claude-sonnet-4-5` → parse `{ subject, body }` JSON; trims and caps subject (200 chars) / body (5000 chars)
+7. Return `{ subject, body }`
+
 ---
 
 ## Pages
@@ -198,7 +219,7 @@ Both functions use native `fetch` to call the Anthropic API (no SDK import) and 
 | Route | File | Description |
 |---|---|---|
 | `/` | `Landing.jsx` | Public — ProFound logo (`<img src="/profound-logo.svg">`), tagline, GitHub sign-in, crimson gradient, copyright-only footer |
-| `/auth/callback` | `AuthCallback.jsx` | GitHub OAuth callback handler |
+| `/auth/callback` | `AuthCallback.jsx` | Google OAuth callback handler |
 | `/dashboard` | `Dashboard.jsx` | Four sections: Your Profile, My Matches (with unmatch), Saved Case Study Ideas, My Saved Faculty |
 | `/profile/new` | `ProfileNew.jsx` | Create student profile — all `hbs_ip` fields + resume/LinkedIn PDF upload |
 | `/profile/edit` | `ProfileEdit.jsx` | Edit student profile |
@@ -257,10 +278,30 @@ All authenticated routes are wrapped in `<Layout>` in `main.jsx`, which appends 
 
 ---
 
+## Updating Course Catalog Data
+
+To refresh `faculty_courses` from a new HBS catalog:
+
+1. **Parse the new catalog** — update `scripts/courses_raw.json` with the raw catalog source, then run:
+   ```bash
+   python scripts/parse_courses.py
+   ```
+   This overwrites `scripts/courses_data.json`.
+
+2. **Re-seed the DB** — run:
+   ```bash
+   node scripts/seed-courses.js
+   ```
+   The script deletes all existing `hbs_catalog_2026` rows, deduplicates the new data (keeping the shortest description per faculty+course pair), and re-inserts. The `UNIQUE (faculty_id, course_title)` constraint (migration 023) is respected automatically.
+
+3. **No migration needed** unless the `faculty_courses` schema changes.
+
+---
+
 ## Pending / Future Work
 
 - **Push to remote** — All commits are local only; run `git push origin main` when ready to deploy
 - **Feedback review UI** — Admin interface to read `feedback` table (currently only readable via Supabase Table Editor with service role)
 - **Logo portability** — `profound-logo.svg` uses live system fonts (not outlined paths); use Inkscape/Figma to convert text to paths for a truly portable file
 - **Matching quality** — Prompt lives in `supabase/functions/generate-matches/index.ts`; keyword scoring stopword list is in the same file
-- **Playfair Display** — Google Fonts preconnect in `index.html` is unused (logo and landing are both sans-serif); safe to remove
+- **Instrument Serif removed** — font was previously loaded in `index.html` and defined as `--font-serif` in `src/index.css`; both have been cleaned up
