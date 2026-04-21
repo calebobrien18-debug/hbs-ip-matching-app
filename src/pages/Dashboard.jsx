@@ -378,7 +378,7 @@ export default function Dashboard() {
               <BookOpenIcon className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
               My Course Picks
             </h2>
-            <Link to="/course-match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+            <Link to="/courses" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
               {courseMatches.length > 0 ? 'View & re-run →' : 'Find courses →'}
             </Link>
           </div>
@@ -403,7 +403,7 @@ export default function Dashboard() {
               </div>
               <p className="text-sm font-medium text-gray-600">No course picks yet</p>
               <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Discover electives tailored to your interests and career path.</p>
-              <Link to="/course-match" className="mt-4 inline-block text-sm font-medium text-crimson">
+              <Link to="/courses" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Explore electives →
               </Link>
             </div>
@@ -415,7 +415,7 @@ export default function Dashboard() {
                 return (
                   <li key={m.id}>
                     <Link
-                      to="/course-match"
+                      to="/courses"
                       className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/40 hover:shadow-sm hover:-translate-y-px transition-all group"
                     >
                       {/* Rank badge */}

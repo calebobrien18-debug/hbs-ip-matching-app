@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, isNavContent } from '../lib/utils'
+import { initials, isNavContent, sanitizeDescription } from '../lib/utils'
 import { BookmarkIcon } from '../components/Icons'
 
 const PUB_TYPE_COLORS = {
@@ -303,30 +303,6 @@ const ACTIVE_TYPE_STYLES = {
   'Other':           { backgroundColor: '#f9fafb', color: '#6b7280', borderColor: '#e5e7eb' },
 }
 
-/**
- * Conservative display-side sanitizer for course descriptions.
- * Trims obvious metadata blobs that slipped past the parser.
- * The real fix should always be upstream in parse-courses.py.
- */
-function sanitizeDescription(desc) {
-  if (!desc) return null
-
-  // Cut at obvious metadata boundary markers if they appear after some prose
-  const metaCutMatch = desc.search(
-    /\b(Enrollment\s*:|Course\s+Format\b|Grading\s*\/|Educational\s+Objectives?|Course\s+Content\s+Keywords?)\b/i
-  )
-  if (metaCutMatch > 40) {
-    desc = desc.slice(0, metaCutMatch).trim()
-  }
-
-  // Strip leading grading/format noise
-  desc = desc.replace(
-    /^\s*(Exam|Paper|Project|Participation|Assignment)(\s+(or|and)\s+(Exam|Paper|Project|Participation|Assignment))*\s+/i,
-    ''
-  )
-
-  return desc.length >= 20 ? desc.trim() : null
-}
 
 function CourseRow({ course }) {
   const termLabel  = [course.term, course.quarter].filter(Boolean).join(' · ')

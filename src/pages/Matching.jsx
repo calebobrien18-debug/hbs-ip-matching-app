@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty, useFilterFade } from '../lib/hooks'
-import { initials } from '../lib/utils'
+import { initials, groupCourseRows, sanitizeDescription } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS, DAILY_LIMIT } from '../lib/constants'
 import { SparklesIcon, RefreshIcon, ChevronIcon, LightbulbIcon, BookmarkIcon, XIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
@@ -44,6 +44,8 @@ export default function Matching() {
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [filterStrength, setFilterStrength] = useState(null)  // null = all
   const [runsToday, setRunsToday] = useState(0)          // for 3/day rate limit UX
+  const [suggestedCourses, setSuggestedCourses] = useState([])
+  const [coursesLoading, setCoursesLoading] = useState(false)
   const listVisible = useFilterFade(filterStrength)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
 
@@ -91,6 +93,33 @@ export default function Matching() {
     }
     load()
   }, [session])
+
+  // Fetch courses for matched faculty, in match rank order
+  useEffect(() => {
+    if (matches.length === 0) { setSuggestedCourses([]); return }
+    const facultyIds = matches.map(m => m.faculty?.id).filter(Boolean)
+    if (facultyIds.length === 0) { setSuggestedCourses([]); return }
+
+    setCoursesLoading(true)
+    supabase
+      .from('faculty_courses')
+      .select('*, faculty(id, name)')
+      .in('faculty_id', facultyIds)
+      .then(({ data }) => {
+        if (!data) { setSuggestedCourses([]); setCoursesLoading(false); return }
+
+        // Group and preserve match rank order
+        const grouped = groupCourseRows(data)
+        const rankMap = Object.fromEntries(facultyIds.map((id, i) => [id, i]))
+        grouped.sort((a, b) => {
+          const aRank = Math.min(...a.faculty.map(f => rankMap[f.id] ?? 999))
+          const bRank = Math.min(...b.faculty.map(f => rankMap[f.id] ?? 999))
+          return aRank - bRank
+        })
+        setSuggestedCourses(grouped.slice(0, 8))
+        setCoursesLoading(false)
+      })
+  }, [matches])
 
   // Load messages cycling animation while running
   useEffect(() => {
@@ -507,6 +536,64 @@ export default function Matching() {
               <p className="text-sm text-gray-500 text-center py-8">
                 No {STRENGTH_LABELS[filterStrength].toLowerCase()} matches in this run.
               </p>
+            )}
+          </div>
+        )}
+
+        {/* Suggested courses from matched faculty */}
+        {(suggestedCourses.length > 0 || coursesLoading) && isViewingLatest && (
+          <div className="border-t border-gray-200 pt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Courses from your matched faculty
+              </h2>
+              <Link to="/courses" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+                Browse all courses →
+              </Link>
+            </div>
+
+            {coursesLoading ? (
+              <div className="space-y-2">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 animate-pulse space-y-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-2/5" />
+                    <div className="h-3 bg-gray-100 rounded w-1/4" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {suggestedCourses.map(course => {
+                  const termLabel   = [course.term, course.quarter].filter(Boolean).join(' · ')
+                  const creditLabel = course.credits != null ? `${course.credits} cr` : null
+                  const cleanDesc   = sanitizeDescription(course.description)
+                  return (
+                    <div key={course.id} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 space-y-1">
+                      <p className="text-sm font-semibold text-gray-900 leading-snug">{course.course_title}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {course.faculty.map(f => (
+                          <Link
+                            key={f.id ?? f.name}
+                            to={f.id ? `/faculty/${f.id}` : '#'}
+                            className="text-xs text-crimson font-medium hover:opacity-70 transition-opacity"
+                          >
+                            {f.name}
+                          </Link>
+                        ))}
+                        {termLabel && (
+                          <span className="text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{termLabel}</span>
+                        )}
+                        {creditLabel && (
+                          <span className="text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{creditLabel}</span>
+                        )}
+                      </div>
+                      {cleanDesc && (
+                        <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{cleanDesc}</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             )}
           </div>
         )}

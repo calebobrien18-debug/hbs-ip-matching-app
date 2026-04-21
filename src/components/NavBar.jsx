@@ -65,8 +65,8 @@ export default function NavBar() {
         <div className="flex items-stretch self-stretch gap-0.5">
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
-          {navLink('/match', 'Matching')}
-          {navLink('/course-match', 'Courses')}
+          {navLink('/match', 'Faculty Match')}
+          {navLink('/courses', 'Courses')}
         </div>
 
         {/* Right: user + sign out */}

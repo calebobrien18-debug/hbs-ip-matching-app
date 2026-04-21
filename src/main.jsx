@@ -1,6 +1,6 @@
 import { StrictMode, useEffect, Component } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './index.css'
 
 class AppErrorBoundary extends Component {
@@ -45,6 +45,7 @@ import CaseStudyIdeas from './pages/CaseStudyIdeas.jsx'
 import SavedIdeas from './pages/SavedIdeas.jsx'
 import AdminFeedback from './pages/AdminFeedback.jsx'
 import CourseMatch from './pages/CourseMatch.jsx'
+import CourseDirectory from './pages/CourseDirectory.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -64,7 +65,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/faculty"         element={<Layout><Faculty /></Layout>} />
         <Route path="/faculty/:id"     element={<Layout><FacultyDetail /></Layout>} />
         <Route path="/match"           element={<Layout><Matching /></Layout>} />
-        <Route path="/course-match"    element={<Layout><CourseMatch /></Layout>} />
+        <Route path="/courses"         element={<Layout><CourseDirectory /></Layout>} />
+        <Route path="/course-match"    element={<Navigate to="/courses" replace />} />
         <Route path="/case-ideas/:matchId" element={<Layout><CaseStudyIdeas /></Layout>} />
         <Route path="/saved-ideas"         element={<Layout><SavedIdeas /></Layout>} />
         <Route path="/admin/feedback"      element={<AdminFeedback />} />
