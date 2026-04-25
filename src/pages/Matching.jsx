@@ -343,16 +343,13 @@ export default function Matching() {
           }`}
         >
           <SparklesIcon className="w-5 h-5" />
-          {runsToday >= DAILY_LIMIT ? `Daily limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : 'Match Me'}
+          {runsToday >= DAILY_LIMIT ? `Today's limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : 'Match Me'}
         </button>
-        {runsToday < DAILY_LIMIT && (
-          <p className="text-xs text-gray-400 text-center -mt-4">
-            {DAILY_LIMIT - runsToday} run{DAILY_LIMIT - runsToday !== 1 ? 's' : ''} remaining today
-          </p>
-        )}
-        {runsToday >= DAILY_LIMIT && (
-          <p className="text-xs text-gray-400 text-center -mt-4">Resets at midnight UTC</p>
-        )}
+        <p className="text-xs text-gray-400 text-center -mt-4">
+          {runsToday >= DAILY_LIMIT
+            ? 'Resets at midnight UTC'
+            : `${DAILY_LIMIT - runsToday} run${DAILY_LIMIT - runsToday !== 1 ? 's' : ''} remaining today`}
+        </p>
       </div>
     </div>
   )
@@ -401,11 +398,11 @@ export default function Matching() {
                 <RefreshIcon className="w-4 h-4" />
                 Re-run
               </button>
-              {runsToday > 0 && (
-                <span className="text-[10px] text-gray-400">
-                  {runsToday >= DAILY_LIMIT ? `Limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : `${DAILY_LIMIT - runsToday} run${DAILY_LIMIT - runsToday !== 1 ? 's' : ''} left today`}
-                </span>
-              )}
+              <span className="text-[10px] text-gray-400">
+                {runsToday >= DAILY_LIMIT
+                  ? `Limit reached (${DAILY_LIMIT}/${DAILY_LIMIT}) · Resets at midnight UTC`
+                  : `${DAILY_LIMIT - runsToday} run${DAILY_LIMIT - runsToday !== 1 ? 's' : ''} left today`}
+              </span>
             </div>
           )}
           {!isViewingLatest && (

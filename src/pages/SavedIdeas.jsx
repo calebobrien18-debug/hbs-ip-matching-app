@@ -215,7 +215,15 @@ export default function SavedIdeas() {
                         }`}
                       >
                         <EnvelopeIcon className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">{draft.open ? 'Close' : 'Draft email'}</span>
+                        <span className="hidden sm:inline">
+                          {draft.open
+                            ? 'Close'
+                            : emailLimitReached
+                              ? 'Draft email'
+                              : emailsToday > 0
+                                ? `Draft email (${EMAIL_DAILY_LIMIT - emailsToday} left)`
+                                : 'Draft email'}
+                        </span>
                       </button>
                     </div>
 
@@ -235,7 +243,7 @@ export default function SavedIdeas() {
 
                         {emailLimitReached && (
                           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-                            You've used {EMAIL_DAILY_LIMIT}/{EMAIL_DAILY_LIMIT} email drafts today — resets at midnight UTC.
+                            You've used all {EMAIL_DAILY_LIMIT} email drafts for today — resets at midnight UTC. Your saved ideas are here when you're ready tomorrow.
                           </div>
                         )}
 

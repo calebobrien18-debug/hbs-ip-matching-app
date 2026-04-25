@@ -361,7 +361,7 @@ export default function CaseStudyIdeas() {
             {/* Rate limit banner */}
             {emailLimitReached && (
               <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-                You've used {EMAIL_DAILY_LIMIT}/{EMAIL_DAILY_LIMIT} email drafts today — resets at midnight UTC.
+                You've used all {EMAIL_DAILY_LIMIT} email drafts for today — resets at midnight UTC. Your saved ideas are here when you're ready tomorrow.
               </div>
             )}
 
@@ -560,21 +560,16 @@ export default function CaseStudyIdeas() {
           >
             <LightbulbIcon className="w-4 h-4" />
             {limitReached
-              ? `Daily limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})`
+              ? `Today's limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})`
               : hasGenerated ? 'Regenerate ideas' : 'Generate case study ideas'}
           </button>
 
           {/* Runs remaining counter */}
-          {!limitReached && (
-            <p className="text-xs text-gray-400 text-center">
-              {DAILY_LIMIT - ideasToday} generation{DAILY_LIMIT - ideasToday !== 1 ? 's' : ''} remaining today
-            </p>
-          )}
-          {limitReached && (
-            <p className="text-xs text-gray-400 text-center">
-              Daily limit reached — resets at midnight UTC
-            </p>
-          )}
+          <p className="text-xs text-gray-400 text-center">
+            {limitReached
+              ? 'Resets at midnight UTC'
+              : `${DAILY_LIMIT - ideasToday} generation${DAILY_LIMIT - ideasToday !== 1 ? 's' : ''} remaining today`}
+          </p>
         </div>
 
         {/* Generating spinner */}
