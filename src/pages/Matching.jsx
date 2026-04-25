@@ -543,14 +543,9 @@ export default function Matching() {
         {/* Suggested courses from matched faculty */}
         {(suggestedCourses.length > 0 || coursesLoading) && isViewingLatest && (
           <div className="border-t border-gray-200 pt-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                Courses from your matched faculty
-              </h2>
-              <Link to="/courses" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
-                Browse all courses →
-              </Link>
-            </div>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Courses from your matched faculty
+            </h2>
 
             {coursesLoading ? (
               <div className="space-y-2">
