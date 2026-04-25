@@ -1,15 +1,24 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useRequireAuth } from '../lib/hooks'
+import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
 import { initials } from '../lib/utils'
 import NavBar from '../components/NavBar'
 import { EMAIL_DAILY_LIMIT } from '../lib/constants'
 import { TrashIcon, EnvelopeIcon, ClipboardIcon, CheckIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
 
+const FACULTY_STATUS_OPTIONS = [
+  { value: 'interested',  label: 'Interested',   style: 'bg-gray-100 text-gray-600' },
+  { value: 'researching', label: 'Researching',  style: 'bg-blue-100 text-blue-700' },
+  { value: 'top_choice',  label: 'Top choice',   style: 'bg-crimson/10 text-crimson' },
+  { value: 'emailed',     label: 'Emailed',      style: 'bg-green-100 text-green-700' },
+  { value: 'not_now',     label: 'Not now',      style: 'bg-gray-50 text-gray-400 italic' },
+]
+
 export default function SavedIdeas() {
   const session = useRequireAuth()
+  const { statusMap, updateStatus } = useSavedFaculty(session)
   const [ideas, setIdeas] = useState([])
   const [loading, setLoading] = useState(true)
   const [deletingIds, setDeletingIds] = useState(new Set())
@@ -200,6 +209,22 @@ export default function SavedIdeas() {
                           <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{fac?.name ?? 'Unknown faculty'}</p>
                           {fac?.title && <p className="text-xs text-gray-400 truncate">{fac.title}</p>}
                         </div>
+                        {/* Status picker */}
+                        {fac?.id && (() => {
+                          const currentStatus = statusMap.get(fac.id) ?? 'interested'
+                          const currentOption = FACULTY_STATUS_OPTIONS.find(o => o.value === currentStatus) ?? FACULTY_STATUS_OPTIONS[0]
+                          return (
+                            <select
+                              value={currentStatus}
+                              onChange={e => updateStatus(fac.id, e.target.value)}
+                              className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-crimson/30 flex-shrink-0 ${currentOption.style}`}
+                            >
+                              {FACULTY_STATUS_OPTIONS.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                          )
+                        })()}
                       </div>
 
                       <button

@@ -103,6 +103,14 @@ function LaunchChecklist({ profiles, matches, savedFaculty, savedIdeas, emailDra
   )
 }
 
+const FACULTY_STATUS_OPTIONS = [
+  { value: 'interested',  label: 'Interested',   style: 'bg-gray-100 text-gray-600' },
+  { value: 'researching', label: 'Researching',  style: 'bg-blue-100 text-blue-700' },
+  { value: 'top_choice',  label: 'Top choice',   style: 'bg-crimson/10 text-crimson' },
+  { value: 'emailed',     label: 'Emailed',      style: 'bg-green-100 text-green-700' },
+  { value: 'not_now',     label: 'Not now',      style: 'bg-gray-50 text-gray-400 italic' },
+]
+
 const GUEST_GREETINGS = [
   'Adventurer', 'Trailblazer', 'Visionary', 'Pioneer', 'Changemaker',
   'Dreamer', 'Innovator', 'Explorer', 'Maverick', 'Luminary',
@@ -122,6 +130,7 @@ export default function Dashboard() {
 
   const [savedFaculty, setSavedFaculty] = useState([])
   const [savedLoading, setSavedLoading] = useState(true)
+  const [savedFacultyStatusMap, setSavedFacultyStatusMap] = useState(new Map())
 
   const [matches, setMatches] = useState([])
   const [matchesLoading, setMatchesLoading] = useState(true)
@@ -223,10 +232,11 @@ export default function Dashboard() {
     if (!session) return
     supabase
       .from('saved_faculty')
-      .select('faculty_id')
+      .select('faculty_id, status')
       .eq('user_id', session.user.id)
       .then(async ({ data: savedRows, error }) => {
         if (error) { console.error('[Dashboard] saved_faculty load error:', error); setSavedLoading(false); return }
+        setSavedFacultyStatusMap(new Map((savedRows ?? []).map(r => [r.faculty_id, r.status ?? 'interested'])))
         const ids = (savedRows ?? []).map(r => r.faculty_id)
         if (ids.length === 0) { setSavedFaculty([]); setSavedLoading(false); return }
         const { data: facultyData, error: facError } = await supabase
@@ -246,6 +256,15 @@ export default function Dashboard() {
     await supabase
       .from('saved_faculty')
       .delete()
+      .eq('user_id', session.user.id)
+      .eq('faculty_id', facultyId)
+  }
+
+  async function handleUpdateFacultyStatus(facultyId, status) {
+    setSavedFacultyStatusMap(prev => new Map(prev).set(facultyId, status))
+    await supabase
+      .from('saved_faculty')
+      .update({ status })
       .eq('user_id', session.user.id)
       .eq('faculty_id', facultyId)
   }
@@ -689,6 +708,24 @@ export default function Dashboard() {
                         <p className="text-xs text-gray-500 mt-0.5 truncate">{f.unit}</p>
                       )}
                     </Link>
+
+                    {/* Status picker */}
+                    {(() => {
+                      const currentStatus = savedFacultyStatusMap.get(f.id) ?? 'interested'
+                      const currentOption = FACULTY_STATUS_OPTIONS.find(o => o.value === currentStatus) ?? FACULTY_STATUS_OPTIONS[0]
+                      return (
+                        <select
+                          value={currentStatus}
+                          onChange={e => handleUpdateFacultyStatus(f.id, e.target.value)}
+                          className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-crimson/30 ${currentOption.style}`}
+                          title="Update your status for this faculty member"
+                        >
+                          {FACULTY_STATUS_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      )
+                    })()}
 
                     {/* Unsave button */}
                     <button

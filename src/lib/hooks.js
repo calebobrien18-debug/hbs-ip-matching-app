@@ -138,7 +138,42 @@ function useSavedItems(tableName, fieldKey, session) {
  */
 export function useSavedFaculty(session) {
   const { ids: savedIds, toggle: toggleSave } = useSavedItems('saved_faculty', 'faculty_id', session)
-  return { savedIds, toggleSave }
+
+  // status map: facultyId → status string
+  const [statusMap, setStatusMap] = useState(new Map())
+
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('saved_faculty')
+      .select('faculty_id, status')
+      .eq('user_id', session.user.id)
+      .then(({ data, error }) => {
+        if (error) { console.error('[useSavedFaculty] status load error:', error); return }
+        setStatusMap(new Map((data ?? []).map(r => [r.faculty_id, r.status ?? 'interested'])))
+      })
+  }, [session])
+
+  async function updateStatus(facultyId, status) {
+    // Optimistic
+    setStatusMap(prev => new Map(prev).set(facultyId, status))
+    const { error } = await supabase
+      .from('saved_faculty')
+      .update({ status })
+      .eq('user_id', session.user.id)
+      .eq('faculty_id', facultyId)
+    if (error) {
+      console.error('[useSavedFaculty] status update error:', error)
+      // Rollback to previous value
+      setStatusMap(prev => {
+        const next = new Map(prev)
+        next.delete(facultyId)
+        return next
+      })
+    }
+  }
+
+  return { savedIds, toggleSave, statusMap, updateStatus }
 }
 
 /**
