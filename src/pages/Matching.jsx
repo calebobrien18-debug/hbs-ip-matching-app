@@ -542,6 +542,15 @@ export default function Matching() {
                 canUnmatch={isViewingLatest}
                 onUnmatch={() => handleUnmatch(match.id)}
                 facultyCourses={(facultyCourseMap[match.faculty?.id] ?? []).slice(0, 2)}
+                coursesLoaded={!coursesLoading}
+                onReportData={async (facultyId, facultyName) => {
+                  const { data: { session: s } } = await supabase.auth.getSession()
+                  await supabase.from('feedback').insert({
+                    user_id: s?.user?.id ?? null,
+                    user_email: s?.user?.email ?? null,
+                    message: `Data issue reported for: ${facultyName} (faculty_id: ${facultyId})`,
+                  })
+                }}
               />
             ))}
             {filteredMatches.length === 0 && filterStrength && (
@@ -648,12 +657,20 @@ export default function Matching() {
 
 // ── Match card ─────────────────────────────────────────────────────────────────
 
-function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facultyCourses = [] }) {
+function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facultyCourses = [], coursesLoaded = false, onReportData }) {
   const f = match.faculty
   if (!f) return null
 
   const strengthStyle = STRENGTH_STYLES[match.match_strength] ?? STRENGTH_STYLES.good
   const strengthLabel = STRENGTH_LABELS[match.match_strength] ?? 'Match'
+
+  const [reported, setReported] = useState(false)
+  async function handleReport() {
+    if (reported || !onReportData) return
+    await onReportData(f.id, f.name)
+    setReported(true)
+    setTimeout(() => setReported(false), 3000)
+  }
 
   return (
     <div className={`bg-white rounded-xl border border-gray-200 border-l-4 ${STRENGTH_ACCENT[match.match_strength] ?? STRENGTH_ACCENT.good} p-6 space-y-5 hover:-translate-y-0.5 hover:shadow-md transition-all`}>
@@ -735,6 +752,9 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
             </div>
           </div>
         )}
+        {coursesLoaded && facultyCourses.length === 0 && (
+          <p className="text-[11px] text-gray-400 italic">Teaching context not available for this faculty member.</p>
+        )}
       </div>
 
       {/* Footer */}
@@ -798,6 +818,17 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
             View full profile →
           </Link>
         </div>
+      </div>
+
+      {/* Data quality footer */}
+      <div className="flex justify-end pt-1">
+        <button
+          type="button"
+          onClick={handleReport}
+          className="text-[10px] text-gray-300 hover:text-gray-500 transition-colors cursor-pointer"
+        >
+          {reported ? 'Reported ✓' : 'Report incorrect data'}
+        </button>
       </div>
     </div>
   )
