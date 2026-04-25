@@ -1,0 +1,23 @@
+{
+  "output": {
+    "filePath": "repomix-output.txt",
+    "style": "plain",
+    "showLineNumbers": false,
+    "copyToClipboard": false
+  },
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "repomix-output.txt",
+      "scripts/courses_raw.json",
+      "scripts/courses_data.json",
+      "scripts/enriched_faculty.json",
+      "scripts/all_faculty.json",
+      "CRITIQUE_BRIEF.txt",
+      "scripts/courses_raw.txt",
+      "scripts/tags-master.json",
+      "scripts/courses.json"
+    ]
+  }
+}
