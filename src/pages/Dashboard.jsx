@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -6,6 +6,102 @@ import { useRequireAuth } from '../lib/hooks'
 import { initials, groupCourseRows } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_LABELS } from '../lib/constants'
 import { LightbulbIcon, ArrowRightIcon, XIcon, SparklesIcon, BookmarkIcon, BookOpenIcon } from '../components/Icons'
+
+function LaunchChecklist({ profiles, matches, savedFaculty, savedIdeas, emailDraftCount, dataReady }) {
+  const steps = useMemo(() => [
+    {
+      label: 'Complete your profile',
+      done: profiles.length > 0 && !!profiles[0]?.professional_interests,
+      href: profiles.length === 0 ? '/profile/new' : '/profile/edit',
+      cta: profiles.length === 0 ? 'Create profile →' : 'Update profile →',
+    },
+    {
+      label: 'Run your first faculty match',
+      done: matches.length > 0,
+      href: '/match',
+      cta: 'Go to matching →',
+    },
+    {
+      label: 'Save 2–3 faculty',
+      done: savedFaculty.length >= 2,
+      href: '/match',
+      cta: 'Browse matches →',
+    },
+    {
+      label: 'Generate a case study idea',
+      done: savedIdeas.length > 0,
+      href: matches.length > 0 ? `/case-ideas/${matches[0]?.id}` : '/match',
+      cta: 'Generate ideas →',
+    },
+    {
+      label: 'Draft your first outreach email',
+      done: emailDraftCount > 0,
+      href: '/saved-ideas',
+      cta: 'Draft email →',
+    },
+  ], [profiles, matches, savedFaculty, savedIdeas, emailDraftCount])
+
+  const allDone = steps.every(s => s.done)
+  const nextIdx = steps.findIndex(s => !s.done)
+
+  if (!dataReady) return null
+
+  if (allDone) {
+    return (
+      <div className="rounded-xl bg-green-50 border border-green-200 px-5 py-4 flex items-center gap-3">
+        <span className="text-green-600 text-lg">✓</span>
+        <div>
+          <p className="text-sm font-semibold text-green-900">You're on track — all key steps complete</p>
+          <p className="text-xs text-green-700 mt-0.5">Head to <Link to="/saved-ideas" className="underline font-medium">Saved Ideas</Link> to continue refining your outreach.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Getting started</p>
+      </div>
+      <ul className="divide-y divide-gray-50">
+        {steps.map((step, i) => {
+          const isNext = i === nextIdx
+          const isPast = step.done
+          const isFuture = !isPast && !isNext
+          return (
+            <li key={i} className={`flex items-center gap-3 px-5 py-3.5 ${isNext ? 'bg-crimson/4' : ''}`}>
+              {/* Status icon */}
+              <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold border ${
+                isPast
+                  ? 'bg-green-600 border-green-600 text-white'
+                  : isNext
+                    ? 'border-crimson bg-white text-crimson'
+                    : 'border-gray-200 bg-white text-gray-300'
+              }`}>
+                {isPast ? '✓' : i + 1}
+              </div>
+
+              {/* Label */}
+              <span className={`flex-1 text-sm ${isPast ? 'line-through text-gray-400' : isNext ? 'font-semibold text-gray-900' : 'text-gray-400'}`}>
+                {step.label}
+              </span>
+
+              {/* CTA for next step */}
+              {isNext && (
+                <Link
+                  to={step.href}
+                  className="flex-shrink-0 text-xs font-semibold text-white bg-crimson px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  {step.cta}
+                </Link>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
 
 const GUEST_GREETINGS = [
   'Adventurer', 'Trailblazer', 'Visionary', 'Pioneer', 'Changemaker',
@@ -35,6 +131,7 @@ export default function Dashboard() {
 
   const [teachingCourses, setTeachingCourses] = useState([])
   const [teachingLoading, setTeachingLoading] = useState(false)
+  const [emailDraftCount, setEmailDraftCount] = useState(0)
 
   useEffect(() => {
     if (!session) return
@@ -109,6 +206,16 @@ export default function Dashboard() {
         setSavedIdeas(data ?? [])
         setSavedIdeasLoading(false)
       })
+  }, [session])
+
+  // Load email draft count for checklist step 5
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('email_draft_runs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .then(({ count }) => setEmailDraftCount(count ?? 0))
   }, [session])
 
   // Load saved faculty details
@@ -205,6 +312,16 @@ export default function Dashboard() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">Here's your research activity.</p>
         </div>
+
+        {/* Launch checklist */}
+        <LaunchChecklist
+          profiles={profiles}
+          matches={matches}
+          savedFaculty={savedFaculty}
+          savedIdeas={savedIdeas}
+          emailDraftCount={emailDraftCount}
+          dataReady={!loading && !matchesLoading && !savedLoading && !savedIdeasLoading}
+        />
 
         {/* Profile list + action button */}
         <div className="space-y-3">
