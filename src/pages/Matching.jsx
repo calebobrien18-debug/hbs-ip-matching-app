@@ -471,6 +471,23 @@ export default function Matching() {
           </div>
         )}
 
+        {/* Weak-results tip — all matches exploratory */}
+        {matches.length > 0 && matches.every(m => m.match_strength === 'exploratory') && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3">
+            <span className="flex-shrink-0 text-amber-500 mt-0.5">💡</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-900">Your results may improve with a richer profile</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Try adding specific research questions, topics, or projects you want to pursue at HBS.
+                The more concrete your interests, the stronger your matches will be.
+              </p>
+              <Link to="/profile/edit" className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-amber-800 hover:text-amber-900 transition-colors">
+                Update your profile →
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Empty state when all matches removed */}
         {matches.length === 0 && (
           <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
@@ -665,11 +682,19 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
   const strengthLabel = STRENGTH_LABELS[match.match_strength] ?? 'Match'
 
   const [reported, setReported] = useState(false)
+  const [showAllReasons, setShowAllReasons] = useState(false)
+
   async function handleReport() {
     if (reported || !onReportData) return
     await onReportData(f.id, f.name)
     setReported(true)
     setTimeout(() => setReported(false), 3000)
+  }
+
+  const STRENGTH_CONTEXT = {
+    strong:      'High alignment across research interests and background.',
+    good:        'Meaningful overlap in one or more key areas.',
+    exploratory: 'Potential connection worth investigating.',
   }
 
   return (
@@ -694,14 +719,19 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
               <h3 className="text-base font-semibold text-gray-900 leading-snug">{f.name}</h3>
               {f.title && <p className="text-xs text-gray-500 mt-0.5 leading-snug">{f.title}</p>}
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {f.unit && (
-                <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 text-white bg-crimson">
-                  {f.unit}
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                {f.unit && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full px-2.5 py-0.5 text-white bg-crimson">
+                    {f.unit}
+                  </span>
+                )}
+                <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${strengthStyle}`}>
+                  {strengthLabel}
                 </span>
-              )}
-              <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${strengthStyle}`}>
-                {strengthLabel}
+              </div>
+              <span className="text-[10px] text-gray-400 text-right leading-snug max-w-[180px]">
+                {STRENGTH_CONTEXT[match.match_strength] ?? ''}
               </span>
             </div>
           </div>
@@ -712,15 +742,24 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
         {/* Match reasons */}
         {match.match_reasons?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Why you match</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Why this match</p>
             <ul className="space-y-1.5">
-              {match.match_reasons.map((reason, i) => (
+              {(showAllReasons ? match.match_reasons : match.match_reasons.slice(0, 2)).map((reason, i) => (
                 <li key={i} className="flex gap-2 text-sm text-gray-700 leading-snug">
                   <span className="text-crimson font-bold flex-shrink-0 mt-0.5">•</span>
                   {reason}
                 </li>
               ))}
             </ul>
+            {match.match_reasons.length > 2 && (
+              <button
+                type="button"
+                onClick={() => setShowAllReasons(v => !v)}
+                className="mt-2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
+              >
+                {showAllReasons ? '− Show less' : `+ ${match.match_reasons.length - 2} more reason${match.match_reasons.length - 2 !== 1 ? 's' : ''}`}
+              </button>
+            )}
           </div>
         )}
 
