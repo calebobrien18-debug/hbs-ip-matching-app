@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, isNavContent, sanitizeDescription } from '../lib/utils'
+import { initials, isNavContent, sanitizeDescription, groupCourseRows } from '../lib/utils'
 import { BookmarkIcon } from '../components/Icons'
 
 const PUB_TYPE_COLORS = {
@@ -55,6 +55,8 @@ export default function FacultyDetail() {
     }
     load()
   }, [session, id])
+
+  const groupedCourses = useMemo(() => groupCourseRows(courses), [courses])
 
   // Ordered list of pub types present for this faculty
   const pubTypes = useMemo(() => {
@@ -206,11 +208,11 @@ export default function FacultyDetail() {
           )}
         </Section>
 
-        {/* Courses */}
-        {courses.length > 0 && (
-          <Section title={`Courses (${courses.length})`}>
+        {/* Courses — grouped to deduplicate team-taught/multi-term rows */}
+        {groupedCourses.length > 0 && (
+          <Section title="Courses this professor teaches">
             <div className="divide-y divide-gray-100">
-              {courses.map(course => (
+              {groupedCourses.map(course => (
                 <CourseRow key={course.id} course={course} />
               ))}
             </div>

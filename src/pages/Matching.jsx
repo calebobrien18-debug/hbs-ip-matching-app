@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
@@ -195,6 +195,20 @@ export default function Matching() {
       await loadMatchesForRun(selectedRunId)
     }
   }
+
+  // Map faculty_id → grouped courses for per-card "Also teaches" context
+  const facultyCourseMap = useMemo(() => {
+    const map = {}
+    for (const course of suggestedCourses) {
+      for (const f of course.faculty ?? []) {
+        if (f.id) {
+          if (!map[f.id]) map[f.id] = []
+          map[f.id].push(course)
+        }
+      }
+    }
+    return map
+  }, [suggestedCourses])
 
   const latestRunId = runs[0]?.id ?? null
   const isViewingLatest = selectedRunId === latestRunId
@@ -530,6 +544,7 @@ export default function Matching() {
                 onSaveToggle={() => toggleSave(match.faculty?.id)}
                 canUnmatch={isViewingLatest}
                 onUnmatch={() => handleUnmatch(match.id)}
+                facultyCourses={(facultyCourseMap[match.faculty?.id] ?? []).slice(0, 2)}
               />
             ))}
             {filteredMatches.length === 0 && filterStrength && (
@@ -543,9 +558,12 @@ export default function Matching() {
         {/* Suggested courses from matched faculty */}
         {(suggestedCourses.length > 0 || coursesLoading) && isViewingLatest && (
           <div className="border-t border-gray-200 pt-6 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Courses from your matched faculty
-            </h2>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Teaching context from your matches
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">Courses these professors teach — another lens on fit and collaboration</p>
+            </div>
 
             {coursesLoading ? (
               <div className="space-y-2">
@@ -633,7 +651,7 @@ export default function Matching() {
 
 // ── Match card ─────────────────────────────────────────────────────────────────
 
-function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
+function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facultyCourses = [] }) {
   const f = match.faculty
   if (!f) return null
 
@@ -704,6 +722,20 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch }) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Teaching context — lightweight course signal */}
+        {facultyCourses.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Also teaches</p>
+            <div className="flex flex-wrap gap-1.5">
+              {facultyCourses.map(c => (
+                <span key={c.id} className="text-xs bg-gray-50 border border-gray-200 text-gray-600 rounded-full px-2.5 py-0.5">
+                  {c.course_title}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>

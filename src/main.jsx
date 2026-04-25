@@ -44,7 +44,6 @@ import Matching from './pages/Matching.jsx'
 import CaseStudyIdeas from './pages/CaseStudyIdeas.jsx'
 import SavedIdeas from './pages/SavedIdeas.jsx'
 import AdminFeedback from './pages/AdminFeedback.jsx'
-import CourseMatch from './pages/CourseMatch.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

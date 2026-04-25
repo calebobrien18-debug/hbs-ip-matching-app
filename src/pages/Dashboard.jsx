@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
-import { initials } from '../lib/utils'
+import { initials, groupCourseRows } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_LABELS } from '../lib/constants'
 import { LightbulbIcon, ArrowRightIcon, XIcon, SparklesIcon, BookmarkIcon, BookOpenIcon } from '../components/Icons'
 
@@ -33,8 +33,8 @@ export default function Dashboard() {
   const [savedIdeas, setSavedIdeas] = useState([])
   const [savedIdeasLoading, setSavedIdeasLoading] = useState(true)
 
-  const [courseMatches, setCourseMatches] = useState([])
-  const [courseMatchesLoading, setCourseMatchesLoading] = useState(true)
+  const [teachingCourses, setTeachingCourses] = useState([])
+  const [teachingLoading, setTeachingLoading] = useState(false)
 
   useEffect(() => {
     if (!session) return
@@ -71,28 +71,30 @@ export default function Dashboard() {
       })
   }, [session])
 
-  // Load latest course match run
+  // Load teaching context: courses from matched faculty, sorted by match rank
   useEffect(() => {
-    if (!session) return
+    if (matches.length === 0) { setTeachingCourses([]); return }
+    const facultyIds = matches.map(m => m.faculty?.id).filter(Boolean)
+    if (facultyIds.length === 0) return
+
+    setTeachingLoading(true)
     supabase
-      .from('course_match_runs')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(async ({ data: latestRun }) => {
-        if (!latestRun) { setCourseMatchesLoading(false); return }
-        const { data: matchData } = await supabase
-          .from('course_matches')
-          .select('id, rank, course_id, rationale, faculty_courses(id, course_title, faculty_name, faculty_id, term, credits)')
-          .eq('run_id', latestRun.id)
-          .order('rank')
-          .limit(3)
-        setCourseMatches(matchData ?? [])
-        setCourseMatchesLoading(false)
+      .from('faculty_courses')
+      .select('*, faculty(id, name)')
+      .in('faculty_id', facultyIds)
+      .then(({ data }) => {
+        if (!data) { setTeachingCourses([]); setTeachingLoading(false); return }
+        const grouped = groupCourseRows(data)
+        const rankMap = Object.fromEntries(facultyIds.map((id, i) => [id, i]))
+        grouped.sort((a, b) => {
+          const aRank = Math.min(...a.faculty.map(f => rankMap[f.id] ?? 999))
+          const bRank = Math.min(...b.faculty.map(f => rankMap[f.id] ?? 999))
+          return aRank - bRank
+        })
+        setTeachingCourses(grouped.slice(0, 3))
+        setTeachingLoading(false)
       })
-  }, [session])
+  }, [matches])
 
   // Load saved case study ideas
   useEffect(() => {
@@ -371,86 +373,67 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* My Course Picks */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
-              <BookOpenIcon className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-              My Course Picks
-            </h2>
-            <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
-              {courseMatches.length > 0 ? 'View & re-run →' : 'Find courses →'}
-            </Link>
-          </div>
-
-          {courseMatchesLoading ? (
-            <div className="space-y-2">
-              {[0, 1].map(i => (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
-                  <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3.5 bg-gray-200 rounded w-3/5" />
-                    <div className="h-3 bg-gray-100 rounded w-2/5" />
-                  </div>
-                  <div className="h-4 w-10 bg-gray-100 rounded-full" />
-                </div>
-              ))}
-            </div>
-          ) : courseMatches.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-10 text-center">
-              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
-                <BookOpenIcon className="w-5 h-5 text-gray-300" />
-              </div>
-              <p className="text-sm font-medium text-gray-600">No course picks yet</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Discover electives tailored to your interests and career path.</p>
-              <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
-                Explore electives →
+        {/* Teaching context from matched faculty — only shown when matches exist */}
+        {!matchesLoading && matches.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                <BookOpenIcon className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                Teaching context from your matches
+              </h2>
+              <Link to="/match" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
+                View all →
               </Link>
             </div>
-          ) : (
-            <ul className="space-y-2">
-              {courseMatches.map(m => {
-                const c = m.faculty_courses
-                if (!c) return null
-                return (
-                  <li key={m.id}>
-                    <Link
-                      to="/match"
-                      className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-crimson/40 hover:shadow-sm hover:-translate-y-px transition-all group"
-                    >
-                      {/* Rank badge */}
-                      <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                        {m.rank}
-                      </span>
 
-                      {/* Course info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{c.course_title}</p>
-                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                          {c.faculty_name && (
-                            <p className="text-xs text-gray-500 truncate">{c.faculty_name}</p>
-                          )}
-                          {c.credits && (
-                            <span className="text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full px-1.5 py-0.5 flex-shrink-0">
-                              {c.credits} cr
-                            </span>
-                          )}
-                          {c.term && (
-                            <span className="text-[10px] font-medium bg-blue-50 text-blue-600 rounded-full px-1.5 py-0.5 flex-shrink-0">
-                              {c.term}
-                            </span>
-                          )}
+            {teachingLoading ? (
+              <div className="space-y-2">
+                {[0, 1].map(i => (
+                  <div key={i} className="bg-white rounded-xl border border-gray-200 px-5 py-3.5 flex items-center gap-3 animate-pulse">
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3.5 bg-gray-200 rounded w-3/5" />
+                      <div className="h-3 bg-gray-100 rounded w-2/5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : teachingCourses.length > 0 ? (
+              <ul className="space-y-2">
+                {teachingCourses.map(c => {
+                  const prof = c.faculty?.[0]
+                  return (
+                    <li key={c.id}>
+                      <Link
+                        to={prof?.id ? `/faculty/${prof.id}` : '/match'}
+                        className="flex items-start gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 hover:border-gray-300 hover:shadow-sm hover:-translate-y-px transition-all group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{c.course_title}</p>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                            {prof?.name && (
+                              <p className="text-xs text-gray-500 truncate">{prof.name}</p>
+                            )}
+                            {c.credits && (
+                              <span className="text-[10px] font-medium bg-gray-100 text-gray-500 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                                {c.credits} cr
+                              </span>
+                            )}
+                            {c.term && (
+                              <span className="text-[10px] font-medium bg-blue-50 text-blue-600 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                                {c.term}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-
-                      <ArrowRightIcon className="w-4 h-4 text-gray-300 group-hover:text-gray-600 transition-colors flex-shrink-0 mt-1" />
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
+                        <ArrowRightIcon className="w-4 h-4 text-gray-300 group-hover:text-gray-600 transition-colors flex-shrink-0 mt-1" />
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : null}
+          </div>
+        )}
 
         {/* Saved Case Study Ideas */}
         <div className="space-y-3">
