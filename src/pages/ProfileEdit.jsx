@@ -7,6 +7,132 @@ import {
 } from './ProfileNew.jsx'
 import NavBar from '../components/NavBar'
 
+function wordCount(text) {
+  if (!text) return 0
+  return text.trim().split(/\s+/).filter(Boolean).length
+}
+
+function InputQualityBadge({ text, label }) {
+  const wc = wordCount(text)
+  if (!text || wc === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-red-600 font-medium">
+        <span>✗</span> {label} — missing
+      </span>
+    )
+  }
+  if (wc < 100) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
+        <span>⚠</span> {label} — limited ({wc} words)
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-green-700 font-medium">
+      <span>✓</span> {label} — strong ({wc} words)
+    </span>
+  )
+}
+
+const LS_KEY_INPUTS_OPEN = 'profound_match_inputs_open'
+
+function MatchingInputsPanel({ resumeText, linkedinText, topicsToExplore, onTopicsChange }) {
+  const [open, setOpen] = useState(() => localStorage.getItem(LS_KEY_INPUTS_OPEN) === '1')
+  const [resumePreviewOpen, setResumePreviewOpen] = useState(false)
+  const [linkedinPreviewOpen, setLinkedinPreviewOpen] = useState(false)
+
+  function toggleOpen() {
+    const next = !open
+    setOpen(next)
+    localStorage.setItem(LS_KEY_INPUTS_OPEN, next ? '1' : '0')
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={toggleOpen}
+        className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer hover:bg-gray-50 transition-colors"
+      >
+        <div>
+          <p className="text-sm font-semibold text-gray-900">Matching inputs</p>
+          <p className="text-xs text-gray-500 mt-0.5">What the AI uses to find your faculty matches</p>
+        </div>
+        <span className="text-gray-400 text-sm">{open ? '▴' : '▾'}</span>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 space-y-4 border-t border-gray-100">
+          {/* Resume */}
+          <div className="space-y-1.5 pt-4">
+            <InputQualityBadge text={resumeText} label="Resume text" />
+            {resumeText && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setResumePreviewOpen(v => !v)}
+                  className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
+                >
+                  {resumePreviewOpen ? 'Hide preview' : 'Preview extracted text'}
+                </button>
+                {resumePreviewOpen && (
+                  <pre className="mt-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-24 overflow-hidden whitespace-pre-wrap leading-relaxed">
+                    {resumeText.slice(0, 500)}{resumeText.length > 500 ? '…' : ''}
+                  </pre>
+                )}
+              </div>
+            )}
+            {!resumeText && (
+              <p className="text-xs text-gray-400">Upload a resume above to improve your matches.</p>
+            )}
+          </div>
+
+          {/* LinkedIn */}
+          <div className="space-y-1.5 border-t border-gray-100 pt-4">
+            <InputQualityBadge text={linkedinText} label="LinkedIn text" />
+            {linkedinText && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setLinkedinPreviewOpen(v => !v)}
+                  className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
+                >
+                  {linkedinPreviewOpen ? 'Hide preview' : 'Preview extracted text'}
+                </button>
+                {linkedinPreviewOpen && (
+                  <pre className="mt-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-24 overflow-hidden whitespace-pre-wrap leading-relaxed">
+                    {linkedinText.slice(0, 500)}{linkedinText.length > 500 ? '…' : ''}
+                  </pre>
+                )}
+              </div>
+            )}
+            {!linkedinText && (
+              <p className="text-xs text-gray-400">Upload a LinkedIn PDF above to add professional context.</p>
+            )}
+          </div>
+
+          {/* Topics to explore */}
+          <div className="border-t border-gray-100 pt-4 space-y-2">
+            <label className="block text-xs font-semibold text-gray-700">
+              Topics I want to explore at HBS
+              <span className="font-normal text-gray-400 ml-1">(optional — supplements your resume for matching)</span>
+            </label>
+            <textarea
+              value={topicsToExplore}
+              onChange={e => onTopicsChange(e.target.value)}
+              rows={3}
+              placeholder="e.g. climate tech policy, impact investing in emerging markets, healthcare innovation"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson/50 placeholder:text-gray-400"
+            />
+            <p className="text-[11px] text-gray-400">This is sent to the AI alongside your resume and interests when finding matches.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ProfileEdit() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -27,6 +153,7 @@ export default function ProfileEdit() {
   const [linkedinPdfFile, setLinkedinPdfFile] = useState(null)
   const [resumeText, setResumeText] = useState('')
   const [linkedinText, setLinkedinText] = useState('')
+  const [topicsToExplore, setTopicsToExplore] = useState('')
 
   const session = useRequireAuth()
 
@@ -46,6 +173,7 @@ export default function ProfileEdit() {
       // Pre-load previously extracted text so it isn't lost if user doesn't re-upload
       setResumeText(profile.resume_text ?? '')
       setLinkedinText(profile.linkedin_text ?? '')
+      setTopicsToExplore(profile.topics_to_explore ?? '')
       setForm({
         first_name: profile.first_name ?? '',
         last_name: profile.last_name ?? '',
@@ -104,6 +232,7 @@ export default function ProfileEdit() {
           linkedin_url: form.linkedin_url.trim() || null,
           website_urls: form.website_urls.trim() || null,
           additional_background: form.additional_background.trim() || null,
+          topics_to_explore: topicsToExplore.trim() || null,
           resume_path, linkedin_pdf_path,
           resume_text: resumeText || null,
           linkedin_text: linkedinText || null,
@@ -152,6 +281,13 @@ export default function ProfileEdit() {
             existingLinkedinPdf={existingLinkedinPdf}
             hasExistingResumeText={!!resumeText}
             hasExistingLinkedinText={!!linkedinText}
+          />
+
+          <MatchingInputsPanel
+            resumeText={resumeText}
+            linkedinText={linkedinText}
+            topicsToExplore={topicsToExplore}
+            onTopicsChange={setTopicsToExplore}
           />
 
           {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}

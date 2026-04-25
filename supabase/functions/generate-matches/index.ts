@@ -118,7 +118,7 @@ Deno.serve(async (req: Request) => {
     // ── 2. Load user profile ──────────────────────────────────────────────────
     const { data: profile, error: profileError } = await supabase
       .from('hbs_ip')
-      .select('professional_interests, additional_background, faculty_in_mind, resume_text, linkedin_text, program, graduation_year')
+      .select('professional_interests, additional_background, faculty_in_mind, resume_text, linkedin_text, topics_to_explore, program, graduation_year')
       .eq('user_id', user!.id)
       .maybeSingle()
 
@@ -164,6 +164,7 @@ Deno.serve(async (req: Request) => {
       profile.professional_interests ?? '',
       profile.additional_background ?? '',
       profile.faculty_in_mind ?? '',
+      profile.topics_to_explore ?? '',
       (profile.resume_text ?? '').slice(0, 8000),
       (profile.linkedin_text ?? '').slice(0, 4000),
     ].filter(Boolean).join(' ')
@@ -206,6 +207,7 @@ Deno.serve(async (req: Request) => {
       profile.faculty_in_mind ? `Faculty already in mind: ${profile.faculty_in_mind}` : '',
       profile.resume_text ? `Resume highlights (excerpt): ${profile.resume_text.slice(0, 1500)}` : '',
       profile.linkedin_text ? `LinkedIn highlights (excerpt): ${profile.linkedin_text.slice(0, 1000)}` : '',
+      profile.topics_to_explore ? `Topics I want to explore at HBS: ${profile.topics_to_explore}` : '',
     ].filter(Boolean).join('\n')
 
     const systemPrompt = `You are a faculty matching assistant for Harvard Business School's ProfFound platform.
