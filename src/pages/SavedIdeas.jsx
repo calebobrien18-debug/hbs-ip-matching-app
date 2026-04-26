@@ -7,6 +7,7 @@ import NavBar from '../components/NavBar'
 import { EMAIL_DAILY_LIMIT } from '../lib/constants'
 import { TrashIcon, EnvelopeIcon, ClipboardIcon, CheckIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
+import { trackEvent } from '../lib/analytics'
 
 const FACULTY_STATUS_OPTIONS = [
   { value: 'interested',  label: 'Interested',   style: 'bg-gray-100 text-gray-600' },
@@ -127,6 +128,7 @@ export default function SavedIdeas() {
 
       patchDraftState(fid, { subject: data.subject ?? '', body: data.body ?? '', loading: false })
       setEmailsToday(prev => Math.max(prev, data.draftsToday ?? prev + 1))
+      trackEvent('email_draft_generated', { tone: state.tone ?? 'warm' })
     } catch (err) {
       console.error('Email draft error:', err)
       patchDraftState(fid, { error: err.message || 'Something went wrong.', loading: false })
@@ -139,6 +141,7 @@ export default function SavedIdeas() {
       ? `Subject: ${state.subject}\n\n${state.body}`
       : state.body
     navigator.clipboard.writeText(text).then(() => {
+      trackEvent('email_copied')
       patchDraftState(fid, { copied: true })
       setTimeout(() => patchDraftState(fid, { copied: false }), 2000)
     })

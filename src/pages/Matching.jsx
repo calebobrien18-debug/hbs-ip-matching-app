@@ -7,6 +7,7 @@ import { initials, groupCourseRows, sanitizeDescription } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_ACCENT, STRENGTH_LABELS, DAILY_LIMIT } from '../lib/constants'
 import { SparklesIcon, RefreshIcon, ChevronIcon, LightbulbIcon, BookmarkIcon, XIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
+import { trackEvent } from '../lib/analytics'
 
 const LOADING_MESSAGES = [
   'Analyzing your background…',
@@ -48,6 +49,8 @@ export default function Matching() {
   const [coursesLoading, setCoursesLoading] = useState(false)
   const listVisible = useFilterFade(filterStrength)
   const abortControllerRef = useRef(null)                // for cancelling in-flight requests
+  const [showUsefulPrompt, setShowUsefulPrompt] = useState(false)
+  const [usefulResponse, setUsefulResponse] = useState(null) // null | 'yes' | 'somewhat' | 'no'
 
   // "How it works" — open by default on first visit, collapsed thereafter
   const LS_KEY_HOWTO = 'profound_howto_matching'
@@ -157,11 +160,16 @@ export default function Matching() {
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
 
+      const isFirstEverRun = runs.length === 0
       setRuns(runData ?? [])
       setMatches(data.matches ?? [])
       setSelectedRunId(data.run_id)
       setRunsToday(prev => prev + 1)
       setPageState('results')
+      trackEvent('match_run', { match_count: (data.matches ?? []).length })
+      if (isFirstEverRun && !localStorage.getItem('profound_match_feedback_done')) {
+        setShowUsefulPrompt(true)
+      }
     } catch (err) {
       if (err.name === 'AbortError') {
         // User cancelled — silently restore previous state, no error shown
@@ -178,6 +186,19 @@ export default function Matching() {
 
   function handleCancelMatch() {
     abortControllerRef.current?.abort()
+  }
+
+  async function handleUsefulFeedback(response) {
+    setUsefulResponse(response)
+    setShowUsefulPrompt(false)
+    localStorage.setItem('profound_match_feedback_done', '1')
+    const { data: { session: s } } = await supabase.auth.getSession()
+    await supabase.from('feedback').insert({
+      user_id: s?.user?.id ?? null,
+      user_email: s?.user?.email ?? null,
+      message: `Match usefulness: ${response}`,
+    })
+    trackEvent('match_usefulness_rated', { response })
   }
 
   async function handleSelectRun(runId) {
@@ -434,6 +455,34 @@ export default function Matching() {
                   : 'These faculty are well-aligned with your background and professional interests. Explore each profile to find your best starting point.'}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Post-match usefulness prompt — shows once after first-ever run */}
+        {showUsefulPrompt && (
+          <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-indigo-900">Were these results useful?</p>
+              <div className="flex items-center gap-2 mt-2">
+                {['Yes', 'Somewhat', 'No'].map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => handleUsefulFeedback(opt.toLowerCase())}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer"
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowUsefulPrompt(false); localStorage.setItem('profound_match_feedback_done', '1') }}
+              className="text-indigo-400 hover:text-indigo-600 transition-colors cursor-pointer flex-shrink-0 text-lg leading-none"
+            >
+              ×
+            </button>
           </div>
         )}
 

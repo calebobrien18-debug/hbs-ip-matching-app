@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from './supabase'
+import { trackEvent } from './analytics'
 
 /**
  * Returns true if the current user is in the admins table, false if not,
@@ -118,6 +119,8 @@ function useSavedItems(tableName, fieldKey, session) {
         console.error(`[${tableName}] insert error:`, error)
         // Rollback: remove the item
         setIds(prev => { const next = new Set(prev); next.delete(itemId); return next })
+      } else if (tableName === 'saved_faculty') {
+        trackEvent('faculty_saved')
       }
     }
   }

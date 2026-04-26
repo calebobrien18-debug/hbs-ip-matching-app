@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useRequireAuth } from '../lib/hooks'
+import { trackEvent } from '../lib/analytics'
 import {
   PersonalSection, HBSSection, ResearchSection, UploadsSection,
 } from './ProfileNew.jsx'
@@ -240,6 +241,7 @@ export default function ProfileEdit() {
         .eq('user_id', userId)
 
       if (updateError) throw updateError
+      trackEvent('profile_completed', { has_resume: !!(resumeText), has_linkedin: !!(linkedinText) })
       navigate('/dashboard')
     } catch (err) {
       setError(err.message); setSaving(false)

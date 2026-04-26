@@ -7,6 +7,7 @@ import { initials } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_LABELS, DAILY_LIMIT, EMAIL_DAILY_LIMIT } from '../lib/constants'
 import { LightbulbIcon, EnvelopeIcon, ClipboardIcon, CheckIcon, BookmarkIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
+import { trackEvent } from '../lib/analytics'
 
 const GEN_MESSAGES = [
   'Reading faculty research areas…',
@@ -126,6 +127,7 @@ export default function CaseStudyIdeas() {
       setHasGenerated(true)
       // Optimistic increment so button disables immediately after 3rd run
       setIdeasToday(prev => Math.max(prev, data.runsToday ?? prev + 1))
+      trackEvent('idea_generated', { idea_count: newIdeas.length })
       // Preserve saved state for ideas that still exist; clear orphaned keys
       setSavedIdeaMap(prev => {
         const next = new Map()
@@ -170,6 +172,7 @@ export default function CaseStudyIdeas() {
       setSavedIdeaMap(prev => { const n = new Map(prev); n.delete(idea._key); return n })
     } else {
       setSavedIdeaMap(prev => new Map(prev).set(idea._key, data.id))
+      trackEvent('idea_saved')
     }
     setSavingIdeaKey(null)
   }, [session, matchId, matchData])
@@ -227,6 +230,7 @@ export default function CaseStudyIdeas() {
       setDraftSubject(data.subject ?? '')
       setDraftBody(data.body ?? '')
       setEmailsToday(prev => Math.max(prev, data.draftsToday ?? prev + 1))
+      trackEvent('email_draft_generated', { tone: draftTone })
     } catch (err) {
       console.error('Email draft error:', err)
       setDraftError(err.message || 'Something went wrong. Please try again.')
@@ -242,6 +246,7 @@ export default function CaseStudyIdeas() {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      trackEvent('email_copied')
     })
   }, [draftSubject, draftBody])
 
