@@ -61,10 +61,12 @@ Deno.serve(async (req: Request) => {
     // ── 2. Parse request body ─────────────────────────────────────────────────
     let faculty_id: string
     let idea_ids: string[]
+    let tone: string
     try {
       const body = await req.json()
       faculty_id = (body.faculty_id ?? '').toString().trim()
       idea_ids = Array.isArray(body.idea_ids) ? body.idea_ids.slice(0, 5) : []
+      tone = ['formal', 'warm', 'concise'].includes(body.tone) ? body.tone : 'warm'
     } catch {
       return jsonResponse({ error: 'Invalid request body.' }, 400)
     }
@@ -92,6 +94,7 @@ Deno.serve(async (req: Request) => {
       { data: facultyRow,  error: fe },
       { data: profile,     error: pre },
       { data: ideaRows,    error: ie },
+      { data: pubRows },
     ] = await Promise.all([
       supabase.from('faculty')
         .select('id, name, title, unit, bio')
@@ -105,6 +108,11 @@ Deno.serve(async (req: Request) => {
         .select('id, title, premise, student_angle, faculty_id')
         .in('id', idea_ids)
         .eq('user_id', user!.id),   // ownership check
+      supabase.from('faculty_publications')
+        .select('title')
+        .eq('faculty_id', faculty_id)
+        .order('year', { ascending: false })
+        .limit(1),
     ])
 
     if (fe)  throw fe
@@ -144,6 +152,8 @@ Deno.serve(async (req: Request) => {
         ? truncateWords(profile.resume_text, 150)
         : ''
 
+    const recentPub = pubRows?.[0]?.title ?? null
+
     const ideaBlocks = ideaRows.map((idea, i) => {
       const premiseTruncated = truncateSentences(idea.premise ?? '', 4)
       const angleTruncated   = truncateSentences(idea.student_angle ?? '', 2)
@@ -173,6 +183,9 @@ Deno.serve(async (req: Request) => {
       ``,
       `CASE STUDY IDEA${ideaRows.length > 1 ? 'S' : ''} TO PITCH (${ideaRows.length}):`,
       ideaBlocks,
+      recentPub ? `` : '',
+      recentPub ? `FACULTY CONTEXT (use only if naturally relevant — do not force it):` : '',
+      recentPub ? `Recent publication: "${recentPub}"` : '',
       ``,
       `INSTRUCTIONS:`,
       `- Keep the email under 250 words`,
@@ -180,7 +193,7 @@ Deno.serve(async (req: Request) => {
       `- Include a brief personal introduction (1–2 sentences) using the student background above`,
       `- Pitch each idea with a short summary (no more than 3 sentences per idea)`,
       `- Close with a clear, low-friction ask (e.g., a 20-minute call)`,
-      `- Professional but warm tone — not stiff or overly formal`,
+      `- Tone: ${tone === 'formal' ? 'formal and measured — professional, no contractions, reserved language' : tone === 'concise' ? 'concise — aim for under 150 words total, every sentence earns its place' : 'warm and collegial — approachable and genuine, still professional and respectful'}`,
       ``,
       `Respond with ONLY valid JSON, no markdown fences:`,
       `{"subject": "...", "body": "..."}`,

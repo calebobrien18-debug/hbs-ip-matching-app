@@ -49,6 +49,7 @@ export default function CaseStudyIdeas() {
   const [draftSubject, setDraftSubject]                 = useState('')
   const [draftBody, setDraftBody]                       = useState('')
   const [draftError, setDraftError]                     = useState(null)
+  const [draftTone, setDraftTone]                       = useState('warm')
   const [emailsToday, setEmailsToday]                   = useState(0)
   const [copied, setCopied]                             = useState(false)
   const emailLimitReached = emailsToday >= EMAIL_DAILY_LIMIT
@@ -218,7 +219,9 @@ export default function CaseStudyIdeas() {
     setDraftBody('')
     try {
       const data = await invokeEdgeFunction('generate-email-draft', {
-        faculty_id: matchData.faculty.id, idea_ids: [...draftSelectedIds],
+        faculty_id: matchData.faculty.id,
+        idea_ids: [...draftSelectedIds],
+        tone: draftTone,
       })
 
       setDraftSubject(data.subject ?? '')
@@ -414,6 +417,38 @@ export default function CaseStudyIdeas() {
                     </div>
                   </label>
                 ))}
+
+                {/* Pre-draft tips */}
+                {!draftBody && !draftLoading && !emailLimitReached && (
+                  <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 space-y-1.5">
+                    <p className="text-xs font-semibold text-gray-600">A strong cold email includes:</p>
+                    <ul className="text-xs text-gray-500 space-y-1 pl-1">
+                      <li>• A specific reason you're reaching out to <em>this</em> professor</li>
+                      <li>• One concrete connection to their work</li>
+                      <li>• A clear, low-friction ask (e.g. 20-min call)</li>
+                      <li>• Under 200 words</li>
+                    </ul>
+                  </div>
+                )}
+
+                {/* Tone presets */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400 flex-shrink-0">Tone:</span>
+                  {['formal', 'warm', 'concise'].map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setDraftTone(t)}
+                      className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors capitalize ${
+                        draftTone === t
+                          ? 'bg-crimson text-white border-crimson'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
 
                 {/* Generate button */}
                 <button

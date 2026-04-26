@@ -86,6 +86,7 @@ export default function SavedIdeas() {
       selectedIds: null,   // null = not yet initialized (use all by default on first open)
       loading: false,
       subject: '', body: '', error: null, copied: false,
+      tone: 'warm',
     }
   }
 
@@ -119,7 +120,9 @@ export default function SavedIdeas() {
 
     try {
       const data = await invokeEdgeFunction('generate-email-draft', {
-        faculty_id: fid, idea_ids: [...(state.selectedIds ?? [])],
+        faculty_id: fid,
+        idea_ids: [...(state.selectedIds ?? [])],
+        tone: state.tone ?? 'warm',
       })
 
       patchDraftState(fid, { subject: data.subject ?? '', body: data.body ?? '', loading: false })
@@ -272,6 +275,19 @@ export default function SavedIdeas() {
                           </div>
                         )}
 
+                        {/* Pre-draft tips */}
+                        {!draft.body && !draft.loading && !emailLimitReached && (
+                          <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 space-y-1.5">
+                            <p className="text-xs font-semibold text-gray-600">A strong cold email includes:</p>
+                            <ul className="text-xs text-gray-500 space-y-1 pl-1">
+                              <li>• A specific reason you're reaching out to <em>this</em> professor</li>
+                              <li>• One concrete connection to their work</li>
+                              <li>• A clear, low-friction ask (e.g. 20-min call)</li>
+                              <li>• Under 200 words</li>
+                            </ul>
+                          </div>
+                        )}
+
                         {/* Idea checklist */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
@@ -312,6 +328,25 @@ export default function SavedIdeas() {
                               </div>
                             </label>
                           ))}
+
+                          {/* Tone presets */}
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="text-xs text-gray-400 flex-shrink-0">Tone:</span>
+                            {['formal', 'warm', 'concise'].map(t => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => patchDraftState(fid, { tone: t })}
+                                className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors capitalize ${
+                                  (draft.tone ?? 'warm') === t
+                                    ? 'bg-crimson text-white border-crimson'
+                                    : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
 
                           <button
                             type="button"
