@@ -157,30 +157,73 @@ def _scrape_title(soup) -> str | None:
     return None
 
 
+_PUB_ARTIFACT_PATTERNS = [
+    re.compile(r"\bView Details\b"),
+    re.compile(r"\bEds?\.\b"),
+    re.compile(r"\bet al\b", re.I),
+]
+
+
+def _is_publication_content(text: str) -> bool:
+    """
+    Return True if text looks like a publication/citation list rather than
+    a biographical narrative. Uses multiple signals — a single weak match
+    is not sufficient to reject.
+    """
+    hits = sum(1 for p in _PUB_ARTIFACT_PATTERNS if p.search(text))
+    if hits >= 2:
+        return True
+    # Year density: more year citations than sentence-ending transitions → list
+    year_count = len(re.findall(r"\b(19|20)\d{2}\b", text))
+    sentence_count = len(re.findall(r"[.!?]\s+[A-Z]", text))
+    if year_count > 5 and year_count > sentence_count:
+        return True
+    return False
+
+
 def _scrape_bio(soup) -> str | None:
     """
     Faculty biography text.
-    HBS profiles have a bio section — try common class patterns.
+
+    Candidate priority:
+      1. HBS-specific class names (fullBio, fullbio, briefbio) — confirmed from
+         real profile pages; these are the most reliable targets.
+      2. Generic class patterns as fallback.
+      3. Conservative div scan as last resort.
+
+    All candidates are validated against _is_nav_content() and the new
+    _is_publication_content() check so that citation lists (like Lakhani's
+    book bibliography) are not mistaken for biographical narrative.
     """
-    # Try class-based selectors
-    candidates = [
-        soup.find(class_=re.compile(r"biography|bio|about", re.I)),
+    # ── HBS-specific selectors (priority order) ───────────────────────────────
+    hbs_classes = ("fullBio", "fullbio", "briefbio")
+    # ── Generic fallbacks ─────────────────────────────────────────────────────
+    generic_candidates = [
+        soup.find(class_=re.compile(r"biography|bio-text|faculty-bio", re.I)),
         soup.find("div", class_=re.compile(r"faculty.content|profile.content", re.I)),
         soup.find("section", class_=re.compile(r"bio|about", re.I)),
     ]
-    for el in candidates:
-        if el:
-            # Prefer paragraph text only — HBS heading elements repeat name/title
-            paras = el.find_all("p")
-            if paras:
-                text = " ".join(p.get_text(separator=" ", strip=True) for p in paras)
-            else:
-                text = el.get_text(separator=" ", strip=True)
-            # Bio should be substantial — at least 80 chars, and not page chrome
-            if text and len(text) >= 80 and not _is_nav_content(text):
-                return _clean_bio(text)
 
-    # Fallback: look for the largest <p>-containing div that isn't in a pub section
+    candidates = [soup.find(class_=cls) for cls in hbs_classes]
+    candidates += generic_candidates
+
+    for el in candidates:
+        if not el:
+            continue
+        paras = el.find_all("p")
+        if paras:
+            text = " ".join(p.get_text(separator=" ", strip=True) for p in paras)
+        else:
+            text = el.get_text(separator=" ", strip=True)
+        if (
+            text
+            and len(text) >= 80
+            and not _is_nav_content(text)
+            and not _is_publication_content(text)
+        ):
+            return _clean_bio(text)
+
+    # ── Conservative div fallback ─────────────────────────────────────────────
     pub_containers = soup.find_all("div", class_="toggle-container")
     pub_texts = {c.get_text()[:50] for c in pub_containers}
 
@@ -192,8 +235,11 @@ def _scrape_bio(soup) -> str | None:
         if text[:50] in pub_texts:
             continue
         if 200 <= len(text) <= 3000:
-            # Must have sentence-like content AND must not be page chrome
-            if re.search(r"[.!?]\s", text) and not _is_nav_content(text):
+            if (
+                re.search(r"[.!?]\s", text)
+                and not _is_nav_content(text)
+                and not _is_publication_content(text)
+            ):
                 return _clean_bio(text)
 
     return None
@@ -225,56 +271,83 @@ def _clean_bio(text: str) -> str:
     return text.strip()[:4000]
 
 
+CANONICAL_UNITS = [
+    "Accounting & Management",
+    "Business, Government & International Economy",
+    "Entrepreneurial Management",
+    "Finance",
+    "General Management",
+    "Marketing",
+    "Negotiation, Organizations & Markets",
+    "Organizational Behavior",
+    "Strategy",
+    "Technology & Operations Management",
+]
+
+
+def _normalize_unit_name(text: str) -> str:
+    """Lowercase, collapse whitespace, treat '&' and 'and' as equivalent."""
+    text = text.strip().lower()
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\band\b", "&", text)
+    return text
+
+
+_NORMALIZED_CANONICAL: dict[str, str] = {
+    _normalize_unit_name(u): u for u in CANONICAL_UNITS
+}
+
+
+def _match_canonical_unit(text: str) -> str | None:
+    """Return canonical unit name if text matches (with & / 'and' equivalence), else None."""
+    return _NORMALIZED_CANONICAL.get(_normalize_unit_name(text))
+
+
 def _scrape_unit(soup) -> str | None:
     """
     Extract the faculty member's academic unit from their profile page.
-    HBS uses 10 canonical unit names. The unit typically appears as a
-    link in the breadcrumb or sidebar — check link text first, then
-    fall back to full page text (handles &amp; encoding differences).
+
+    Primary: <a> tags whose href contains /faculty/units/ — these appear only
+    in the profile sidebar/breadcrumb unit designation, not in global navigation.
+    Collects all distinct canonical matches; returns None when ambiguous (multiple
+    found) rather than silently guessing.
+
+    Fallback: explicit "<Unit Name> Unit" pattern in bio text, used only when
+    structural link extraction is inconclusive.
+
+    Deliberately avoids full-page soup.get_text() scans and generic all-anchor
+    scans — those were the root cause of Finance/Marketing misclassifications
+    caused by site-wide navigation links.
     """
-    CANONICAL_UNITS = [
-        "Accounting & Management",
-        "Business, Government & International Economy",
-        "Entrepreneurial Management",
-        "Finance",
-        "General Management",
-        "Marketing",
-        "Negotiation, Organizations & Markets",
-        "Organizational Behavior",
-        "Strategy",
-        "Technology & Operations Management",
-    ]
+    # ── Primary: /faculty/units/ href links ───────────────────────────────────
+    # Links containing /faculty/units/ are uniquely associated with the unit
+    # designation area on HBS profile pages and never appear in global nav.
+    unit_matches: set[str] = set()
+    for a in soup.find_all("a", href=re.compile(r"/faculty/units/", re.I)):
+        matched = _match_canonical_unit(a.get_text(strip=True))
+        if matched:
+            unit_matches.add(matched)
 
-    # Strategy 1: check all link text (unit is usually a clickable link)
-    for a in soup.find_all("a"):
-        text = a.get_text(strip=True)
+    if len(unit_matches) == 1:
+        return next(iter(unit_matches))
+    # Multiple distinct units found — do not guess; fall through to bio inspection.
+
+    # ── Fallback: explicit unit statement in bio text ─────────────────────────
+    # Bio text often contains phrasing like "in the Technology and Operations
+    # Management Unit at HBS". Only use this when structural extraction fails.
+    for bio_class in ("fullBio", "fullbio", "briefbio"):
+        bio_el = soup.find(class_=bio_class)
+        if not bio_el:
+            continue
+        bio_text = bio_el.get_text(separator=" ", strip=True)
         for unit in CANONICAL_UNITS:
-            if unit.lower() == text.lower():
+            alt = unit.replace(" & ", " and ")
+            pattern = re.compile(
+                r"(?:" + re.escape(unit) + r"|" + re.escape(alt) + r").{0,40}Unit\b",
+                re.I,
+            )
+            if pattern.search(bio_text):
                 return unit
-
-    # Strategy 2: substring match in full page text
-    # get_text() decodes &amp; → & so this handles HTML entity differences
-    page_text = soup.get_text()
-    for unit in CANONICAL_UNITS:
-        if unit in page_text:
-            return unit
-
-    # Strategy 3: partial keyword match as last resort
-    UNIT_KEYWORDS = {
-        "Accounting":        "Accounting & Management",
-        "Business, Government": "Business, Government & International Economy",
-        "Entrepreneurial":   "Entrepreneurial Management",
-        "Finance":           "Finance",
-        "General Management": "General Management",
-        "Marketing":         "Marketing",
-        "Negotiation":       "Negotiation, Organizations & Markets",
-        "Organizational Behavior": "Organizational Behavior",
-        "Strategy":          "Strategy",
-        "Technology & Operations": "Technology & Operations Management",
-    }
-    for keyword, unit in UNIT_KEYWORDS.items():
-        if keyword in page_text:
-            return unit
 
     return None
 

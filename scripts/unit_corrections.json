@@ -1,0 +1,110 @@
+[
+  {
+    "hbs_fac_id": "340604",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "1029325",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "1145752",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "937841",
+    "unit": "Business, Government & International Economy",
+    "reason": "Bio explicitly mentions \"Business, Government & International Economy\" as a unit, but stored unit is \"Strategy\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "109656",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "953217",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "660784",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Entrepreneurial Management\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "774396",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "773347",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "951639",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "6482",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "320524",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "722144",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Strategy\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "774593",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "10699",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "650172",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "194874",
+    "unit": "Technology & Operations Management",
+    "reason": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+    "source": "bio_text_evidence"
+  },
+  {
+    "hbs_fac_id": "1201306",
+    "unit": "Accounting & Management",
+    "reason": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+    "source": "bio_text_evidence"
+  }
+]

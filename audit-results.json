@@ -1,0 +1,1109 @@
+[
+  {
+    "hbs_fac_id": "340604",
+    "name": "Aiyesha Dey",
+    "stored_unit": "Finance",
+    "bio_length": 1751,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=340604",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "1495303",
+    "name": "Alex Chan",
+    "stored_unit": "Negotiation, Organizations & Markets",
+    "bio_length": 144,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1495303",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (144 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "663916",
+    "name": "Alexandra C. Feldberg",
+    "stored_unit": "Organizational Behavior",
+    "bio_length": 135,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=663916",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (135 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "6451",
+    "name": "Amy C. Edmondson",
+    "stored_unit": "Organizational Behavior",
+    "bio_length": 1049,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6451",
+    "issues": [
+      {
+        "id": "year_overload",
+        "label": "Year citations (9) exceed sentence transitions (4) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "13527",
+    "name": "Andrei Shleifer",
+    "stored_unit": "Negotiation, Organizations & Markets",
+    "bio_length": 1547,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=13527",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 8 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "12121",
+    "name": "Angela Q. Crispi",
+    "stored_unit": null,
+    "bio_length": 455,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=12121",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "371929",
+    "name": "Anita O. Lynch",
+    "stored_unit": null,
+    "bio_length": 335,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=371929",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1205278",
+    "name": "Anke Becker",
+    "stored_unit": "Entrepreneurial Management",
+    "bio_length": 109,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1205278",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (109 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1029325",
+    "name": "Antonio Moreno",
+    "stored_unit": "Marketing",
+    "bio_length": 1172,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1029325",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "768511",
+    "name": "Benjamin Bushong",
+    "stored_unit": null,
+    "bio_length": 536,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=768511",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "878997",
+    "name": "Benjamin Enke",
+    "stored_unit": null,
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=878997",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1145752",
+    "name": "Brian K. Baik",
+    "stored_unit": "Finance",
+    "bio_length": 552,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1145752",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "937841",
+    "name": "Caroline M. Elkins",
+    "stored_unit": "Strategy",
+    "bio_length": 491,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=937841",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Business, Government & International Economy\" as a unit, but stored unit is \"Strategy\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Business, Government & International Economy"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Business, Government & International Economy"
+  },
+  {
+    "hbs_fac_id": "1495309",
+    "name": "Christian Kaps",
+    "stored_unit": null,
+    "bio_length": 414,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1495309",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "109656",
+    "name": "Christina R. Wing",
+    "stored_unit": "Marketing",
+    "bio_length": 442,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=109656",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "6577",
+    "name": "David B. Yoffie",
+    "stored_unit": "Strategy",
+    "bio_length": 1142,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6577",
+    "issues": [
+      {
+        "id": "year_overload",
+        "label": "Year citations (13) exceed sentence transitions (6) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "13567",
+    "name": "David S. Scharfstein",
+    "stored_unit": "Finance",
+    "bio_length": 1190,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=13567",
+    "issues": [
+      {
+        "id": "year_overload",
+        "label": "Year citations (10) exceed sentence transitions (9) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1061854",
+    "name": "David Yang",
+    "stored_unit": "Entrepreneurial Management",
+    "bio_length": 1546,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1061854",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 2 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1621669",
+    "name": "Demi Oba",
+    "stored_unit": "Marketing",
+    "bio_length": 80,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1621669",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (80 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "180090",
+    "name": "Dwight Angelini",
+    "stored_unit": "Finance",
+    "bio_length": 2696,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=180090",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 8 times — likely citation block",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "year_overload",
+        "label": "Year citations (16) exceed sentence transitions (2) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "772797",
+    "name": "Edward McFowland III",
+    "stored_unit": null,
+    "bio_length": 181,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=772797",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1322893",
+    "name": "Elisabeth C. Paulson",
+    "stored_unit": null,
+    "bio_length": 249,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1322893",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "953217",
+    "name": "Ethan C. Rouen",
+    "stored_unit": "Finance",
+    "bio_length": 290,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=953217",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "1195264",
+    "name": "Fernanda B. Viégas",
+    "stored_unit": null,
+    "bio_length": 1478,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1195264",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 2 times — likely citation block",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1691653",
+    "name": "Georgia Perakis",
+    "stored_unit": null,
+    "bio_length": 1815,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1691653",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 4 times — likely citation block",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "140863",
+    "name": "Gunnar Trumbull",
+    "stored_unit": "Finance",
+    "bio_length": 107,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=140863",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (107 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "660784",
+    "name": "Hise O. Gibson",
+    "stored_unit": "Entrepreneurial Management",
+    "bio_length": 940,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=660784",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Entrepreneurial Management\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "1736680",
+    "name": "Indira Puri",
+    "stored_unit": null,
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1736680",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1708627",
+    "name": "Irene Georgescu",
+    "stored_unit": null,
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1708627",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1204618",
+    "name": "Ishita Sen",
+    "stored_unit": "Finance",
+    "bio_length": 123,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1204618",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (123 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1432009",
+    "name": "Jacqueline Ng Lane",
+    "stored_unit": null,
+    "bio_length": 551,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1432009",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "108987",
+    "name": "Jeffrey J. Bussgang",
+    "stored_unit": "Entrepreneurial Management",
+    "bio_length": 449,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=108987",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 3 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1504981",
+    "name": "John C. Mulliken",
+    "stored_unit": "Strategy",
+    "bio_length": 685,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1504981",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 3 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "774396",
+    "name": "Joseph Pacelli",
+    "stored_unit": "Finance",
+    "bio_length": 217,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=774396",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "564091",
+    "name": "Joshua R. Schwartzstein",
+    "stored_unit": "Negotiation, Organizations & Markets",
+    "bio_length": 115,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=564091",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (115 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "240491",
+    "name": "Karim R. Lakhani",
+    "stored_unit": "Finance",
+    "bio_length": 523,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=240491",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 3 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1611331",
+    "name": "Kinshuk Jerath",
+    "stored_unit": "Marketing",
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1611331",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "773347",
+    "name": "Kris Johnson Ferreira",
+    "stored_unit": "Marketing",
+    "bio_length": 273,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=773347",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "951639",
+    "name": "Kyle R. Myers",
+    "stored_unit": "Strategy",
+    "bio_length": 189,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=951639",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "340063",
+    "name": "Lauren H. Cohen",
+    "stored_unit": "Finance",
+    "bio_length": 389,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=340063",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "6479",
+    "name": "Linda A. Hill",
+    "stored_unit": "Organizational Behavior",
+    "bio_length": 1756,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6479",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 13 times — likely citation block",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1621666",
+    "name": "Madhav Kumar",
+    "stored_unit": "Marketing",
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1621666",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "6482",
+    "name": "Marco Iansiti",
+    "stored_unit": "Strategy",
+    "bio_length": 133,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6482",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (133 chars)",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "1326895",
+    "name": "Marco Sammon",
+    "stored_unit": "Finance",
+    "bio_length": 134,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1326895",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (134 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1357120",
+    "name": "Martin Wattenberg",
+    "stored_unit": null,
+    "bio_length": 1477,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1357120",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      },
+      {
+        "id": "view_details_repeat",
+        "label": "\"View Details\" appears 2 times — likely citation block",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "309413",
+    "name": "Matthew Rabin",
+    "stored_unit": "Negotiation, Organizations & Markets",
+    "bio_length": 137,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=309413",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (137 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "6584",
+    "name": "Michael L. Tushman",
+    "stored_unit": "Organizational Behavior",
+    "bio_length": 417,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6584",
+    "issues": [
+      {
+        "id": "year_overload",
+        "label": "Year citations (9) exceed sentence transitions (2) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "1432015",
+    "name": "Michael Lingzhi Li",
+    "stored_unit": null,
+    "bio_length": 1182,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1432015",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "6523",
+    "name": "Nitin Nohria",
+    "stored_unit": "General Management",
+    "bio_length": 235,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6523",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Organizational Behavior\" as a unit, but stored unit is \"General Management\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Organizational Behavior"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Organizational Behavior"
+  },
+  {
+    "hbs_fac_id": "6597",
+    "name": "Randolph B. Cohen",
+    "stored_unit": "Finance",
+    "bio_length": 466,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6597",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Entrepreneurial Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Entrepreneurial Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Entrepreneurial Management"
+  },
+  {
+    "hbs_fac_id": "77265",
+    "name": "Ranjay Gulati",
+    "stored_unit": "Organizational Behavior",
+    "bio_length": 272,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=77265",
+    "issues": [
+      {
+        "id": "pub_artifact_weak",
+        "label": "Bio contains one publication artifact signal",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "10653",
+    "name": "Robert S. Huckman",
+    "stored_unit": null,
+    "bio_length": 791,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=10653",
+    "issues": [
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "320524",
+    "name": "Ryan W. Buell",
+    "stored_unit": "Marketing",
+    "bio_length": 1822,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=320524",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Marketing\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "718917",
+    "name": "Shane M. Greenstein",
+    "stored_unit": "Strategy",
+    "bio_length": 143,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=718917",
+    "issues": [
+      {
+        "id": "too_short",
+        "label": "Bio is very short (143 chars)",
+        "confidence": "REVIEW"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "722144",
+    "name": "Shirley Lu",
+    "stored_unit": "Strategy",
+    "bio_length": 164,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=722144",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Strategy\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "774593",
+    "name": "Susanna Gallani",
+    "stored_unit": "Finance",
+    "bio_length": 775,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=774593",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "10699",
+    "name": "Tatiana Sandino",
+    "stored_unit": "Finance",
+    "bio_length": 509,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=10699",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "650172",
+    "name": "William H. Marks",
+    "stored_unit": "Finance",
+    "bio_length": 247,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=650172",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "194874",
+    "name": "Willy C. Shih",
+    "stored_unit": "Strategy",
+    "bio_length": 166,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=194874",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Technology & Operations Management\" as a unit, but stored unit is \"Strategy\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Technology & Operations Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Technology & Operations Management"
+  },
+  {
+    "hbs_fac_id": "1201306",
+    "name": "Yuan Zou",
+    "stored_unit": "Finance",
+    "bio_length": 251,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1201306",
+    "issues": [
+      {
+        "id": "unit_bio_mismatch",
+        "label": "Bio explicitly mentions \"Accounting & Management\" as a unit, but stored unit is \"Finance\"",
+        "confidence": "REVIEW",
+        "suspected_unit": "Accounting & Management"
+      }
+    ],
+    "high_count": 0,
+    "suspected_unit": "Accounting & Management"
+  },
+  {
+    "hbs_fac_id": "1686880",
+    "name": "Yue Maggie Zhou",
+    "stored_unit": null,
+    "bio_length": 0,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=1686880",
+    "issues": [
+      {
+        "id": "no_bio",
+        "label": "No bio stored",
+        "confidence": "HIGH"
+      },
+      {
+        "id": "no_unit",
+        "label": "No unit stored",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 2,
+    "suspected_unit": null
+  },
+  {
+    "hbs_fac_id": "879471",
+    "name": "Zoe B. Cullen",
+    "stored_unit": "Entrepreneurial Management",
+    "bio_length": 640,
+    "profile_url": "https://www.hbs.edu/faculty/Pages/profile.aspx?facId=879471",
+    "issues": [
+      {
+        "id": "year_overload",
+        "label": "Year citations (6) exceed sentence transitions (5) — likely publication list",
+        "confidence": "HIGH"
+      }
+    ],
+    "high_count": 1,
+    "suspected_unit": null
+  }
+]
