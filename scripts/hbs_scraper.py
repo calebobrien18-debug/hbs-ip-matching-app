@@ -26,12 +26,20 @@ Output: scripts/enriched_faculty.json
 """
 
 import json
+import random
 import re
 import time
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
+
+try:
+    from playwright_stealth import Stealth as _Stealth
+    _STEALTH = _Stealth()
+    _HAS_STEALTH = True
+except ImportError:
+    _HAS_STEALTH = False
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
@@ -40,6 +48,7 @@ ALL_FACULTY_FILE  = Path(__file__).parent / "all_faculty.json"
 DEBUG_HTML        = Path(__file__).parent / "debug_profile.html"  # saved when DEBUG=True
 DEBUG             = False  # set True to save the first profile's HTML for inspection
 START_FROM        = 0     # set to N to skip the first N faculty (useful for resuming)
+HEADLESS          = False  # False = real visible browser; much harder for Cloudflare to block
 
 # ── Faculty list ──────────────────────────────────────────────────────────────
 
@@ -91,6 +100,21 @@ TYPE_QUOTAS = {                # guaranteed minimums (where available)
 
 # ── Fetch helpers ─────────────────────────────────────────────────────────────
 
+_CAPTCHA_SIGNALS = [
+    "solve a puzzle",
+    "cf-browser-verification",
+    "Checking your browser",
+    "DDoS protection by",
+    "Please wait while we verify",
+    "cf_chl_opt",
+]
+
+
+def _is_captcha_page(html: str) -> bool:
+    """Return True if the rendered page is a bot-challenge / CAPTCHA page."""
+    return any(signal.lower() in html.lower() for signal in _CAPTCHA_SIGNALS)
+
+
 def fetch_profile(page, fac_id: str, save_debug: bool = False):
     """Navigate to a faculty profile page and return fully-rendered HTML as BeautifulSoup."""
     url = PROFILE_BASE.format(fac_id)
@@ -99,6 +123,9 @@ def fetch_profile(page, fac_id: str, save_debug: bool = False):
         # Give JS a moment to render publication containers
         page.wait_for_timeout(2000)
         html = page.content()
+        if _is_captcha_page(html):
+            print(f"    ⚠ CAPTCHA detected for facId={fac_id} — skipping")
+            return None
         if save_debug:
             DEBUG_HTML.write_text(html, encoding="utf-8")
             print(f"    [debug] Saved rendered HTML to {DEBUG_HTML}")
@@ -554,12 +581,18 @@ def main():
     results = []
 
     with sync_playwright() as pw:
+        if _HAS_STEALTH:
+            print(f"  playwright-stealth {_STEALTH.__class__.__module__} active")
+        else:
+            print("  playwright-stealth not found — running without it")
+        print(f"  headless={HEADLESS}\n")
+
         browser = pw.chromium.launch(
-            headless=True,
+            headless=HEADLESS,
             args=["--disable-blink-features=AutomationControlled"],
         )
 
-        CONTEXT_RESTART_EVERY = 10  # fresh context every N faculty to avoid memory/throttle issues
+        CONTEXT_RESTART_EVERY = 4  # fresh context every N faculty; smaller = harder to fingerprint
 
         def make_context():
             ctx = browser.new_context(
@@ -569,11 +602,16 @@ def main():
                     "Chrome/124.0.0.0 Safari/537.36"
                 ),
                 locale="en-US",
+                timezone_id="America/New_York",
                 viewport={"width": 1280, "height": 800},
             )
-            ctx.add_init_script(
-                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-            )
+            # Mask common automation fingerprints
+            ctx.add_init_script("""
+                Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3,4,5]});
+                Object.defineProperty(navigator, 'languages', {get: () => ['en-US','en']});
+                window.chrome = {runtime: {}};
+            """)
             return ctx
 
         context = make_context()
@@ -582,13 +620,16 @@ def main():
             # Restart context periodically to clear memory and refresh connection
             if i > 1 and (i - 1) % CONTEXT_RESTART_EVERY == 0:
                 context.close()
-                print(f"\n  [restarting browser context after {i - 1} faculty]\n")
-                time.sleep(3)
+                pause = random.uniform(8, 15)
+                print(f"\n  [restarting browser context after {i - 1} faculty — pausing {pause:.1f}s]\n")
+                time.sleep(pause)
                 context = make_context()
 
             print(f"[{i:3}/{len(faculty_list)}] {name} (facId={fac_id})")
 
             page = context.new_page()
+            if _HAS_STEALTH:
+                _STEALTH.apply_stealth_sync(page)
             soup = fetch_profile(page, fac_id, save_debug=(DEBUG and i == 1))
             page.close()
 
@@ -618,7 +659,7 @@ def main():
                 "publications": publications,
             })
 
-            time.sleep(2)  # slightly longer pause to reduce server-side throttling
+            time.sleep(random.uniform(5, 12))  # randomised delay to avoid bot detection
 
         context.close()
         browser.close()

@@ -78,76 +78,91 @@ Madhav Kumar, Yue Maggie Zhou
 
 ## How to re-scrape when ready
 
-The re-scrape failed on Apr 26 2026 because HBS was serving CAPTCHA pages to all requests. The scraper uses Playwright (headless Chromium) but HBS's bot detection was active.
+### What was tried and what we know
 
-### CAPTCHA avoidance tips
+Two scrape attempts on Apr 26–27 2026 were 100% CAPTCHA-blocked. A test with
+`headless=False` (real visible browser) was also blocked, confirming this is an
+**IP-level Cloudflare block**, not a fingerprinting issue. No scraper change will
+help until the block clears or a different network is used.
 
-**1. Add delays between requests**
+The scraper has already been hardened with all feasible stealth improvements:
+- `playwright-stealth` v2 (`Stealth().apply_stealth_sync(page)`) applied per page
+- `headless=False` (real visible browser, `HEADLESS` constant in hbs_scraper.py)
+- Random 5–12s delays between requests
+- Browser context restarted every 4 faculty (random 8–15s pause)
+- `timezone_id`, extra navigator fingerprint masking
+- CAPTCHA detection: `_is_captcha_page()` returns `None` instead of storing garbage
 
-In `hbs_scraper.py`, find the `main()` loop where it calls `fetch_profile()` and add a longer sleep:
+### To run the re-scrape
 
-```python
-# Current (too fast for HBS bot detection):
-time.sleep(1)
+**Before starting**, verify you can load an HBS faculty page in your regular browser:
+  https://www.hbs.edu/faculty/Pages/profile.aspx?facId=240491
 
-# Better:
-import random
-time.sleep(random.uniform(4, 9))  # random 4–9 second delay between each profile
-```
+If that loads normally, your IP is clear and the scraper should work. If you see
+a "Human Verification" page, wait longer (Cloudflare blocks typically clear in 24–72h)
+or use a different network (phone hotspot, VPN).
 
-**2. Restart the browser context more frequently**
-
-Currently the scraper restarts every 10 faculty. Try every 3–5:
-
-```python
-# Find this in main():
-if i > 0 and i % 10 == 0:   # current
-if i > 0 and i % 3 == 0:    # try this
-```
-
-**3. Use playwright stealth / user-agent spoofing**
-
-Add stealth headers when launching the browser context:
-
-```python
-# In the playwright context launch, add:
-context = browser.new_context(
-    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    locale='en-US',
-    timezone_id='America/New_York',
-    viewport={'width': 1280, 'height': 800},
-)
-```
-
-Or install `playwright-stealth`:
+**When ready:**
 ```bash
-pip install playwright-stealth
+cd scripts
+PYTHONIOENCODING=utf-8 python _scraper_flagged.py
 ```
+
+Output goes to `scripts/flagged_enriched.json`. The `HEADLESS = False` setting
+in `hbs_scraper.py` means a Chromium window will open and be visible while scraping —
+this is intentional and makes it much harder for Cloudflare to detect automation.
+
+If you want headless (no visible window), set `HEADLESS = True` in `hbs_scraper.py`
+first, but only if the IP block has fully cleared.
+
+### After the scrape succeeds
+
+```bash
+# Check what was actually scraped successfully
+python -c "
+import json
+data = json.load(open('flagged_enriched.json'))
+ok = [r for r in data if r.get('unit') or r.get('bio')]
+blocked = [r for r in data if not r.get('unit') and not r.get('bio')]
+print(f'Successfully scraped: {len(ok)}')
+print(f'Still empty (blocked or no data): {len(blocked)}')
+"
+
+# Build comparison report and apply HIGH-confidence fixes
+cd ..
+node scripts/re-scrape-flagged-faculty.mjs --from-audit audit-results.json --json > rescrape-report.json
+node scripts/fix-faculty-unit-bio.mjs --from-rescrape rescrape-report.json --dry-run
+node scripts/fix-faculty-unit-bio.mjs --from-rescrape rescrape-report.json
+
+# Re-audit to see what's left
+node scripts/audit-faculty-data.mjs
+```
+
+### Resuming a partial scrape
+
+If the scraper gets blocked mid-run, use `START_FROM` in `hbs_scraper.py` to resume:
 ```python
-from playwright_stealth import stealth_sync
-stealth_sync(page)
+START_FROM = 20  # skip first 20, resume from #21
 ```
 
-**4. Run at off-peak hours**
+### If the block never clears
 
-HBS bot detection is more aggressive under load. Try early morning US Eastern time (6–8am).
+For the ~10 broken bios (Lakhani, Edmondson, Yoffie, Hill, etc.), the manual fallback is to visit each HBS profile in your browser, copy the bio text, and create a corrections file:
 
-**5. Scrape in small batches with long gaps**
-
-Instead of all 62 at once, scrape 10 at a time with a 10-minute break between batches. The `START_FROM` constant in `hbs_scraper.py` lets you resume:
-
-```python
-START_FROM = 0   # set to N to skip first N faculty and resume
+```json
+[
+  {
+    "hbs_fac_id": "240491",
+    "bio": "Karim Lakhani is the Dorothy and Michael Hintze Professor...",
+    "reason": "Manually copied from hbs.edu profile"
+  }
+]
 ```
 
-Use `scripts/flagged_faculty.json` (already created) as the input for a targeted run of just the 32 remaining problem cases.
-
-**6. Check if the CAPTCHA is Cloudflare**
-
-If the bio text contains "solve a puzzle", it's a Cloudflare challenge page. Some options:
-- Use `cloudscraper` pip package instead of plain requests (though we're using Playwright, so this may not help)
-- Try running from a residential IP rather than a datacenter IP
-- Run the scraper from a VPN endpoint in a residential ISP range
+```bash
+node scripts/fix-faculty-unit-bio.mjs --input corrections.json --dry-run
+node scripts/fix-faculty-unit-bio.mjs --input corrections.json
+```
 
 ### Workflow for the re-scrape
 
