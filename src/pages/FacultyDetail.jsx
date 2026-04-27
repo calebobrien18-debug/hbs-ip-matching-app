@@ -6,6 +6,14 @@ import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
 import { initials, isNavContent, sanitizeDescription, groupCourseRows } from '../lib/utils'
 import { BookmarkIcon } from '../components/Icons'
 
+const FACULTY_STATUS_OPTIONS = [
+  { value: 'interested',  label: 'Interested',   style: 'bg-gray-100 text-gray-600' },
+  { value: 'researching', label: 'Researching',  style: 'bg-blue-100 text-blue-700' },
+  { value: 'top_choice',  label: 'Top choice',   style: 'bg-crimson/10 text-crimson' },
+  { value: 'emailed',     label: 'Emailed',      style: 'bg-green-100 text-green-700' },
+  { value: 'not_now',     label: 'Not now',      style: 'bg-gray-50 text-gray-400 italic' },
+]
+
 const PUB_TYPE_COLORS = {
   'Journal Article': 'bg-blue-50 text-blue-700 border-blue-200',
   'Book':            'bg-purple-50 text-purple-700 border-purple-200',
@@ -27,7 +35,7 @@ export default function FacultyDetail() {
   const [selectedPubType, setSelectedPubType] = useState(null)
 
   const session = useRequireAuth()
-  const { savedIds, toggleSave } = useSavedFaculty(session)
+  const { savedIds, toggleSave, statusMap, updateStatus } = useSavedFaculty(session)
 
   useEffect(() => {
     if (!session) return
@@ -143,6 +151,22 @@ export default function FacultyDetail() {
                       {faculty.unit}
                     </span>
                   )}
+                  {savedIds.has(id) && (() => {
+                    const currentStatus = statusMap.get(id) ?? 'interested'
+                    const currentOption = FACULTY_STATUS_OPTIONS.find(o => o.value === currentStatus) ?? FACULTY_STATUS_OPTIONS[0]
+                    return (
+                      <select
+                        value={currentStatus}
+                        onChange={e => updateStatus(id, e.target.value)}
+                        className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-crimson/30 ${currentOption.style}`}
+                        title="Update your status for this faculty member"
+                      >
+                        {FACULTY_STATUS_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    )
+                  })()}
                   <div className="relative group/save-tip">
                     <button
                       type="button"
