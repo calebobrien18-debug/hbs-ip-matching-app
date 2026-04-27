@@ -227,7 +227,7 @@ export default function FacultyDetail() {
             </div>
           ) : (
             <p className="text-sm text-gray-400 italic">
-              No research tags available yet — run the scraper to populate this field.
+              No research tags on file for this professor yet.
             </p>
           )}
         </Section>
@@ -278,7 +278,7 @@ export default function FacultyDetail() {
             </>
           ) : (
             <p className="text-sm text-gray-400 italic">
-              No publications available yet — run the scraper to populate this field.
+              No publications on file for this professor yet.
             </p>
           )}
         </Section>

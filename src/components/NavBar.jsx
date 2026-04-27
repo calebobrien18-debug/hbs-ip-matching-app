@@ -51,21 +51,18 @@ export default function NavBar() {
     <nav className="sticky top-0 z-30 w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
 
-        {/* Left: logo + beta badge */}
+        {/* Left: logo */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Link to="/dashboard">
             <ProFoundLogo size="sm" />
           </Link>
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium tracking-widest text-gray-400 uppercase">
-            Beta
-          </span>
         </div>
 
         {/* Center: nav links — stretch to full nav height so border-b sits at the bar bottom */}
         <div className="flex items-stretch self-stretch gap-0.5">
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
-          {navLink('/match', 'Faculty Match')}
+          {navLink('/match', 'Matches')}
         </div>
 
         {/* Right: user + sign out */}

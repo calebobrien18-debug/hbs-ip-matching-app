@@ -166,7 +166,7 @@ export default function CourseDirectory() {
       <div className="max-w-5xl mx-auto px-4 pt-5 pb-2 flex items-center justify-between">
         <p className="text-sm text-gray-500">
           {hasFilters
-            ? `${filtered.length} course${filtered.length !== 1 ? 's' : ''} matching your filters`
+            ? `${filtered.length} course${filtered.length !== 1 ? 's' : ''} found`
             : `${filtered.length} courses`}
         </p>
         {hasFilters && (
@@ -184,7 +184,7 @@ export default function CourseDirectory() {
       <div className="max-w-5xl mx-auto px-4 pb-12">
         {filtered.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-sm text-gray-500">No courses match your filters.</p>
+            <p className="text-sm text-gray-500">No courses match your search.</p>
             <button
               type="button"
               onClick={() => { setQuery(''); setSelectedUnit(null); setSelectedTerm(null) }}

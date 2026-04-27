@@ -281,7 +281,7 @@ export default function SavedIdeas() {
                         {/* Pre-draft tips */}
                         {!draft.body && !draft.loading && !emailLimitReached && (
                           <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 space-y-1.5">
-                            <p className="text-xs font-semibold text-gray-600">A strong cold email includes:</p>
+                            <p className="text-xs font-semibold text-gray-600">A strong outreach email includes:</p>
                             <ul className="text-xs text-gray-500 space-y-1 pl-1">
                               <li>• A specific reason you're reaching out to <em>this</em> professor</li>
                               <li>• One concrete connection to their work</li>
@@ -295,7 +295,7 @@ export default function SavedIdeas() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                              Select ideas to pitch
+                              Ideas to include in your email
                             </p>
                             <button
                               type="button"

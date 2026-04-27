@@ -299,7 +299,7 @@ export default function Matching() {
           <div className="w-14 h-14 rounded-full bg-crimson/8 flex items-center justify-center mx-auto">
             <SparklesIcon className="w-7 h-7 text-crimson" />
           </div>
-          <h1 className="text-3xl font-semibold text-gray-900">Find Your Faculty Match</h1>
+          <h1 className="text-3xl font-semibold text-gray-900">Find Your Matches</h1>
           <p className="text-gray-500 max-w-md mx-auto">
             Our AI reviews your professional background against every HBS faculty member's research,
             publications, and courses — then surfaces the thought partners most relevant to your goals.
@@ -364,7 +364,7 @@ export default function Matching() {
           }`}
         >
           <SparklesIcon className="w-5 h-5" />
-          {runsToday >= DAILY_LIMIT ? `Today's limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : 'Match Me'}
+          {runsToday >= DAILY_LIMIT ? `Today's limit reached (${DAILY_LIMIT}/${DAILY_LIMIT})` : 'Find My Matches'}
         </button>
         <p className="text-xs text-gray-400 text-center -mt-4">
           {runsToday >= DAILY_LIMIT
@@ -395,11 +395,11 @@ export default function Matching() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              {isViewingLatest ? 'Your Faculty Matches' : 'Past Match Results'}
+              {isViewingLatest ? 'Your Matches' : 'Previous Results'}
             </h1>
             {displayedRun && (
               <p className="text-sm text-gray-400 mt-1">
-                {isViewingLatest ? 'Generated' : 'From'} {formatDate(displayedRun.created_at)}
+                {isViewingLatest ? 'Matched on' : 'Run on'} {formatDate(displayedRun.created_at)}
               </p>
             )}
           </div>
@@ -841,7 +841,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
           </div>
         )}
         {coursesLoaded && facultyCourses.length === 0 && (
-          <p className="text-[11px] text-gray-400 italic">Teaching context not available for this faculty member.</p>
+          <p className="text-[11px] text-gray-400 italic">No teaching info on file for this professor.</p>
         )}
       </div>
 
@@ -915,7 +915,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
           onClick={handleReport}
           className="text-[10px] text-gray-300 hover:text-gray-500 transition-colors cursor-pointer"
         >
-          {reported ? 'Reported ✓' : 'Report incorrect data'}
+          {reported ? 'Reported ✓' : 'Report a data issue'}
         </button>
       </div>
     </div>

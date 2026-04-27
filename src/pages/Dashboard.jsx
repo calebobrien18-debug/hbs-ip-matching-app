@@ -52,7 +52,7 @@ function LaunchChecklist({ profiles, matches, savedFaculty, savedIdeas, emailDra
         <span className="text-green-600 text-lg">✓</span>
         <div>
           <p className="text-sm font-semibold text-green-900">You're on track — all key steps complete</p>
-          <p className="text-xs text-green-700 mt-0.5">Head to <Link to="/saved-ideas" className="underline font-medium">Saved Ideas</Link> to continue refining your outreach.</p>
+          <p className="text-xs text-green-700 mt-0.5">Head to <Link to="/saved-ideas" className="underline font-medium">Saved Ideas</Link> to draft and refine your outreach emails.</p>
         </div>
       </div>
     )
@@ -329,7 +329,7 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
             Welcome back, {welcomeName}.
           </h1>
-          <p className="text-sm text-gray-400 mt-1">Here's your research activity.</p>
+          <p className="text-sm text-gray-400 mt-1">Here's where things stand.</p>
         </div>
 
         {/* Launch checklist */}
@@ -434,8 +434,8 @@ export default function Dashboard() {
               <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
                 <SparklesIcon className="w-5 h-5 text-gray-300" />
               </div>
-              <p className="text-sm font-medium text-gray-600">No faculty matches yet</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Run the AI matching tool to find professors whose research aligns with your goals.</p>
+              <p className="text-sm font-medium text-gray-600">No matches yet</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Run the matching tool to find professors whose research aligns with your goals.</p>
               <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Find your matches →
               </Link>

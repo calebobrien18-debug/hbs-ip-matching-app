@@ -134,12 +134,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Beta badge */}
-          <div className="flex-shrink-0">
-            <span className="inline-flex items-center text-[11px] font-medium text-white/40 bg-white/8 rounded-full px-3 py-1 tracking-wide uppercase">
-              Beta
-            </span>
-          </div>
 
         </div>
       </div>
