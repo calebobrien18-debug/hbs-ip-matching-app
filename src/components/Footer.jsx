@@ -140,7 +140,7 @@ function FeedbackModal({ onClose }) {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <p className="text-sm text-gray-500 leading-relaxed">
-                We'd love to hear how ProFound is working for you — or how it could be better.
+                Share a thought, flag something that looks off, or let us know what's working.
               </p>
 
               <textarea
@@ -148,7 +148,7 @@ function FeedbackModal({ onClose }) {
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 disabled={status === 'submitting'}
-                placeholder="Share your thoughts, suggestions, or bug reports…"
+                placeholder="Thoughts, suggestions, or something that looked wrong…"
                 maxLength={2000}
                 required
                 className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson placeholder:text-gray-300 disabled:bg-gray-50"

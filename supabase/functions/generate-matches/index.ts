@@ -98,19 +98,34 @@ Deno.serve(async (req: Request) => {
     if (authErr) return authErr
     console.log('Step 1: Authenticated', user!.id)
 
-    // ── 1b. Rate limit check ──────────────────────────────────────────────────
-    // TODO: Rate limiting is count-then-insert and not atomic under concurrency.
-    // Future improvement: DB-side RPC with transactional check-and-insert.
+    // ── 1b. Rate-limit: claim slot first, then verify count ──────────────────
+    // Insert the run row before the expensive Claude call so the slot is claimed
+    // early. Count AFTER insert (count includes this new row) — if over limit,
+    // delete the slot and reject. This narrows the concurrency race window
+    // significantly vs. pure count-then-insert.
+    //
+    // Fully atomic follow-up: add a DB-side RPC that does a SELECT ... FOR UPDATE
+    // on a per-user daily_run_counts row and returns "allowed | denied" atomically.
+    const { data: tentativeRun, error: runInsertErr } = await supabase
+      .from('match_runs')
+      .insert({ user_id: user!.id })
+      .select('id')
+      .single()
+
+    if (runInsertErr) throw runInsertErr
+    const runId = tentativeRun.id
+
     const { count: runsToday } = await supabase
       .from('match_runs')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
-    console.log('Step 1b: runs today:', runsToday)
-    if ((runsToday ?? 0) >= DAILY_LIMIT) {
+    console.log('Step 1b: runs today (incl. this):', runsToday)
+    if ((runsToday ?? 0) > DAILY_LIMIT) {
+      await supabase.from('match_runs').delete().eq('id', runId)
       return jsonResponse({
-        error: 'Daily limit reached. You can run matching up to 3 times per day.',
+        error: `Daily limit reached. You can run matching up to ${DAILY_LIMIT} times per day.`,
         limitReached: true,
       }, 429)
     }
@@ -277,15 +292,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     console.log('Step 6: validated', matches.length, 'matches')
 
     // ── 7. Write to DB ────────────────────────────────────────────────────────
-    const { data: runData, error: runError } = await supabase
-      .from('match_runs')
-      .insert({ user_id: user!.id })
-      .select('id')
-      .single()
-
-    if (runError) throw runError
-    const runId = runData.id
-
+    // run row was already created in step 1b; just write the match rows
     const { error: insertError } = await supabase.from('faculty_matches').insert(
       matches.map(m => ({
         run_id: runId,
@@ -315,3 +322,9 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     return jsonResponse({ error: msg }, 500)
   }
 })
+
+// Note: if an error occurs after step 1b (run slot created) but before step 7
+// (faculty_matches written), the orphaned match_runs row is left in the DB.
+// This is acceptable — it counts against the daily limit for that day, which
+// prevents retrying past the limit on transient failures. A cleanup job could
+// periodically remove match_runs rows with no associated faculty_matches rows.

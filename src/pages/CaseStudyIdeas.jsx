@@ -297,10 +297,10 @@ export default function CaseStudyIdeas() {
 
         {/* Explanation paragraph */}
         <p className="text-sm text-gray-600 leading-relaxed -mt-2">
-          Use this tool to brainstorm HBS teaching case concepts you could co-develop
-          with {f?.name ?? 'this faculty member'}. Each idea is tailored to your background
-          and their published research. Steer the generator toward specific industries or
-          topics, then save ideas you want to revisit.
+          Generate draft case concepts to explore with {f?.name ?? 'this faculty member'}.
+          Each idea is a starting point — grounded in your background and their research, but meant
+          to be shaped by you. Steer toward specific industries or topics, then save the ideas
+          worth refining before you reach out.
         </p>
 
         {/* Compact faculty reference card */}
@@ -539,7 +539,7 @@ export default function CaseStudyIdeas() {
         {matchData?.match_reasons?.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Why you matched
+              Why this match — reasons to reference in your pitch
             </h2>
             <ul className="space-y-1.5">
               {matchData.match_reasons.map((reason, i) => (
@@ -650,7 +650,7 @@ export default function CaseStudyIdeas() {
         {/* Empty state after generation */}
         {!generating && hasGenerated && ideas.length === 0 && !genError && (
           <div className="text-center py-10 text-sm text-gray-400">
-            No ideas were generated. Try adding more context above and regenerating.
+            No ideas generated this time. Add more context in the steering field above — specific industries, companies, or regions work well — and try again.
           </div>
         )}
 

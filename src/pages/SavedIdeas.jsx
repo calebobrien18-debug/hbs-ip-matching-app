@@ -172,7 +172,7 @@ export default function SavedIdeas() {
               to="/match"
               className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
-              Generate more →
+              Generate more ideas →
             </Link>
           </div>
 
@@ -183,9 +183,12 @@ export default function SavedIdeas() {
             </div>
           ) : ideas.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
-              <p className="text-sm text-gray-500">No saved ideas yet.</p>
-              <Link to="/match" className="mt-3 inline-block text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
-                Explore your matches to generate ideas →
+              <p className="text-sm font-medium text-gray-600">No saved ideas yet</p>
+              <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+                Go to your matches, click <span className="font-medium">Case study ideas</span> on any match card, and save the concepts worth pursuing.
+              </p>
+              <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
+                Go to your matches →
               </Link>
             </div>
           ) : (

@@ -360,11 +360,14 @@ export default function Dashboard() {
 
           {profiles.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-gray-500">No profile yet.</p>
+              <p className="text-sm font-medium text-gray-600">No profile yet</p>
+              <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
+                Your profile is the foundation — matching, case ideas, and email drafts all draw from it.
+              </p>
               <button
                 type="button"
                 onClick={() => navigate('/profile/new')}
-                className="mt-3 text-sm font-medium cursor-pointer text-crimson"
+                className="mt-4 text-sm font-medium cursor-pointer text-crimson"
               >
                 Create your profile →
               </button>
@@ -435,7 +438,9 @@ export default function Dashboard() {
                 <SparklesIcon className="w-5 h-5 text-gray-300" />
               </div>
               <p className="text-sm font-medium text-gray-600">No matches yet</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Run the matching tool to find professors whose research aligns with your goals.</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">
+                Run the matching tool to get a shortlist of faculty whose research aligns with your background and goals.
+              </p>
               <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Find your matches →
               </Link>
@@ -602,7 +607,9 @@ export default function Dashboard() {
                 <LightbulbIcon className="w-5 h-5 text-gray-300" />
               </div>
               <p className="text-sm font-medium text-gray-600">No saved ideas yet</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Generate case writing pitches from your faculty matches and save the ones worth pursuing.</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">
+                Go to your matches and use <span className="font-medium">Case study ideas</span> on any match card to generate concepts. Save the ones worth developing.
+              </p>
               <Link to="/match" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Explore your matches →
               </Link>
@@ -656,7 +663,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest">
               <BookmarkIcon filled={false} className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-              My Saved Faculty
+              My Shortlist
             </h2>
             <Link to="/faculty" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">
               Browse faculty →
@@ -680,8 +687,10 @@ export default function Dashboard() {
               <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
                 <BookmarkIcon filled={false} className="w-5 h-5 text-gray-300" />
               </div>
-              <p className="text-sm font-medium text-gray-600">No saved faculty yet</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">Bookmark professors you'd like to revisit from the faculty browse page.</p>
+              <p className="text-sm font-medium text-gray-600">Your shortlist is empty</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed max-w-xs mx-auto">
+                Save faculty from your matches or the browse page. Use the status picker to track where each conversation stands.
+              </p>
               <Link to="/faculty" className="mt-4 inline-block text-sm font-medium text-crimson">
                 Browse faculty →
               </Link>
@@ -718,7 +727,7 @@ export default function Dashboard() {
                           value={currentStatus}
                           onChange={e => handleUpdateFacultyStatus(f.id, e.target.value)}
                           className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-crimson/30 ${currentOption.style}`}
-                          title="Update your status for this faculty member"
+                          title="Update shortlist status for this faculty member"
                         >
                           {FACULTY_STATUS_OPTIONS.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -731,7 +740,7 @@ export default function Dashboard() {
                     <button
                       type="button"
                       onClick={() => handleUnsave(f.id)}
-                      title="Remove from saved"
+                      title="Remove from shortlist"
                       className="p-1.5 rounded-lg text-gray-300 hover:text-crimson hover:bg-crimson/6 transition-colors cursor-pointer flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">

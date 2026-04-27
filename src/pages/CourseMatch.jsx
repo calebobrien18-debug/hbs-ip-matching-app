@@ -209,7 +209,7 @@ export default function CourseMatch() {
         </div>
         <h1 className="text-2xl font-semibold text-gray-900">Create a profile first</h1>
         <p className="text-sm text-gray-500 max-w-sm mx-auto">
-          The course matching tool uses your professional background and interests to find your best elective fits.
+          Course matching uses your professional background and interests to suggest electives worth exploring. Create a profile first to get meaningful results.
         </p>
         <Link to="/profile/new"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-crimson text-white text-sm font-semibold hover:opacity-90 transition-opacity">
@@ -253,10 +253,10 @@ export default function CourseMatch() {
           <div className="w-14 h-14 rounded-full bg-crimson/8 flex items-center justify-center mx-auto">
             <SparklesIcon className="w-7 h-7 text-crimson" />
           </div>
-          <h1 className="text-3xl font-semibold text-gray-900">Find Your Elective Courses</h1>
+          <h1 className="text-3xl font-semibold text-gray-900">Find Elective Courses to Explore</h1>
           <p className="text-gray-500 max-w-md mx-auto">
-            Our AI reviews your background against every 2026–27 HBS elective and surfaces the courses
-            most relevant to your goals — with specific reasons why each is a strong fit.
+            Match your background against every 2026–27 HBS elective and get a shortlist of courses
+            worth exploring — with concrete reasons why each one fits your goals. Use it alongside your faculty matches.
           </p>
         </div>
 
@@ -275,7 +275,7 @@ export default function CourseMatch() {
               {[
                 { n: '1', title: 'We analyze your profile', body: 'Your professional interests, additional background, and uploaded resume and LinkedIn are all used as inputs.' },
                 { n: '2', title: 'We scan the full elective catalog', body: 'All 2026–27 HBS elective courses — across every academic area — are scored against your background.' },
-                { n: '3', title: 'We surface your best fits', body: 'You receive 2–5 course recommendations with concrete rationale, professor info, and scheduling details.' },
+                { n: '3', title: 'You get a shortlist to explore', body: '2–5 suggested courses with concrete reasons for each fit, professor info, and scheduling details. Treat these as a starting point for your EC year planning.' },
               ].map(({ n, title, body }) => (
                 <div key={n} className="flex gap-4 pt-4 first:pt-4">
                   <div className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{n}</div>
@@ -461,9 +461,10 @@ export default function CourseMatch() {
 
             {/* Next-step guidance */}
             <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 text-sm text-indigo-800">
-              <strong>Next step:</strong> If a course's professor also appears in your{' '}
+              <strong>Tip:</strong> If a course's professor also appears in your{' '}
               <a href="/match" className="underline hover:text-indigo-600 font-medium">faculty matches</a>,
-              that's a strong signal to reach out — they share your research interests <em>and</em> teach in your area.
+              that overlap is a meaningful signal — they share your research interests <em>and</em> teach in your area.
+              That's a stronger starting point for outreach.
             </div>
           </div>
         )}
@@ -540,7 +541,9 @@ export default function CourseMatch() {
               <BookOpenIcon className="w-5 h-5 text-gray-300" />
             </div>
             <p className="text-sm font-medium text-gray-600">No courses found for this run</p>
-            <p className="text-xs text-gray-400 mt-1 mb-4">Try steering your next run with specific interests to get more tailored results.</p>
+            <p className="text-xs text-gray-400 mt-1 mb-4">
+              The matching didn't find strong fits this time. Add specific areas or interests in the steering field above and re-run — or enrich your profile with more background detail.
+            </p>
             <button
               type="button"
               onClick={handleRun}
@@ -707,7 +710,7 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRu
 
       {/* Footer actions */}
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100 flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={onSaveToggle}
@@ -718,7 +721,7 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRu
             }`}
           >
             <BookmarkIcon filled={isSaved} />
-            {isSaved ? 'Saved' : 'Save'}
+            {isSaved ? 'Saved' : 'Save course'}
           </button>
 
           {isLatestRun && (
@@ -727,7 +730,7 @@ function CourseCard({ match, isSaved, onSaveToggle, isMatchedFaculty, isLatestRu
               onClick={() => onRemove(match.id)}
               className="text-xs text-gray-300 hover:text-red-400 transition-colors cursor-pointer px-2 py-1.5"
             >
-              Remove
+              Remove from results
             </button>
           )}
         </div>

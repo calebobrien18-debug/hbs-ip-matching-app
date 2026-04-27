@@ -6,7 +6,7 @@
  *
  * Mirrors generate-matches closely:
  *   1. Verify JWT → resolve user_id
- *   2. Rate-limit check (course_match_runs, max 3/day)
+ *   2. Rate-limit check (course_match_runs, max 5/day)
  *   3. Load user profile from hbs_ip
  *   4. Load all catalog courses from faculty_courses
  *   5. Keyword scoring → top 35 candidates
@@ -128,17 +128,30 @@ Deno.serve(async (req: Request) => {
       electiveInterests = (body?.elective_interests ?? '').toString().trim().slice(0, 1000)
     } catch { /* body is optional */ }
 
-    // ── 2. Rate limit check ───────────────────────────────────────────────────
+    // ── 2. Rate-limit: claim slot first, then verify count ───────────────────
+    // Same hardened pattern as generate-matches: insert before the Claude call,
+    // count after insert, delete and reject if over limit.
+    // Fully atomic follow-up: DB-side RPC with FOR UPDATE on a per-user counter.
+    const { data: tentativeRun, error: runInsertErr } = await supabase
+      .from('course_match_runs')
+      .insert({ user_id: user!.id })
+      .select('id')
+      .single()
+
+    if (runInsertErr) throw runInsertErr
+    const runId = tentativeRun.id
+
     const { count: runsToday } = await supabase
       .from('course_match_runs')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user!.id)
       .gte('created_at', getTodayStart().toISOString())
 
-    console.log('Step 2: runs today:', runsToday)
-    if ((runsToday ?? 0) >= DAILY_LIMIT) {
+    console.log('Step 2: runs today (incl. this):', runsToday)
+    if ((runsToday ?? 0) > DAILY_LIMIT) {
+      await supabase.from('course_match_runs').delete().eq('id', runId)
       return jsonResponse({
-        error: 'Daily limit reached. You can run course matching up to 3 times per day.',
+        error: `Daily limit reached. You can run course matching up to ${DAILY_LIMIT} times per day.`,
         limitReached: true,
       }, 429)
     }
@@ -275,15 +288,7 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     console.log('Step 7: validated', aiMatches.length, 'course matches')
 
     // ── 8. Write to DB ────────────────────────────────────────────────────────
-    const { data: runData, error: runError } = await supabase
-      .from('course_match_runs')
-      .insert({ user_id: user!.id })
-      .select('id')
-      .single()
-
-    if (runError) throw runError
-    const runId = runData.id
-
+    // run row was already created in step 2; just write the match rows
     const { error: insertError } = await supabase.from('course_matches').insert(
       aiMatches.map(m => ({
         run_id:         runId,
@@ -314,3 +319,6 @@ Return ONLY a valid JSON array. No markdown code fences, no preamble, no explana
     return jsonResponse({ error: msg }, 500)
   }
 })
+
+// Note: orphaned course_match_runs rows (slot created but no course_matches written)
+// are counted against the daily limit for that day — acceptable behavior.

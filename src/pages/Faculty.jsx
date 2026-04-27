@@ -435,8 +435,8 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
                         px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
                         pointer-events-none z-10 leading-snug shadow-lg">
           {isSaved
-            ? 'Remove from saved faculty'
-            : 'Save to Dashboard — bookmarked faculty appear on your Dashboard page'}
+            ? 'Remove from shortlist'
+            : 'Save to shortlist — track this professor on your Dashboard'}
         </div>
       </div>
 

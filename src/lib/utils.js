@@ -53,19 +53,23 @@ export function sanitizeDescription(desc) {
  * normalized title + term + quarter when course_number is absent.
  *
  * Within each group:
- * - `id` is set to the first row's id (representative for saved_courses semantics)
+ * - `id` is the lexicographically smallest faculty_courses.id across the group
+ *   (deterministic across re-runs since UUIDs are immutable)
  * - `description` keeps the longest non-null value across rows
  * - `faculty` aggregates unique faculty members
  *
- * Note on save semantics: saved_courses.course_id points to a specific
- * faculty_courses.id. We use the first row's id as the representative.
- * This is an intentional interim simplification; a proper fix would require
- * a separate courses table.
+ * Note on save semantics: saved_courses.course_id references faculty_courses.id.
+ * Using the smallest id in the group keeps save/unsave stable even when the seed
+ * runs again (new rows get larger ids and won't displace the representative).
+ * Long-term fix: add a dedicated courses table with its own stable PK, and point
+ * saved_courses at that instead of faculty_courses.id.
  */
 export function groupCourseRows(rows) {
+  // Sort ascending by id so each group's representative is the smallest id (stable)
+  const sorted = [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
   const groups = new Map()
 
-  for (const row of rows) {
+  for (const row of sorted) {
     const normTitle = (row.course_title ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
     const key = row.course_number
       ? `num:${row.course_number}|${row.term ?? ''}|${row.quarter ?? ''}`

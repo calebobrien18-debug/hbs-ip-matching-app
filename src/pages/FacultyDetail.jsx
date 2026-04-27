@@ -159,7 +159,7 @@ export default function FacultyDetail() {
                         value={currentStatus}
                         onChange={e => updateStatus(id, e.target.value)}
                         className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-crimson/30 ${currentOption.style}`}
-                        title="Update your status for this faculty member"
+                        title="Update shortlist status for this faculty member"
                       >
                         {FACULTY_STATUS_OPTIONS.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -179,8 +179,8 @@ export default function FacultyDetail() {
                                     px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
                                     pointer-events-none z-10 leading-snug shadow-lg">
                       {savedIds.has(id)
-                        ? 'Remove from saved faculty'
-                        : 'Save to Dashboard — bookmarked faculty appear on your Dashboard page'}
+                        ? 'Remove from shortlist'
+                        : 'Save to shortlist — track this professor on your Dashboard'}
                     </div>
                   </div>
                 </div>
@@ -282,6 +282,27 @@ export default function FacultyDetail() {
             </p>
           )}
         </Section>
+
+      {/* Data trust cue */}
+      <p className="text-xs text-gray-300 text-center pt-2">
+        Faculty data is sourced from HBS profiles. Something look off?{' '}
+        <button
+          type="button"
+          onClick={async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) return
+            await supabase.from('feedback').insert({
+              user_id: session.user.id,
+              user_email: session.user.email ?? null,
+              message: `Data issue reported for faculty profile: ${faculty?.name} (id: ${id})`,
+            })
+            alert('Thanks — we\'ll look into it.')
+          }}
+          className="underline underline-offset-2 hover:text-gray-500 transition-colors cursor-pointer"
+        >
+          Report a data issue
+        </button>
+      </p>
 
       </div>
     </div>
