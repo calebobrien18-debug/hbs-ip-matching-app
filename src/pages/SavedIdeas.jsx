@@ -145,8 +145,9 @@ export default function SavedIdeas() {
       }
     }
 
-    patchDraftState(fid, { confirmReplace: null })
+    patchDraftState(fid, { confirmReplace: null, draftSaved: true })
     setSavingDraftFid(null)
+    setTimeout(() => patchDraftState(fid, { draftSaved: false }), 3000)
   }
 
   async function handleDeleteSavedDraft(draftId) {
@@ -202,7 +203,7 @@ export default function SavedIdeas() {
 
   const handleGenerateDraft = useCallback(async (fid) => {
     const state = getDraftState(fid)
-    patchDraftState(fid, { loading: true, error: null, subject: '', body: '' })
+    patchDraftState(fid, { loading: true, error: null, subject: '', body: '', draftSaved: false })
 
     try {
       const data = await invokeEdgeFunction('generate-email-draft', {
@@ -509,7 +510,12 @@ export default function SavedIdeas() {
                                   </>
                                 )}
                               </button>
-                              {draft.confirmReplace ? (
+                              {draft.draftSaved ? (
+                                <p className="inline-flex items-center gap-1.5 text-sm text-green-600 font-medium">
+                                  <CheckIcon className="w-4 h-4" />
+                                  Draft saved. View below ↓
+                                </p>
+                              ) : draft.confirmReplace ? (
                                 <div className="inline-flex items-center gap-2 text-sm">
                                   <span className="text-gray-500">Replace existing {draft.tone ?? 'warm'} draft?</span>
                                   <button

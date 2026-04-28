@@ -59,6 +59,7 @@ export default function CaseStudyIdeas() {
   const [draftSaving, setDraftSaving]           = useState(false)
   const [draftSaveConfirm, setDraftSaveConfirm] = useState(null) // null | existing draft id
   const [existingDraftTone, setExistingDraftTone] = useState(null)
+  const [draftSaved, setDraftSaved]             = useState(false)
 
   // ── Load match data + today's run count + existing saves ─────────────────────
   useEffect(() => {
@@ -225,6 +226,7 @@ export default function CaseStudyIdeas() {
     setDraftError(null)
     setDraftSubject('')
     setDraftBody('')
+    setDraftSaved(false)
     try {
       const data = await invokeEdgeFunction('generate-email-draft', {
         faculty_id: matchData.faculty.id,
@@ -298,6 +300,8 @@ export default function CaseStudyIdeas() {
     setDraftSaveConfirm(null)
     setExistingDraftTone(null)
     setDraftSaving(false)
+    setDraftSaved(true)
+    setTimeout(() => setDraftSaved(false), 3000)
   }, [session, matchData, draftSubject, draftBody, draftTone, draftSelectedIds])
 
   // ── Loading / not-found states ────────────────────────────────────────────────
@@ -582,7 +586,12 @@ export default function CaseStudyIdeas() {
                     )}
                   </button>
 
-                  {draftSaveConfirm ? (
+                  {draftSaved ? (
+                    <p className="inline-flex items-center gap-1.5 text-sm text-green-600 font-medium">
+                      <CheckIcon className="w-4 h-4" />
+                      Draft saved. <Link to="/saved-ideas" className="underline hover:no-underline">Find it in Saved Ideas →</Link>
+                    </p>
+                  ) : draftSaveConfirm ? (
                     <div className="inline-flex items-center gap-2 text-sm">
                       <span className="text-gray-500">Replace existing {existingDraftTone} draft?</span>
                       <button
