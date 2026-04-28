@@ -138,19 +138,19 @@ export default function FacultyDetail() {
 
             {/* Identity */}
             <div className="min-w-0 flex-1 space-y-2">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
                   <h1 className="text-2xl font-semibold text-gray-900">{faculty.name}</h1>
                   {faculty.title && (
                     <p className="text-sm text-gray-500 mt-0.5">{formatFacultyTitle(faculty.title)}</p>
                   )}
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
                   {faculty.unit && (
-                    <span className="text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white bg-crimson">
+                    <span className="inline-block mt-1.5 text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 text-white bg-crimson">
                       {faculty.unit}
                     </span>
                   )}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {savedIds.has(id) && (() => {
                     const currentStatus = statusMap.get(id) ?? 'interested'
                     const currentOption = FACULTY_STATUS_OPTIONS.find(o => o.value === currentStatus) ?? FACULTY_STATUS_OPTIONS[0]
