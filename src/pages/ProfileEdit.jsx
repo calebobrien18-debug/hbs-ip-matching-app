@@ -18,20 +18,20 @@ function InputQualityBadge({ text, label }) {
   if (!text || wc === 0) {
     return (
       <span className="inline-flex items-center gap-1 text-xs text-red-600 font-medium">
-        <span>✗</span> {label} — missing
+        <span>✗</span> {label}: missing
       </span>
     )
   }
   if (wc < 100) {
     return (
       <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
-        <span>⚠</span> {label} — limited ({wc} words)
+        <span>⚠</span> {label}: limited ({wc} words)
       </span>
     )
   }
   return (
     <span className="inline-flex items-center gap-1 text-xs text-green-700 font-medium">
-      <span>✓</span> {label} — strong ({wc} words)
+      <span>✓</span> {label}: strong ({wc} words)
     </span>
   )
 }
@@ -117,7 +117,7 @@ function MatchingInputsPanel({ resumeText, linkedinText, topicsToExplore, onTopi
           <div className="border-t border-gray-100 pt-4 space-y-2">
             <label className="block text-xs font-semibold text-gray-700">
               Topics I want to explore at HBS
-              <span className="font-normal text-gray-400 ml-1">(optional — supplements your resume for matching)</span>
+              <span className="font-normal text-gray-400 ml-1">(optional, supplements your resume for matching)</span>
             </label>
             <textarea
               value={topicsToExplore}
@@ -266,7 +266,7 @@ export default function ProfileEdit() {
         </div>
 
         <div className="mb-6 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700">
-          Previously uploaded files are saved — only upload a new file if you want to replace an existing one.
+          Previously uploaded files are saved. Upload a new file only if you want to replace an existing one.
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">

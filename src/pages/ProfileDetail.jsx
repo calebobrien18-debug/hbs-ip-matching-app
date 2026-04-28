@@ -122,7 +122,7 @@ export default function ProfileDetail() {
           <Row label="Program">
             {profile.program}
             {profile.program === 'Other' && profile.program_other && (
-              <span className="text-gray-400"> — {profile.program_other}</span>
+              <span className="text-gray-400"> ({profile.program_other})</span>
             )}
           </Row>
           <Row label="Graduation year">{profile.graduation_year && `Class of ${profile.graduation_year}`}</Row>

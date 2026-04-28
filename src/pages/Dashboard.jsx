@@ -51,7 +51,7 @@ function LaunchChecklist({ profiles, matches, savedFaculty, savedIdeas, emailDra
       <div className="rounded-xl bg-green-50 border border-green-200 px-5 py-4 flex items-center gap-3">
         <span className="text-green-600 text-lg">✓</span>
         <div>
-          <p className="text-sm font-semibold text-green-900">You're on track — all key steps complete</p>
+          <p className="text-sm font-semibold text-green-900">You're on track. All key steps complete.</p>
           <p className="text-xs text-green-700 mt-0.5">Head to <Link to="/saved-ideas" className="underline font-medium">Saved Ideas</Link> to draft and refine your outreach emails.</p>
         </div>
       </div>
@@ -141,6 +141,7 @@ export default function Dashboard() {
   const [teachingCourses, setTeachingCourses] = useState([])
   const [teachingLoading, setTeachingLoading] = useState(false)
   const [emailDraftCount, setEmailDraftCount] = useState(0)
+  const [savedDraftCount, setSavedDraftCount] = useState(0)
 
   useEffect(() => {
     if (!session) return
@@ -225,6 +226,16 @@ export default function Dashboard() {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', session.user.id)
       .then(({ count }) => setEmailDraftCount(count ?? 0))
+  }, [session])
+
+  // Load saved email draft count for dashboard badge
+  useEffect(() => {
+    if (!session) return
+    supabase
+      .from('saved_email_drafts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .then(({ count }) => setSavedDraftCount(count ?? 0))
   }, [session])
 
   // Load saved faculty details
@@ -362,7 +373,7 @@ export default function Dashboard() {
             <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
               <p className="text-sm font-medium text-gray-600">No profile yet</p>
               <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
-                Your profile is the foundation — matching, case ideas, and email drafts all draw from it.
+                Your profile is the foundation: matching, case ideas, and email drafts all draw from it.
               </p>
               <button
                 type="button"
@@ -583,10 +594,17 @@ export default function Dashboard() {
               <LightbulbIcon className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
               Saved Case Study Ideas
             </h2>
-            {savedIdeas.length > 0
-              ? <Link to="/saved-ideas" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">View library →</Link>
-              : <Link to="/match"       className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">Explore matches →</Link>
-            }
+            <div className="flex items-center gap-3">
+              {savedDraftCount > 0 && (
+                <Link to="/saved-ideas" className="text-xs text-gray-400 hover:text-gray-600 transition-opacity">
+                  {savedDraftCount} saved draft{savedDraftCount !== 1 ? 's' : ''} →
+                </Link>
+              )}
+              {savedIdeas.length > 0
+                ? <Link to="/saved-ideas" className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">View library →</Link>
+                : <Link to="/match"       className="text-xs font-medium text-crimson hover:opacity-70 transition-opacity">Explore matches →</Link>
+              }
+            </div>
           </div>
 
           {savedIdeasLoading ? (

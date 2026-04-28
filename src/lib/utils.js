@@ -3,6 +3,17 @@ export function initials(name) {
   return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
 }
 
+/**
+ * Inserts ". " wherever a lowercase letter runs directly into an uppercase letter
+ * with no space between them — the fingerprint of concatenated HBS title strings
+ * (e.g. "...AdministrationPeter O. Crisp..." → "...Administration. Peter O. Crisp...").
+ * Safe for normal single-title strings (no-op when no such transition exists).
+ */
+export function formatFacultyTitle(title) {
+  if (!title) return title
+  return title.replace(/([a-z])([A-Z])/g, '$1. $2')
+}
+
 /** Returns the last word of a display name for alphabetical sorting. */
 export function lastName(name) {
   if (!name) return ''

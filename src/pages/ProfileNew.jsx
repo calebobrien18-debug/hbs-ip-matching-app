@@ -280,7 +280,7 @@ export function UploadsSection({
               <li>The PDF will download automatically to your device</li>
             </ol>
             <p className="mt-1.5 text-gray-400">
-              This exports your full profile including experience, education, and skills — much richer than a URL alone.
+              This exports your full profile including experience, education, and skills, which is much richer than a URL alone.
             </p>
           </InfoTooltip>
         </div>
@@ -295,7 +295,7 @@ export function UploadsSection({
 
       <Field label="Additional background" hint="optional">
         <textarea rows={3}
-          placeholder="Share anything relevant to the matching process that isn't captured in your resume or LinkedIn — e.g. research you've done outside of work, personal projects, languages, lived experiences, or areas of curiosity you're actively exploring…"
+          placeholder="Share anything relevant to the matching process that isn't captured in your resume or LinkedIn, e.g. research outside of work, personal projects, languages, lived experiences, or areas of curiosity you're actively exploring…"
           value={form.additional_background} onChange={set('additional_background')}
           className={inputCls + ' resize-none'} />
       </Field>
@@ -312,7 +312,7 @@ function ExtractionStatus({ state }) {
     </p>
   )
   if (state === 'done') return (
-    <p className="text-xs text-green-700 mt-1">✓ Text extracted — this file will be used for matching</p>
+    <p className="text-xs text-green-700 mt-1">✓ Text extracted. This file will be used for matching.</p>
   )
   if (state === 'error') return (
     <p className="text-xs text-amber-600 mt-1">Could not extract text from this PDF. The file will still be uploaded.</p>
@@ -326,7 +326,7 @@ function UploadedBadge({ label, hasText }) {
   return (
     <div className="mb-1.5 space-y-1">
       <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1 inline-flex items-center gap-1">
-        <span>✓</span> {label} — upload a new file to replace it
+        <span>✓</span> {label}. Upload a new file to replace it.
       </p>
       {!hasText && (
         <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1 inline-flex items-center gap-1">
@@ -365,7 +365,7 @@ export function Field({ label, required, hint, children }) {
       <label className="block text-sm font-medium text-gray-700">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
-        {hint && <span className="text-gray-400 font-normal ml-1.5">— {hint}</span>}
+        {hint && <span className="text-gray-400 font-normal ml-1.5">({hint})</span>}
       </label>
       {children}
     </div>

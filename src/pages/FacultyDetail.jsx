@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, isNavContent, sanitizeDescription, groupCourseRows } from '../lib/utils'
+import { initials, isNavContent, sanitizeDescription, groupCourseRows, formatFacultyTitle } from '../lib/utils'
 import { BookmarkIcon } from '../components/Icons'
 
 const FACULTY_STATUS_OPTIONS = [
@@ -142,7 +142,7 @@ export default function FacultyDetail() {
                 <div>
                   <h1 className="text-2xl font-semibold text-gray-900">{faculty.name}</h1>
                   {faculty.title && (
-                    <p className="text-sm text-gray-500 mt-0.5">{faculty.title}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{formatFacultyTitle(faculty.title)}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -180,7 +180,7 @@ export default function FacultyDetail() {
                                     pointer-events-none z-10 leading-snug shadow-lg">
                       {savedIds.has(id)
                         ? 'Remove from shortlist'
-                        : 'Save to shortlist — track this professor on your Dashboard'}
+                        : 'Save to shortlist. Track this professor on your Dashboard.'}
                     </div>
                   </div>
                 </div>

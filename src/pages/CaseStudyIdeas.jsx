@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth } from '../lib/hooks'
-import { initials } from '../lib/utils'
+import { initials, formatFacultyTitle } from '../lib/utils'
 import { STRENGTH_STYLES, STRENGTH_LABELS, DAILY_LIMIT, EMAIL_DAILY_LIMIT } from '../lib/constants'
 import { LightbulbIcon, EnvelopeIcon, ClipboardIcon, CheckIcon, BookmarkIcon } from '../components/Icons'
 import { invokeEdgeFunction } from '../lib/edgeFunction'
@@ -54,6 +54,11 @@ export default function CaseStudyIdeas() {
   const [emailsToday, setEmailsToday]                   = useState(0)
   const [copied, setCopied]                             = useState(false)
   const emailLimitReached = emailsToday >= EMAIL_DAILY_LIMIT
+
+  // Save-draft state
+  const [draftSaving, setDraftSaving]           = useState(false)
+  const [draftSaveConfirm, setDraftSaveConfirm] = useState(null) // null | existing draft id
+  const [existingDraftTone, setExistingDraftTone] = useState(null)
 
   // ── Load match data + today's run count + existing saves ─────────────────────
   useEffect(() => {
@@ -250,6 +255,51 @@ export default function CaseStudyIdeas() {
     })
   }, [draftSubject, draftBody])
 
+  const handleSaveDraft = useCallback(async (confirmedReplaceId = null) => {
+    if (!draftSubject && !draftBody) return
+    const facultyId = matchData?.faculty?.id
+    if (!facultyId) return
+
+    // If not yet confirmed, check for an existing draft with the same faculty+tone
+    if (!confirmedReplaceId) {
+      const { data: existing } = await supabase
+        .from('saved_email_drafts')
+        .select('id, tone')
+        .eq('user_id', session.user.id)
+        .eq('faculty_id', facultyId)
+        .eq('tone', draftTone)
+        .maybeSingle()
+
+      if (existing) {
+        setDraftSaveConfirm(existing.id)
+        setExistingDraftTone(existing.tone)
+        return
+      }
+    }
+
+    setDraftSaving(true)
+    const ideaIds = [...draftSelectedIds]
+
+    if (confirmedReplaceId) {
+      const { error } = await supabase
+        .from('saved_email_drafts')
+        .update({ subject: draftSubject, body: draftBody, tone: draftTone, idea_ids: ideaIds, updated_at: new Date().toISOString() })
+        .eq('id', confirmedReplaceId)
+      if (error) console.error('[CaseStudyIdeas] replace draft error:', error)
+      else trackEvent('email_draft_saved', { tone: draftTone, replaced: true })
+    } else {
+      const { error } = await supabase
+        .from('saved_email_drafts')
+        .insert({ user_id: session.user.id, faculty_id: facultyId, idea_ids: ideaIds, subject: draftSubject, body: draftBody, tone: draftTone })
+      if (error) console.error('[CaseStudyIdeas] save draft error:', error)
+      else trackEvent('email_draft_saved', { tone: draftTone })
+    }
+
+    setDraftSaveConfirm(null)
+    setExistingDraftTone(null)
+    setDraftSaving(false)
+  }, [session, matchData, draftSubject, draftBody, draftTone, draftSelectedIds])
+
   // ── Loading / not-found states ────────────────────────────────────────────────
   if (loading) return (
     <div className="min-h-screen bg-gray-50 animate-fade-in">
@@ -298,7 +348,7 @@ export default function CaseStudyIdeas() {
         {/* Explanation paragraph */}
         <p className="text-sm text-gray-600 leading-relaxed -mt-2">
           Generate draft case concepts to explore with {f?.name ?? 'this faculty member'}.
-          Each idea is a starting point — grounded in your background and their research, but meant
+          Each idea is a starting point, grounded in your background and their research, but meant
           to be shaped by you. Steer toward specific industries or topics, then save the ideas
           worth refining before you reach out.
         </p>
@@ -329,7 +379,7 @@ export default function CaseStudyIdeas() {
                     {STRENGTH_LABELS[matchData.match_strength] ?? 'Match'}
                   </span>
                 </div>
-                {f.title && <p className="text-xs text-gray-400 mt-0.5 truncate">{f.title}</p>}
+                {f.title && <p className="text-xs text-gray-400 mt-0.5 truncate">{formatFacultyTitle(f.title)}</p>}
               </div>
 
               {/* Draft email button */}
@@ -369,7 +419,7 @@ export default function CaseStudyIdeas() {
             {/* Rate limit banner */}
             {emailLimitReached && (
               <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-                You've used all {EMAIL_DAILY_LIMIT} email drafts for today — resets at midnight UTC. Your saved ideas are here when you're ready tomorrow.
+                You've used all {EMAIL_DAILY_LIMIT} email drafts for today. Resets at midnight UTC. Your saved ideas are here when you're ready tomorrow.
               </div>
             )}
 
@@ -509,27 +559,60 @@ export default function CaseStudyIdeas() {
                     className="w-full resize-y rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-crimson/30 focus:border-crimson"
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={handleCopyDraft}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer ${
-                    copied
-                      ? 'bg-green-600 text-white border-green-600'
-                      : 'bg-gray-900 text-white border-gray-900 hover:bg-gray-700'
-                  }`}
-                >
-                  {copied ? (
-                    <>
-                      <CheckIcon className="w-4 h-4" />
-                      Copied!
-                    </>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyDraft}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer ${
+                      copied
+                        ? 'bg-green-600 text-white border-green-600'
+                        : 'bg-gray-900 text-white border-gray-900 hover:bg-gray-700'
+                    }`}
+                  >
+                    {copied ? (
+                      <>
+                        <CheckIcon className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <ClipboardIcon className="w-4 h-4" />
+                        Copy to clipboard
+                      </>
+                    )}
+                  </button>
+
+                  {draftSaveConfirm ? (
+                    <div className="inline-flex items-center gap-2 text-sm">
+                      <span className="text-gray-500">Replace existing {existingDraftTone} draft?</span>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveDraft(draftSaveConfirm)}
+                        disabled={draftSaving}
+                        className="px-3 py-1.5 rounded-lg font-semibold border bg-crimson text-white border-crimson hover:opacity-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {draftSaving ? 'Replacing…' : 'Replace'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setDraftSaveConfirm(null); setExistingDraftTone(null) }}
+                        className="px-3 py-1.5 rounded-lg font-semibold border border-gray-200 text-gray-500 hover:border-gray-300 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   ) : (
-                    <>
-                      <ClipboardIcon className="w-4 h-4" />
-                      Copy to clipboard
-                    </>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveDraft(null)}
+                      disabled={draftSaving}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors cursor-pointer border-gray-200 text-gray-600 hover:border-crimson/40 hover:text-crimson disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <BookmarkIcon filled={false} className="w-4 h-4" />
+                      {draftSaving ? 'Saving…' : 'Save draft'}
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             )}
           </div>
@@ -539,7 +622,7 @@ export default function CaseStudyIdeas() {
         {matchData?.match_reasons?.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Why this match — reasons to reference in your pitch
+              Why this match: reasons to reference in your pitch
             </h2>
             <ul className="space-y-1.5">
               {matchData.match_reasons.map((reason, i) => (
@@ -573,7 +656,7 @@ export default function CaseStudyIdeas() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Steer the generator{' '}
-              <span className="font-normal text-gray-400">— optional</span>
+              <span className="font-normal text-gray-400">(optional)</span>
             </label>
             <p className="text-xs text-gray-500 mb-2">
               Suggest industries, companies, regions, time periods, or themes you'd like the case ideas to explore.
@@ -650,7 +733,7 @@ export default function CaseStudyIdeas() {
         {/* Empty state after generation */}
         {!generating && hasGenerated && ideas.length === 0 && !genError && (
           <div className="text-center py-10 text-sm text-gray-400">
-            No ideas generated this time. Add more context in the steering field above — specific industries, companies, or regions work well — and try again.
+            No ideas generated this time. Try adding specific industries, companies, or regions in the steering field above, then generate again.
           </div>
         )}
 

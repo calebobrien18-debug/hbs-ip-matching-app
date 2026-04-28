@@ -256,7 +256,7 @@ export default function CourseMatch() {
           <h1 className="text-3xl font-semibold text-gray-900">Find Elective Courses to Explore</h1>
           <p className="text-gray-500 max-w-md mx-auto">
             Match your background against every 2026–27 HBS elective and get a shortlist of courses
-            worth exploring — with concrete reasons why each one fits your goals. Use it alongside your faculty matches.
+            worth exploring, with concrete reasons why each one fits your goals. Use it alongside your faculty matches.
           </p>
         </div>
 
@@ -274,7 +274,7 @@ export default function CourseMatch() {
             <div className="px-6 pb-5 space-y-4 border-t border-gray-100">
               {[
                 { n: '1', title: 'We analyze your profile', body: 'Your professional interests, additional background, and uploaded resume and LinkedIn are all used as inputs.' },
-                { n: '2', title: 'We scan the full elective catalog', body: 'All 2026–27 HBS elective courses — across every academic area — are scored against your background.' },
+                { n: '2', title: 'We scan the full elective catalog', body: 'All 2026–27 HBS elective courses across every academic area are scored against your background.' },
                 { n: '3', title: 'You get a shortlist to explore', body: '2–5 suggested courses with concrete reasons for each fit, professor info, and scheduling details. Treat these as a starting point for your EC year planning.' },
               ].map(({ n, title, body }) => (
                 <div key={n} className="flex gap-4 pt-4 first:pt-4">
@@ -381,7 +381,7 @@ export default function CourseMatch() {
                 type="button"
                 onClick={handleRun}
                 disabled={runsToday >= DAILY_LIMIT}
-                title={runsToday >= DAILY_LIMIT ? 'Daily limit reached — resets at midnight UTC' : undefined}
+                title={runsToday >= DAILY_LIMIT ? 'Daily limit reached. Resets at midnight UTC.' : undefined}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-semibold transition-colors ${
                   runsToday >= DAILY_LIMIT
                     ? 'border-gray-200 text-gray-300 cursor-not-allowed'
@@ -453,7 +453,7 @@ export default function CourseMatch() {
                     You have {strongCount} strong course {strongCount === 1 ? 'match' : 'matches'}.
                   </p>
                   <p className="text-sm text-green-700 mt-0.5">
-                    These align most directly with your background — consider prioritizing them in your EC year planning.
+                    These align most directly with your background; consider prioritizing them in your EC year planning.
                   </p>
                 </div>
               </div>
@@ -463,7 +463,7 @@ export default function CourseMatch() {
             <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 text-sm text-indigo-800">
               <strong>Tip:</strong> If a course's professor also appears in your{' '}
               <a href="/match" className="underline hover:text-indigo-600 font-medium">faculty matches</a>,
-              that overlap is a meaningful signal — they share your research interests <em>and</em> teach in your area.
+              that overlap is a meaningful signal: they share your research interests <em>and</em> teach in your area.
               That's a stronger starting point for outreach.
             </div>
           </div>
@@ -542,7 +542,7 @@ export default function CourseMatch() {
             </div>
             <p className="text-sm font-medium text-gray-600">No courses found for this run</p>
             <p className="text-xs text-gray-400 mt-1 mb-4">
-              The matching didn't find strong fits this time. Add specific areas or interests in the steering field above and re-run — or enrich your profile with more background detail.
+              The matching didn't find strong fits this time. Add specific areas or interests in the steering field above and re-run, or enrich your profile with more background detail.
             </p>
             <button
               type="button"

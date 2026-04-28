@@ -183,10 +183,13 @@ export default function Landing() {
 
             {/* Email/password — secondary */}
             {signupSuccess ? (
-              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800">
-                <p className="font-semibold mb-1">Check your inbox</p>
+              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 space-y-2">
+                <p className="font-semibold">Check your inbox</p>
                 <p className="text-green-700">
                   We sent a confirmation link to <span className="font-medium">{email}</span>. Click it to activate your account, then sign in.
+                </p>
+                <p className="text-xs text-green-600 border-t border-green-200 pt-2">
+                  The email comes from <strong className="font-medium">Supabase</strong> (our auth provider). If you don't see it within a minute or two, check your spam or junk folder.
                 </p>
               </div>
             ) : (
@@ -221,6 +224,13 @@ export default function Landing() {
                     ? (mode === 'signup' ? 'Creating account…' : 'Signing in…')
                     : (mode === 'signup' ? 'Create account' : 'Sign in')}
                 </button>
+
+                {mode === 'signup' && (
+                  <p className="text-[11px] text-gray-400 text-center leading-relaxed pt-0.5">
+                    A confirmation email will be sent by <strong className="font-medium text-gray-500">Supabase</strong> (our auth provider).
+                    If you don't see it, check your spam folder.
+                  </p>
+                )}
 
                 <p className="text-center text-xs text-gray-400 pt-0.5">
                   {mode === 'signin' ? (

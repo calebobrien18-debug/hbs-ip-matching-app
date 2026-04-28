@@ -301,8 +301,8 @@ export default function Matching() {
           </div>
           <h1 className="text-3xl font-semibold text-gray-900">Find Your Matches</h1>
           <p className="text-gray-500 max-w-md mx-auto">
-            Review your profile against every HBS faculty member's research, publications, and courses
-            — then get a shortlist of thought partners to explore, starting with the strongest fits.
+            Review your profile against every HBS faculty member's research, publications, and courses,
+            then get a ranked shortlist of thought partners to explore, starting with the strongest fits.
           </p>
         </div>
 
@@ -321,7 +321,7 @@ export default function Matching() {
               {[
                 { n: '1', title: 'We analyze your profile', body: 'Your stated interests, additional background, and uploaded resume and LinkedIn PDF are all used as inputs.' },
                 { n: '2', title: 'We scan faculty research', body: "Every HBS faculty member's research areas, publications, case studies, and courses are compared against your background." },
-                { n: '3', title: 'You get a ranked shortlist', body: 'Up to 6 faculty are surfaced with specific reasons and concrete collaboration ideas — a starting point, not a final answer.' },
+                { n: '3', title: 'You get a ranked shortlist', body: 'Up to 6 faculty are surfaced with specific reasons and concrete collaboration ideas. Treat it as a starting point, not a final answer.' },
               ].map(({ n, title, body }) => (
                 <div key={n} className="flex gap-4 pt-4 first:pt-4">
                   <div className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{n}</div>
@@ -409,7 +409,7 @@ export default function Matching() {
                 type="button"
                 onClick={handleMatch}
                 disabled={runsToday >= DAILY_LIMIT}
-                title={runsToday >= DAILY_LIMIT ? 'Daily limit reached — resets at midnight UTC' : undefined}
+                title={runsToday >= DAILY_LIMIT ? 'Daily limit reached. Resets at midnight UTC.' : undefined}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-semibold transition-colors ${
                   runsToday >= DAILY_LIMIT
                     ? 'border-gray-200 text-gray-300 cursor-not-allowed'
@@ -451,7 +451,7 @@ export default function Matching() {
               </p>
               <p className="text-sm text-green-700 mt-0.5">
                 {strongCount > 0
-                  ? `${strongCount} strong match${strongCount > 1 ? 'es' : ''} — good starting points for outreach. Review each profile and save the ones worth pursuing.`
+                  ? `${strongCount} strong match${strongCount > 1 ? 'es' : ''}, good starting points for outreach. Review each profile and save the ones worth pursuing.`
                   : 'These faculty align with your background and interests. Browse each profile, save the ones worth pursuing, and use Case study ideas to develop your pitch.'}
               </p>
             </div>
@@ -525,7 +525,7 @@ export default function Matching() {
           <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3">
             <span className="flex-shrink-0 text-amber-500 mt-0.5">💡</span>
             <div>
-              <p className="text-sm font-semibold text-amber-900">Only exploratory matches — your profile may need more detail</p>
+              <p className="text-sm font-semibold text-amber-900">Only exploratory matches. Your profile may need more detail.</p>
               <p className="text-sm text-amber-700 mt-1">
                 To improve your next run, try adding: specific research questions or industries you want to explore,
                 faculty you already have in mind, topics from your RC year you want to build on, or an updated resume.
@@ -635,7 +635,7 @@ export default function Matching() {
               <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
                 Teaching context from your matches
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">Courses these professors teach — another lens on fit and collaboration</p>
+              <p className="text-xs text-gray-400 mt-0.5">Courses these professors teach: another lens on fit and collaboration</p>
             </div>
 
             {coursesLoading ? (
@@ -792,7 +792,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
         {/* Match reasons */}
         {match.match_reasons?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Why this match — starting points</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Why this match: starting points</p>
             <ul className="space-y-1.5">
               {(showAllReasons ? match.match_reasons : match.match_reasons.slice(0, 2)).map((reason, i) => (
                 <li key={i} className="flex gap-2 text-sm text-gray-700 leading-snug">
@@ -866,7 +866,7 @@ function MatchCard({ match, isSaved, onSaveToggle, canUnmatch, onUnmatch, facult
             <div className="absolute left-0 top-full mt-1 w-52 rounded-lg bg-gray-800 text-white text-xs
                             px-2.5 py-2 opacity-0 group-hover/save-tip:opacity-100 transition-opacity
                             pointer-events-none z-10 leading-snug shadow-lg">
-              {isSaved ? 'Remove from shortlist' : 'Save to shortlist — track this professor on your Dashboard'}
+              {isSaved ? 'Remove from shortlist' : 'Save to shortlist. Track this professor on your Dashboard.'}
             </div>
           </div>
 

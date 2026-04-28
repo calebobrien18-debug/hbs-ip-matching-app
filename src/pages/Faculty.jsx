@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, lastName, isNavContent } from '../lib/utils'
+import { initials, lastName, isNavContent, formatFacultyTitle } from '../lib/utils'
 import { SearchIcon, ChevronIcon, BookmarkIcon } from '../components/Icons'
 
 // Short display labels for unit filter pills
@@ -103,15 +103,13 @@ export default function Faculty() {
     })
   }, [faculty, tagsByFaculty, query, selectedUnit, selectedTags])
 
-  // Sort — unit filter always shows A-Z regardless of the sort selector
   const sorted = useMemo(() => {
     const arr = [...filtered]
-    const effectiveSort = selectedUnit ? 'name-asc' : sortBy
-    if (effectiveSort === 'name-desc') {
+    if (sortBy === 'name-desc') {
       return arr.sort((a, b) => lastName(b.name).localeCompare(lastName(a.name)))
     }
     return arr.sort((a, b) => lastName(a.name).localeCompare(lastName(b.name)))
-  }, [filtered, sortBy, selectedUnit])
+  }, [filtered, sortBy])
 
   const hasFilters = query || selectedUnit || selectedTags.size > 0
 
@@ -436,7 +434,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
                         pointer-events-none z-10 leading-snug shadow-lg">
           {isSaved
             ? 'Remove from shortlist'
-            : 'Save to shortlist — track this professor on your Dashboard'}
+            : 'Save to shortlist. Track this professor on your Dashboard.'}
         </div>
       </div>
 
@@ -466,7 +464,7 @@ function FacultyCard({ faculty: f, tags, selectedTags, popularTagsSet, isSaved, 
         <div className="min-w-0 pr-6">
           <p className="font-semibold text-gray-900 text-sm leading-snug truncate">{f.name}</p>
           {f.title && (
-            <p className="text-xs text-gray-500 leading-snug line-clamp-2">{f.title}</p>
+            <p className="text-xs text-gray-500 leading-snug line-clamp-2">{formatFacultyTitle(f.title)}</p>
           )}
         </div>
       </div>
