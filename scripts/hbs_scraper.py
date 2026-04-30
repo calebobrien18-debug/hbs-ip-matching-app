@@ -50,6 +50,10 @@ DEBUG             = False  # set True to save the first profile's HTML for inspe
 START_FROM        = 0     # set to N to skip the first N faculty (useful for resuming)
 HEADLESS          = False  # False = real visible browser; much harder for Cloudflare to block
 
+# When non-empty, only scrape these hbs_fac_ids and write to a separate output file.
+# Leave empty (set()) to run the full faculty list.
+FILTER_IDS: set[str] = set()
+
 # ── Faculty list ──────────────────────────────────────────────────────────────
 
 def load_faculty() -> list[tuple[str, str]]:
@@ -188,6 +192,8 @@ _PUB_ARTIFACT_PATTERNS = [
     re.compile(r"\bView Details\b"),
     re.compile(r"\bEds?\.\b"),
     re.compile(r"\bet al\b", re.I),
+    re.compile(r"\bBooks\s+Books\b"),
+    re.compile(r"\bJournal Articles\s+Journal Articles\b"),
 ]
 
 
@@ -570,8 +576,13 @@ def _dedup_pubs(pubs: list) -> list:
 def main():
     faculty_list = load_faculty()
 
-    if START_FROM:
-        faculty_list = faculty_list[START_FROM:]
+    if FILTER_IDS:
+        faculty_list = [(fid, name) for fid, name in faculty_list if fid in FILTER_IDS]
+        output_file = Path(__file__).parent / "enriched_faculty_targeted.json"
+    else:
+        output_file = OUTPUT_FILE
+        if START_FROM:
+            faculty_list = faculty_list[START_FROM:]
 
     print("HBS Faculty Enrichment Scraper (Playwright)")
     print("=" * 50)
@@ -664,7 +675,7 @@ def main():
         context.close()
         browser.close()
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
     total_pubs   = sum(len(r["publications"]) for r in results)
@@ -682,9 +693,12 @@ def main():
     print(f"   Units scraped:        {total_units}")
     print(f"   Emails scraped:       {total_emails}")
     print(f"   Publications scraped: {total_pubs}")
-    print(f"   Output: {OUTPUT_FILE}")
+    print(f"   Output: {output_file}")
     print()
-    print("Next step: node scripts/import-enriched.mjs")
+    if FILTER_IDS:
+        print("Next step: node scripts/import-targeted-bios.mjs")
+    else:
+        print("Next step: node scripts/import-enriched.mjs")
 
 
 if __name__ == "__main__":

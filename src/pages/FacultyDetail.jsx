@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import NavBar from '../components/NavBar'
 import { useRequireAuth, useSavedFaculty } from '../lib/hooks'
-import { initials, isNavContent, sanitizeDescription, groupCourseRows, formatFacultyTitle } from '../lib/utils'
+import { initials, isNavContent, isCorruptedBio, sanitizeDescription, groupCourseRows, formatFacultyTitle } from '../lib/utils'
 import { BookmarkIcon } from '../components/Icons'
 
 const FACULTY_STATUS_OPTIONS = [
@@ -205,7 +205,7 @@ export default function FacultyDetail() {
           </div>
 
           {/* Bio */}
-          {faculty.bio && !isNavContent(faculty.bio) && (
+          {faculty.bio && !isNavContent(faculty.bio) && !isCorruptedBio(faculty.bio) && (
             <p className="mt-5 text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
               {truncateBio(stripBioHeader(faculty.bio, faculty.name, faculty.title), 4)}
             </p>

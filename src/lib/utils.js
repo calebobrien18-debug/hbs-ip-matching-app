@@ -35,6 +35,14 @@ export function isNavContent(text) {
   return NAV_PHRASES.filter(p => text.includes(p)).length >= 2
 }
 
+const CORRUPT_BIO_PREFIXES = ['Books Books', 'Journal Articles Journal Articles', 'Faculty & Research Faculty']
+
+/** Returns true when a bio string is a publication list or nav chrome captured by the scraper. */
+export function isCorruptedBio(text) {
+  if (!text) return false
+  return CORRUPT_BIO_PREFIXES.some(p => text.startsWith(p))
+}
+
 /**
  * Conservative display-side sanitizer for course descriptions.
  * Trims obvious metadata blobs at render time as a backstop against
