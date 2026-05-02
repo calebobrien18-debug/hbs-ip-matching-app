@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useIsAdmin } from '../lib/hooks'
 import ProFoundLogo from './ProFoundLogo'
 
 export default function NavBar() {
   const location = useLocation()
   const navigate = useNavigate()
   const [displayName, setDisplayName] = useState('')
+  const isAdmin = useIsAdmin()
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -32,7 +34,7 @@ export default function NavBar() {
   }
 
   const navLink = (to, label) => {
-    const active = location.pathname === to
+    const active = location.pathname === to || (to === '/admin' && location.pathname.startsWith('/admin'))
     return (
       <Link
         to={to}
@@ -63,6 +65,7 @@ export default function NavBar() {
           {navLink('/dashboard', 'Dashboard')}
           {navLink('/faculty', 'Faculty')}
           {navLink('/match', 'Matches')}
+          {isAdmin && navLink('/admin', 'Admin')}
         </div>
 
         {/* Right: user + sign out */}
