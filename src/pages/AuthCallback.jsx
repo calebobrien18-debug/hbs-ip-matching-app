@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { trackEvent } from '../lib/analytics'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -16,6 +17,7 @@ export default function AuthCallback() {
     }
 
     supabase.auth.setSession({ access_token, refresh_token }).then(({ error }) => {
+      if (!error) trackEvent('session_started')
       navigate(error ? '/' : '/dashboard', { replace: true })
     })
   }, [navigate])

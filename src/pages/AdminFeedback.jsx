@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useIsAdmin } from '../lib/hooks'
 import NavBar from '../components/NavBar'
+import { AdminNav } from './AdminDashboard'
 
 function formatDate(ts) {
   return new Date(ts).toLocaleString('en-US', {
@@ -62,6 +63,9 @@ export default function AdminFeedback() {
       <NavBar />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-10 space-y-6">
+
+        {/* Admin nav */}
+        <AdminNav />
 
         {/* Header */}
         <div className="flex items-baseline justify-between">

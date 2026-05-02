@@ -44,6 +44,7 @@ import Matching from './pages/Matching.jsx'
 import CaseStudyIdeas from './pages/CaseStudyIdeas.jsx'
 import SavedIdeas from './pages/SavedIdeas.jsx'
 import AdminFeedback from './pages/AdminFeedback.jsx'
+import AdminDashboard from './pages/AdminDashboard.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -67,6 +68,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/courses"         element={<Navigate to="/match" replace />} />
         <Route path="/case-ideas/:matchId" element={<Layout><CaseStudyIdeas /></Layout>} />
         <Route path="/saved-ideas"         element={<Layout><SavedIdeas /></Layout>} />
+        <Route path="/admin"               element={<AdminDashboard />} />
         <Route path="/admin/feedback"      element={<AdminFeedback />} />
       </Routes>
     </BrowserRouter>
